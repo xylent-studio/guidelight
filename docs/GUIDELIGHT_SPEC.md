@@ -2,6 +2,17 @@
 *Xylent Studios*
 
 ---
+**Document Metadata**
+
+| Field | Value |
+|-------|-------|
+| **Status** | ✅ Active |
+| **Last Updated** | 2025-11-19 |
+| **Owner** | Justin (State of Mind) |
+| **Audience** | Product, Engineering, State of Mind Staff |
+| **Purpose** | Complete product specification: features, user flows, data model, permissions, UX guidelines |
+
+---
 
 ## 1. Purpose & Goals
 
@@ -73,23 +84,52 @@ Non-goals for MVP:
 **Permissions & Auth (MVP):**
 
 - All staff roles authenticate via Supabase Auth (email + password); there is no anonymous access to any route.
-- Budtenders can view all staff profiles, edit only their own profile fields, and create/update/deactivate only their own picks.
-- Vault techs have the same permissions as budtenders. They are back-of-house inventory specialists but appear the same as other staff in the UI for MVP.
-- Managers can view and edit every staff profile, toggle `is_active`, and create/update/deactivate picks for any staff member.
-- Customer View is only available within the authenticated session; staff switch between Staff View (edit) and Customer View (display) without logging out.
+- **Login/Logout:**
+  - Staff log in with their email + password via a dedicated login page.
+  - Session persists across page refreshes.
+  - Logout button available in app header; clears session and returns to login.
+- **Budtenders & Vault Techs:**
+  - View all staff profiles.
+  - Edit only their own profile fields.
+  - Create/update/deactivate only their own picks.
+  - Vault techs are back-of-house inventory specialists but appear the same as other staff in the UI for MVP.
+- **Managers:**
+  - All budtender/vault tech permissions, plus:
+  - **Invite new staff:** Create budtender profile (name, email, role) → Supabase sends invite email with magic link → New staff member sets their own password.
+  - **Manage staff:** View all staff (active + inactive), edit any profile, toggle `is_active`, hard delete with double confirmation.
+  - View and edit every staff member's picks.
+  - Create/update/deactivate picks for any staff member.
+- **Customer View** is only available within the authenticated session; staff switch between Staff View (edit) and Customer View (display) without logging out.
 
 ---
 
 ### 2.2 Key Flows
 
-#### Flow A – Budtender updating their picks
+#### Flow A – Manager invites new staff member
 
-1. Open Guidelight in a browser on the POS or personal device.
+1. Manager logs into Guidelight.
+2. Navigates to **Staff Management** (manager-only section).
+3. Clicks **"Invite Staff Member"**.
+4. Fills out invite form:
+   - Name (required)
+   - Email (required)
+   - Role: budtender, vault_tech, or manager
+   - Optional: archetype, ideal_high, tolerance_level
+5. Clicks **"Send Invite"**.
+6. System creates budtender profile in database.
+7. **MVP:** App displays: "Profile created. Send invite link to [email]." Manager manually sends Supabase invite link via Dashboard.
+   - **Future:** Integrate Supabase Admin API to auto-send invite emails from the app.
+8. New staff member receives invite email, clicks magic link, sets their password (Supabase enforces strength requirements).
+9. On first login, their profile is already ready; they can immediately start adding picks.
+
+#### Flow B – Budtender updating their picks
+
+1. Log in to Guidelight with email + password.
 2. Switch to **Staff View**.
-3. Select their name from the budtender dropdown.
+3. Select their name from the budtender dropdown (auto-selected if it's their profile).
 4. For each category they care about:
    - Add or edit a pick using a small form.
-   - Set vibe tags, time of day, experience level, budget, and “why I love it”.
+   - Set vibe tags, time of day, experience level, budget, and "why I love it".
 5. Save. Changes reflect immediately in Customer View.
 
 Expected frequency:
@@ -97,7 +137,7 @@ Expected frequency:
 - Initial setup once per budtender.
 - Quick adjustments weekly or when menu changes.
 
-#### Flow B – Using Customer View during a sale
+#### Flow C – Using Customer View during a sale
 
 1. Budtender opens Guidelight, selects **Customer View**.
 2. Selects their name (or the coworker the customer trusts most).
@@ -234,11 +274,13 @@ create table public.budtenders (
   auth_user_id uuid references auth.users (id),
   name text not null,
   nickname text,
+  slug text unique,
   role text not null default 'budtender'
     check (role in ('budtender','vault_tech','manager')),
   archetype text,         -- e.g. "Terp Hunter", "Heavy Hitter"
   ideal_high text,        -- free text
   tolerance_level text,   -- e.g. "daily user", "lightweight"
+  picks_note_override text,
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -255,6 +297,8 @@ Roles:
 Managers are still customer-facing budtenders; in the UI (including Customer View) they look identical to others so customers never see role differences.
 
 `auth_user_id` links each staff profile to the Supabase Auth user record to enforce permissions, and the unique constraint enforces a 1:1 mapping between `auth.users.id` and `budtenders.id`.
+
+`slug` is optional and provides clean URLs (e.g., `/board/justin`). A partial unique index on lowercased slug ensures no duplicates when set. `picks_note_override` lets each budtender customize the intro text for Customer View boards; if null, the default note template is used.
 
 ### 4.2 `categories`
 
@@ -293,6 +337,7 @@ create table public.picks (
 
   product_name text not null,
   brand text,
+  category_line text,
 
   product_type text not null check (
     product_type in (
@@ -319,6 +364,7 @@ create table public.picks (
   ),
 
   special_role text,          -- any of the slot labels, nullable
+  doodle_key text,
 
   why_i_love_it text,
   rank int not null default 1,
@@ -337,6 +383,8 @@ create unique index picks_active_special_role_unique
 ```
 
 For each staff member, only one active pick can occupy a given `special_role`, enforced by the partial unique index above. `rank` is a soft sort key for ordering cards within a category and is not constrained to be unique in the database.
+
+`category_line` stores the short descriptive string shown on Customer View cards (e.g., “Indica Hybrid Flower”). `doodle_key` maps to small SVG icons (sun, moon, can, etc.) used on the Budtender Picks board; it is optional.
 
 MVP RLS / security model:
 

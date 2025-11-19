@@ -96,11 +96,19 @@ UX goals:
 - Feels like filling a tiny profile, not corporate paperwork.  
 - Safe to leave open on POS (no scary admin controls).
 
-Staff roles share the same Supabase Auth login system:
+**Authentication & User Management:**
+
+All staff authenticate via Supabase Auth (email + password):
+
+- **Login:** Staff log in with their email and password. Session persists across page refreshes.
+- **Logout:** Logout button in app header clears session and returns to login page.
+- **Invite System (Edge Function):** Managers invite new staff directly from the app with a simple form (email + name + role). A Supabase Edge Function creates the auth user, links a budtender profile, and sends an invite email with a magic link—all in one transaction. New staff click the link, are automatically logged in, and can optionally set a password later. No Supabase Dashboard access required.
+
+**Staff Roles:**
 
 - **Budtenders** – front-of-house staff who manage their own picks and present Customer View.
 - **Vault Techs / Inventory Specialists** – back-of-house staff who behave like budtenders in-app but focus on supply-side favorites.
-- **Managers** – can manage any staff member’s picks and toggle staff `is_active`.
+- **Managers** – can invite/manage all staff, edit any staff member's profile and picks, and toggle staff `is_active` status or hard delete with confirmation.
 
 ---
 
@@ -110,6 +118,11 @@ Staff roles share the same Supabase Auth login system:
   - Vite
   - React
   - TypeScript
+
+- **UI / Styling:**
+  - **Tailwind CSS** – utility-first CSS framework for rapid, consistent styling.
+  - **shadcn/ui** – accessible, composable React components built on Radix UI primitives (components live in `src/components/ui`).
+  - **Radix Colors** – semantic color palette (slate neutrals, jade primary) providing a shared design system optimized for both POS displays and mobile devices.
 
 - **Backend / Data:**
   - Supabase (Postgres + `@supabase/supabase-js`)
@@ -148,6 +161,30 @@ Guidelight deliberately models what staff say out loud, not the full inventory. 
 
 ## Getting Started (Dev)
 
+### Prerequisites
+
+- **Node.js 20.19.0 or newer.** Vite 7 requires Node ≥ 20.19 (22.12+ also supported). The repo includes an `.nvmrc` pinned to `20.19.0`; run `nvm use` (or your preferred version manager) before installing dependencies.
+- **npm 10+** (ships with the Node versions above).
+- **Supabase project** with the schema from `docs/GUIDELIGHT_SPEC.md` applied.
+
+### Bootstrap: First Manager Setup
+
+Before anyone can use Guidelight, create the first manager account manually via Supabase Dashboard:
+
+1. **Supabase Dashboard → Authentication → Users** → Click "Add user"
+2. Enter email + password for the first manager
+3. Copy the user's UUID from the `id` column
+4. **Table Editor → `budtenders` table** → Insert new row:
+   - `auth_user_id`: (paste UUID from step 3)
+   - `name`: Manager's name
+   - `role`: `manager`
+   - `is_active`: `true`
+5. Save. This manager can now log in and invite other staff.
+
+**Note:** This is a one-time manual step. After this, all staff are invited through the app.
+
+### Installation
+
 1. **Clone the repo**
 
    ```bash
@@ -163,11 +200,13 @@ Guidelight deliberately models what staff say out loud, not the full inventory. 
 
 3. **Environment variables**
 
-   Create a `.env.local` file:
+   Copy `.env.example` to `.env.local` and fill in your Supabase project values:
 
    ```bash
-   VITE_SUPABASE_URL=your-supabase-url
-   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+   cp .env.example .env.local
+   # then edit:
+   # VITE_SUPABASE_URL=...
+   # VITE_SUPABASE_ANON_KEY=...
    ```
 
    The Supabase anon key is still required for the client SDK, but every request is protected by Supabase Auth + RLS, so only logged-in staff can read or write data.

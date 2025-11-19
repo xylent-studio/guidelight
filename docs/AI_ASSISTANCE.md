@@ -1,5 +1,18 @@
 # AI Assistance & MCP Tools – Guidelight
 
+---
+**Document Metadata**
+
+| Field | Value |
+|-------|-------|
+| **Status** | ✅ Active |
+| **Last Updated** | 2025-11-19 |
+| **Owner** | Justin (State of Mind) |
+| **Audience** | Engineering |
+| **Purpose** | Guidelines for AI assistant behavior and MCP tool usage in Guidelight |
+
+---
+
 We use AI assistants (primarily in Cursor) to help with repetitive tasks,
 refactors, and keeping types/schemas honest. This document explains how those
 assistants are expected to behave on **Guidelight**.
@@ -48,14 +61,40 @@ assistants are expected to behave on **Guidelight**.
 
 ## How this fits into Guidelight
 
-- The architecture and product behavior are defined primarily in:
-  - `ARCHITECTURE_OVERVIEW.md`
-  - `GUIDELIGHT_SPEC.md`
-- The AI assistant should read those documents before making large changes, and
-  use MCP tools to *verify* assumptions rather than inventing new patterns.
-- The goal is to make Guidelight easier to maintain and evolve, not to turn
-  the project into a tooling experiment. If the MCP tools ever get in the way,
-  they can be disabled and the app should still be straightforward to work on.
-- Assume Guidelight is an internal-only app: every route requires Supabase Auth (email + password), there is no anonymous access, and Customer View is a read-only screen inside the authenticated session.
-- Roles are `budtender`, `vault_tech`, and `manager`; managers and vault techs appear in Customer View the same as budtenders, and staff permissions are enforced via Supabase Auth + RLS (budtenders/vault techs can only modify their own data, managers can modify all).
-- The Supabase anon key is required by the client SDK for authenticated sessions, but all data access is still gated by Auth + RLS—never rely on hiding the anon key for security.
+### Documentation reference
+
+- **Start here:** `docs/INDEX.md` - Central hub for all documentation
+- **Product behavior:** `docs/GUIDELIGHT_SPEC.md`
+- **Technical architecture:** `docs/ARCHITECTURE_OVERVIEW.md` (includes AuthContext, RLS policies, API structure)
+- **Design system:** `docs/GUIDELIGHT_DESIGN_SYSTEM.md` (Tailwind, shadcn/ui, Radix Colors)
+- **Code patterns:** `notes/DEV_QUICK_REFERENCE.md`
+- **Decisions log:** `notes/MVP_CRITICAL_DECISIONS.md`
+
+The AI assistant should read those documents before making large changes, and
+use MCP tools to *verify* assumptions rather than inventing new patterns.
+
+### Core principles
+
+- **Goal:** Make Guidelight easier to maintain and evolve, not turn it into a tooling experiment. If MCP tools get in the way, they can be disabled—the app should still be straightforward to work on.
+- **Access model:** Guidelight is an internal-only app. Every route requires Supabase Auth (email + password). There is no anonymous access. Customer View is a read-only mode inside the authenticated session.
+- **Roles:** `budtender`, `vault_tech`, `manager`
+  - Managers and vault techs appear in Customer View the same as budtenders (no role labels shown to customers)
+  - Vault techs are back-of-house inventory staff but behave like budtenders in the app
+- **Permissions (enforced via Supabase Auth + RLS):**
+  - Budtenders/vault techs: View all staff/picks, modify only their own profile and picks
+  - Managers: All budtender permissions, plus:
+    - **INSERT** new budtenders (for invite flow)
+    - **UPDATE** any budtender profile
+    - **DELETE** budtenders (hard delete with UI confirmation)
+    - Modify any staff member's picks
+- **Security:** The Supabase anon key is required by the client SDK for authenticated sessions, but all data access is gated by Auth + RLS—never rely on hiding the anon key for security.
+
+### Current implementation status
+
+- ✅ Database schema + RLS policies deployed (see `notes/RLS_MANAGER_POLICIES.sql` for pending manager INSERT/DELETE policies)
+- ✅ UI foundation complete (Tailwind + shadcn/ui + Radix Colors)
+- ✅ API helpers implemented (budtenders, categories, picks)
+- ✅ Customer View + Staff View wired to live data
+- 🚧 **Next:** Auth & Session Guard (Step 6), Staff Management (Step 7), QA (Step 8)
+
+See `notes/GUIDELIGHT_MVP_PROGRESS.md` for detailed progress log.
