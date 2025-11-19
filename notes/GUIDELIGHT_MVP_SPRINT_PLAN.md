@@ -1,9 +1,19 @@
 # Guidelight MVP Sprint Plan  
 *A detailed playbook for building the first working version of Guidelight in one focused day*
 
+---
+**⚠️ ARCHIVED DOCUMENT**
+
+**Status:** 🗄️ Archived / Superseded  
+**Superseded By:** `GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md`  
+**Date Archived:** 2025-11-19  
+**Reason:** This exploratory sprint plan was refined into a more structured 8-step implementation plan. Keep for historical reference only.
+
+---
+
 > **Purpose of this document**  
 > This is a long-form, detailed plan for how you (Justin) can spend a focused day building the **Guidelight** MVP using **Cursor**, **GPT-5.1**, **Claude Sonnet 4.5**, and **Codex IDE**.  
-> It’s meant to be something you can **read tonight** to get mentally ready, and **glance at tomorrow** as a guide while you work.
+> It's meant to be something you can **read tonight** to get mentally ready, and **glance at tomorrow** as a guide while you work.
 
 ---
 

@@ -1,0 +1,64 @@
+/**
+ * Guidelight Design Tokens
+ * 
+ * Base scales from Radix Colors:
+ * - Neutrals: slate (clean, professional, POS-friendly)
+ * - Primary: jade (cannabis-appropriate emerald/green, calm and readable)
+ * 
+ * These tokens provide a single source of truth for Guidelight's visual language
+ * and can be reused across future Xylent apps.
+ */
+
+@import '@radix-ui/colors/slate.css';
+@import '@radix-ui/colors/jade.css';
+@import '@radix-ui/colors/slate-dark.css';
+@import '@radix-ui/colors/jade-dark.css';
+
+:root {
+  /* Backgrounds */
+  --gl-bg: var(--slate-1);
+  --gl-bg-soft: var(--slate-2);
+  
+  /* Surfaces (cards, panels) */
+  --gl-surface: var(--slate-3);
+  
+  /* Borders */
+  --gl-border: var(--slate-6);
+  
+  /* Text */
+  --gl-text: var(--slate-12);
+  --gl-text-muted: var(--slate-11);
+  
+  /* Primary accent (jade emerald/green) */
+  --gl-primary: var(--jade-9);
+  --gl-primary-soft: var(--jade-4);
+  --gl-primary-foreground: var(--slate-1);
+  
+  /* Accent highlights */
+  --gl-accent: var(--jade-11);
+}
+
+.dark {
+  /* Backgrounds */
+  --gl-bg: var(--slate-1);
+  --gl-bg-soft: var(--slate-2);
+  
+  /* Surfaces */
+  --gl-surface: var(--slate-3);
+  
+  /* Borders */
+  --gl-border: var(--slate-6);
+  
+  /* Text */
+  --gl-text: var(--slate-12);
+  --gl-text-muted: var(--slate-11);
+  
+  /* Primary accent */
+  --gl-primary: var(--jade-9);
+  --gl-primary-soft: var(--jade-4);
+  --gl-primary-foreground: var(--slate-1);
+  
+  /* Accent highlights */
+  --gl-accent: var(--jade-11);
+}
+
