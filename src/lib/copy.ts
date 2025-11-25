@@ -44,8 +44,8 @@ export const modeToggle = {
 
 export const customerView = {
   budtenderSelector: {
-    heading: "Who's guiding this sesh?",
-    subtext: "Tap the budtender that's actually talking with the guest right now.",
+    heading: 'Budtenders & their picks',
+    subtext: 'Real people. Real lineups.',
   },
   posNote: 'POS note: Looks best on a 1920×1080 front counter screen. On smaller devices, everything scrolls.',
   empty: {
