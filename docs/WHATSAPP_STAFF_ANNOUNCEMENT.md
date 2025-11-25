@@ -6,19 +6,15 @@
 
 ---
 
-Hey team! 👋
+Hey everyone — remember that budtender picks app I mentioned a little while back? It's done and ready to go.
 
-We just launched something new for SOM — it's called Guidelight.
+It's called Guidelight. You can add your personal product recommendations, rate them, and write a quick note about why you love them. Customers see your picks organized by category — basically your own digital staff picks shelf.
 
-It's a budtender picks app where you can share your personal product recommendations with customers. You add your favorite products, rate them, and write a quick note about why you love them. Customers can then see your picks organized by category.
+If you want to get set up, talk to Justin R or catch me on shift and we'll send you an invite link. You click it, you're in — takes a couple minutes to set up your profile.
 
-Think of it like your own digital "staff picks" shelf.
+The app is at: guidelight.xylent.studio
 
-To get set up, you'll need an invite. Talk to Justin R or catch me on shift and we'll send you a link. Once you click it, you're in — takes like 2 minutes to set up your profile.
-
-The app lives at: guidelight.xylent.studio
-
-Can't wait to see everyone's picks!
+Looking forward to seeing what everyone picks.
 
 ---
 
