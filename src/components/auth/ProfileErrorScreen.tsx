@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, RefreshCw, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { auth } from '@/lib/copy';
 
 interface ProfileErrorScreenProps {
   message: string;
@@ -38,7 +39,7 @@ export function ProfileErrorScreen({ message }: ProfileErrorScreenProps) {
             <AlertCircle className="h-6 w-6 text-amber-500" />
           </div>
           <CardTitle className="text-xl text-zinc-100">
-            Account Setup Required
+            {auth.profileError.title}
           </CardTitle>
           <CardDescription className="text-zinc-400">
             {message}
@@ -46,8 +47,7 @@ export function ProfileErrorScreen({ message }: ProfileErrorScreenProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-zinc-500 text-center">
-            If you think this is a mistake, try refreshing. Still stuck? 
-            Ask your manager to check your staff profile.
+            {auth.profileError.helpText}
           </p>
           
           <div className="flex flex-col gap-2">
@@ -57,7 +57,7 @@ export function ProfileErrorScreen({ message }: ProfileErrorScreenProps) {
               className="w-full border-zinc-700 hover:bg-zinc-800"
             >
               <RefreshCw size={16} className="mr-1.5" />
-              Try Again
+              {auth.profileError.retry}
             </Button>
             <Button
               onClick={handleSignOut}
@@ -65,7 +65,7 @@ export function ProfileErrorScreen({ message }: ProfileErrorScreenProps) {
               className="w-full text-zinc-400 hover:text-zinc-100"
             >
               <LogOut size={16} className="mr-1.5" />
-              Sign Out
+              {auth.profileError.signOut}
             </Button>
           </div>
         </CardContent>

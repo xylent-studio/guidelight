@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Send, UserPlus } from 'lucide-react';
+import { invites as invitesCopy } from '@/lib/copy';
 
 type BudtenderRole = Database['public']['Tables']['budtenders']['Row']['role'];
 
@@ -107,7 +108,7 @@ export function InviteStaffForm({ open, onOpenChange, onSuccess }: InviteStaffFo
       }, 2000);
     } catch (err: unknown) {
       console.error('Failed to invite staff:', err);
-      setError(err instanceof Error ? err.message : 'Failed to invite staff member. Please try again.');
+      setError(err instanceof Error ? err.message : invitesCopy.failed);
     } finally {
       setLoading(false);
     }

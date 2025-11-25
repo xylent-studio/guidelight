@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Check, Key, ChevronDown, ChevronUp } from 'lucide-react';
+import { profile as profileCopy, errors } from '@/lib/copy';
 
 type BudtenderRole = Database['public']['Tables']['budtenders']['Row']['role'];
 
@@ -175,7 +176,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
       setTimeout(() => setPasswordSuccess(false), 3000);
     } catch (err: unknown) {
       console.error('Failed to set password:', err);
-      setPasswordError(err instanceof Error ? err.message : 'Failed to set password. Please try again.');
+      setPasswordError(err instanceof Error ? err.message : errors.failedToSave);
     } finally {
       setPasswordLoading(false);
     }
@@ -219,7 +220,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
       onOpenChange(false);
     } catch (err: unknown) {
       console.error('Failed to update budtender:', err);
-      setError(err instanceof Error ? err.message : 'Failed to update profile. Please try again.');
+      setError(err instanceof Error ? err.message : profileCopy.saveError);
     } finally {
       setLoading(false);
     }

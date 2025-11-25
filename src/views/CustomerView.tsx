@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { getActiveBudtenders } from '@/lib/api/budtenders';
 import { getCategories } from '@/lib/api/categories';
 import { getActivePicksForBudtender } from '@/lib/api/picks';
+import { customerView, errors } from '@/lib/copy';
 import type { Database } from '@/types/database';
 
 type Budtender = Database['public']['Tables']['budtenders']['Row'];
@@ -87,7 +88,7 @@ export function CustomerView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-text-muted">Loading the good stuff...</p>
+        <p className="text-text-muted">{customerView.loading}</p>
       </div>
     );
   }
@@ -95,9 +96,10 @@ export function CustomerView() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <p className="text-destructive">Something went wrong. Let's try that again.</p>
+        <h3 className="text-lg font-semibold text-text">{errors.networkInline.heading}</h3>
+        <p className="text-text-muted text-center max-w-md">{errors.networkInline.body}</p>
         <Button onClick={() => window.location.reload()} variant="outline">
-          Retry
+          {errors.networkInline.retry}
         </Button>
       </div>
     );
@@ -105,8 +107,9 @@ export function CustomerView() {
 
   if (budtenders.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-text-muted">No budtenders on the floor yet. Check back in a bit!</p>
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 text-center">
+        <h3 className="text-lg font-semibold text-text">{customerView.empty.heading}</h3>
+        <p className="text-text-muted max-w-md">{customerView.empty.subtext}</p>
       </div>
     );
   }
@@ -115,9 +118,12 @@ export function CustomerView() {
     <div className="flex flex-col gap-6 lg:gap-8">
       {/* Budtender Selector */}
       <section>
-        <h2 className="text-sm uppercase tracking-wider text-text-muted font-semibold mb-3">
-          Select Your Budtender
+        <h2 className="text-lg font-semibold text-text mb-1">
+          {customerView.budtenderSelector.heading}
         </h2>
+        <p className="text-sm text-text-muted mb-4">
+          {customerView.budtenderSelector.subtext}
+        </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {budtenders.map((budtender) => (
             <Button
@@ -203,7 +209,7 @@ export function CustomerView() {
             {filteredPicks.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-text-muted">
-                  {selectedBudtenderData?.name}'s {category.name.toLowerCase()} picks are coming soon. Ask them what they're into!
+                  {customerView.categoryEmpty(selectedBudtenderData?.name || 'This budtender', category.name)}
                 </p>
               </div>
             ) : (
@@ -261,6 +267,11 @@ export function CustomerView() {
           </TabsContent>
         ))}
       </Tabs>
+
+      {/* POS Note */}
+      <p className="text-xs text-text-muted/60 text-center mt-4">
+        {customerView.posNote}
+      </p>
     </div>
   );
 }

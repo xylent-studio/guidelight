@@ -18,6 +18,7 @@ import { UserPlus, Pencil, Trash2, RotateCcw, Send, Users } from 'lucide-react';
 import { InviteStaffForm } from '@/components/staff-management/InviteStaffForm';
 import { EditStaffForm } from '@/components/staff-management/EditStaffForm';
 import { DeleteStaffDialog } from '@/components/staff-management/DeleteStaffDialog';
+import { staffManagement, errors } from '@/lib/copy';
 
 type FilterMode = 'all' | 'active' | 'inactive' | 'pending';
 
@@ -136,8 +137,11 @@ export function StaffManagementView() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <p className="text-red-600 text-lg">{error}</p>
-        <Button onClick={loadStaff}>Try Again</Button>
+        <h3 className="text-lg font-semibold text-text">{errors.networkInline.heading}</h3>
+        <p className="text-text-muted text-center max-w-md">{errors.networkInline.body}</p>
+        <Button onClick={loadStaff} variant="outline">
+          {errors.networkInline.retry}
+        </Button>
       </div>
     );
   }
@@ -147,9 +151,9 @@ export function StaffManagementView() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-text mb-2">Staff Management</h2>
+          <h2 className="text-2xl font-bold text-text mb-2">{staffManagement.heading}</h2>
           <p className="text-text-muted">
-            Your team at a glance. Invite new people, tweak profiles, or adjust access.
+            {staffManagement.subtext}
           </p>
         </div>
         <Button size="lg" className="shrink-0" onClick={() => setShowInviteForm(true)}>
@@ -183,7 +187,7 @@ export function StaffManagementView() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-text-muted">Total Staff</CardTitle>
+            <CardTitle className="text-sm font-medium text-text-muted">{staffManagement.stats.totalStaff}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-text">{staff.length}</div>
@@ -191,7 +195,7 @@ export function StaffManagementView() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-text-muted">Active</CardTitle>
+            <CardTitle className="text-sm font-medium text-text-muted">{staffManagement.stats.active}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-primary">{activeCount}</div>
@@ -199,7 +203,7 @@ export function StaffManagementView() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-text-muted">Invite Pending</CardTitle>
+            <CardTitle className="text-sm font-medium text-text-muted">{staffManagement.stats.invitesPending}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-amber-500">{pendingCount}</div>
@@ -207,7 +211,7 @@ export function StaffManagementView() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-text-muted">Inactive</CardTitle>
+            <CardTitle className="text-sm font-medium text-text-muted">{staffManagement.stats.inactive}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-text-muted">{inactiveCount}</div>
@@ -231,10 +235,10 @@ export function StaffManagementView() {
           <CardContent className="py-12 text-center">
             <Users size={40} className="mx-auto mb-4 text-text-muted/40" />
             <p className="text-text-muted">
-              {filter === 'active' && 'No active staff members yet.'}
-              {filter === 'inactive' && 'No one\'s on the bench — everyone\'s active!'}
-              {filter === 'pending' && 'No pending invites. Everyone\'s signed in.'}
-              {filter === 'all' && 'No staff members yet. Invite your first team member to get started!'}
+              {filter === 'active' && staffManagement.empty.active}
+              {filter === 'inactive' && staffManagement.empty.inactive}
+              {filter === 'pending' && staffManagement.empty.pending}
+              {filter === 'all' && staffManagement.empty.all}
             </p>
           </CardContent>
         </Card>
@@ -299,7 +303,7 @@ export function StaffManagementView() {
                   {/* Active Toggle */}
                   <div className="flex items-center justify-between py-2 border-t border-border">
                     <Label htmlFor={`active-${member.id}`} className="text-sm cursor-pointer">
-                      Active Status
+                      {staffManagement.card.canSignInLabel}
                     </Label>
                     <Switch
                       id={`active-${member.id}`}
@@ -348,9 +352,10 @@ export function StaffManagementView() {
                         variant="destructive"
                         size="sm"
                         onClick={() => setDeletingStaff(member)}
+                        title={staffManagement.card.removeTooltip}
                       >
                         <Trash2 size={14} className="mr-1" />
-                        Delete
+                        Remove
                       </Button>
                     )}
                   </div>

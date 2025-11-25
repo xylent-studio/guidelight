@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Trash2 } from 'lucide-react';
+import { deleteStaff as deleteStaffCopy, errors } from '@/lib/copy';
 
 interface DeleteStaffDialogProps {
   open: boolean;
@@ -83,12 +84,12 @@ export function DeleteStaffDialog({ open, onOpenChange, onSuccess, staff }: Dele
 
     try {
       await deleteBudtender(staff.id);
-      alert(`${staff.name} has been permanently deleted.`);
+      alert(deleteStaffCopy.success(staff.name));
       onSuccess();
       onOpenChange(false);
     } catch (err: any) {
       console.error('Failed to delete budtender:', err);
-      setError(err.message || 'Failed to delete staff member. Please try again.');
+      setError(err.message || errors.failedToSave);
     } finally {
       setLoading(false);
     }
@@ -105,9 +106,9 @@ export function DeleteStaffDialog({ open, onOpenChange, onSuccess, staff }: Dele
           <>
             {/* First Confirmation */}
             <DialogHeader>
-              <DialogTitle>Delete {staff.name}?</DialogTitle>
+              <DialogTitle>{deleteStaffCopy.title(staff.name)}</DialogTitle>
               <DialogDescription>
-                This action cannot be undone.
+                {deleteStaffCopy.body(pickCount)}
               </DialogDescription>
             </DialogHeader>
 
@@ -133,7 +134,7 @@ export function DeleteStaffDialog({ open, onOpenChange, onSuccess, staff }: Dele
 
             <DialogFooter>
               <Button variant="outline" onClick={handleCancel} disabled={loading}>
-                Cancel
+                {deleteStaffCopy.cancel}
               </Button>
               <Button variant="destructive" onClick={handleInitialConfirm} disabled={loading}>
                 Yes, Continue
@@ -144,16 +145,16 @@ export function DeleteStaffDialog({ open, onOpenChange, onSuccess, staff }: Dele
           <>
             {/* Second/Final Confirmation */}
             <DialogHeader>
-              <DialogTitle className="text-red-600">Final Confirmation</DialogTitle>
+              <DialogTitle className="text-red-600">{deleteStaffCopy.finalTitle}</DialogTitle>
               <DialogDescription>
-                Last chance to cancel. This action is permanent.
+                {deleteStaffCopy.finalBody(staff.name)}
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
               <div className="p-4 bg-red-100 border-2 border-red-300 rounded-md">
                 <p className="text-sm font-semibold text-red-900 mb-2">
-                  You are about to permanently delete:
+                  You are about to permanently remove:
                 </p>
                 <p className="text-lg font-bold text-red-900">{staff.name}</p>
                 {pickCount > 0 && (
@@ -176,15 +177,15 @@ export function DeleteStaffDialog({ open, onOpenChange, onSuccess, staff }: Dele
 
             <DialogFooter>
               <Button variant="outline" onClick={handleCancel} disabled={loading}>
-                No, Go Back
+                {deleteStaffCopy.cancel}
               </Button>
               <Button variant="destructive" onClick={handleFinalConfirm} disabled={loading}>
                 {loading ? (
-                  'Deleting...'
+                  'Removing...'
                 ) : (
                   <>
                     <Trash2 size={14} className="mr-1" />
-                    Yes, Delete Permanently
+                    {deleteStaffCopy.finalConfirm}
                   </>
                 )}
               </Button>

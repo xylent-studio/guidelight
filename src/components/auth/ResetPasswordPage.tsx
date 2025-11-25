@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { errors } from '@/lib/copy';
 
 interface ResetPasswordPageProps {
   onSuccess: () => void;
@@ -50,7 +51,7 @@ export function ResetPasswordPage({ onSuccess, onBackToLogin }: ResetPasswordPag
         if (updateError.message.includes('expired') || updateError.message.includes('invalid')) {
           setError('This password reset link has expired. Please request a new one.');
         } else {
-          setError(updateError.message || 'Failed to update password. Please try again.');
+          setError(updateError.message || errors.failedToSave);
         }
         return;
       }
@@ -63,7 +64,7 @@ export function ResetPasswordPage({ onSuccess, onBackToLogin }: ResetPasswordPag
       }, 2000);
     } catch (err) {
       console.error('Password update error:', err);
-      setError('Something went wrong. Please try again.');
+      setError(errors.somethingWentWrong);
     } finally {
       setLoading(false);
     }

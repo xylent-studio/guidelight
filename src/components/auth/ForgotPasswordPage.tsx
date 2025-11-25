@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { errors } from '@/lib/copy';
 
 interface ForgotPasswordPageProps {
   onBackToLogin: () => void;
@@ -48,7 +49,7 @@ export function ForgotPasswordPage({ onBackToLogin }: ForgotPasswordPageProps) {
       setSubmitted(true);
     } catch (err) {
       console.error('Password reset error:', err);
-      setError('Something went wrong. Please try again.');
+      setError(errors.somethingWentWrong);
     } finally {
       setLoading(false);
     }

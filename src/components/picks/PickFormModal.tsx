@@ -15,6 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Check } from 'lucide-react';
 import { createPick, updatePick } from '@/lib/api/picks';
+import { picks as picksCopy } from '@/lib/copy';
 import type { Database } from '@/types/database';
 
 type Pick = Database['public']['Tables']['picks']['Row'];
@@ -142,7 +143,7 @@ export function PickFormModal({
       onOpenChange(false);
     } catch (err) {
       console.error('Error saving pick:', err);
-      setError(err instanceof Error ? err.message : 'Something went wrong. Give it another shot?');
+      setError(err instanceof Error ? err.message : picksCopy.saveError);
     } finally {
       setSaving(false);
     }

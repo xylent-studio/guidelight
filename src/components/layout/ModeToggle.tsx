@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Users, Pencil, type LucideIcon } from 'lucide-react';
+import { modeToggle } from '@/lib/copy';
 
 export type AppMode = 'customer' | 'staff';
 
@@ -11,14 +12,14 @@ interface ModeToggleProps {
 const MODES: Array<{ id: AppMode; label: string; description: string; icon: LucideIcon }> = [
   {
     id: 'customer',
-    label: 'Customer View',
-    description: 'Show your picks to guests.',
+    label: modeToggle.customer.title,
+    description: modeToggle.customer.description,
     icon: Users,
   },
   {
     id: 'staff',
-    label: 'Staff View',
-    description: 'Update your profile and picks.',
+    label: modeToggle.staff.title,
+    description: modeToggle.staff.description,
     icon: Pencil,
   },
 ];

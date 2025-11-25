@@ -7,6 +7,7 @@ import { PasswordInput } from '@/components/ui/password-input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getRememberMe, setRememberMe } from '@/lib/supabaseClient';
 import { LogIn } from 'lucide-react';
+import { auth } from '@/lib/copy';
 
 interface LoginPageProps {
   onForgotPassword?: () => void;
@@ -54,7 +55,7 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
       console.error('Login error:', err);
       // Generic error message to prevent user enumeration
       // Don't reveal whether the email exists or if the password is wrong
-      setError('Invalid email or password');
+      setError(auth.login.error);
     } finally {
       setLoading(false);
     }
@@ -65,10 +66,10 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
       <Card className="w-full max-w-md bg-surface border-border">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-text">
-            Sign in to Guidelight
+            {auth.login.title}
           </CardTitle>
           <CardDescription className="text-text-muted">
-            State of Mind Staff Portal
+            {auth.login.subtitle}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -157,7 +158,7 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
               </button>
             )}
             <p className="text-xs text-text-muted">
-              Need help? Ask your manager or ping the team.
+              {auth.login.helpText}
             </p>
           </div>
         </CardContent>

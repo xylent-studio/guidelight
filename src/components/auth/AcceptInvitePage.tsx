@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { errors } from '@/lib/copy';
 
 interface AcceptInvitePageProps {
   onComplete: () => void;
@@ -76,7 +77,7 @@ export function AcceptInvitePage({ onComplete, onBackToLogin }: AcceptInvitePage
 
       if (updateError) {
         console.error('Password update error:', updateError);
-        setError(updateError.message || 'Failed to set password. Please try again.');
+        setError(updateError.message || errors.failedToSave);
         return;
       }
 
@@ -93,7 +94,7 @@ export function AcceptInvitePage({ onComplete, onBackToLogin }: AcceptInvitePage
       }, 2000);
     } catch (err) {
       console.error('Password setup error:', err);
-      setError('Something went wrong. Please try again.');
+      setError(errors.somethingWentWrong);
     } finally {
       setLoading(false);
     }

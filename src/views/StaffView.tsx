@@ -14,6 +14,7 @@ import { getActiveBudtenders, updateBudtender } from '@/lib/api/budtenders';
 import { getCategories } from '@/lib/api/categories';
 import { getPicksForBudtender, updatePick } from '@/lib/api/picks';
 import { useAuth } from '@/contexts/AuthContext';
+import { staffView, profile, errors } from '@/lib/copy';
 import type { Database } from '@/types/database';
 
 // Get refreshProfile from auth context to sync profile after save
@@ -247,10 +248,10 @@ export function StaffView() {
       }
 
       setProfileEditing(false);
-      alert('Profile saved!');
+      alert(profile.saveSuccess);
     } catch (err) {
       console.error('Error saving profile:', err);
-      alert(err instanceof Error ? err.message : 'Failed to save profile');
+      alert(err instanceof Error ? err.message : profile.saveError);
     } finally {
       setProfileSaving(false);
     }
@@ -280,9 +281,10 @@ export function StaffView() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <p className="text-destructive">Error: {error}</p>
+        <h3 className="text-lg font-semibold text-text">{errors.networkInline.heading}</h3>
+        <p className="text-text-muted text-center max-w-md">{errors.networkInline.body}</p>
         <Button onClick={() => window.location.reload()} variant="outline">
-          Retry
+          {errors.networkInline.retry}
         </Button>
       </div>
     );
@@ -301,8 +303,8 @@ export function StaffView() {
       {/* Budtender Selector */}
       <Card className="bg-surface border-border">
         <CardHeader>
-          <CardTitle className="text-xl text-text">Select Budtender</CardTitle>
-          <CardDescription>Choose which staff member's profile and picks to manage</CardDescription>
+          <CardTitle className="text-xl text-text">{staffView.budtenderSelector.heading}</CardTitle>
+          <CardDescription>{staffView.budtenderSelector.subtext}</CardDescription>
         </CardHeader>
         <CardContent>
           <Select value={selectedBudtender} onValueChange={setSelectedBudtender}>
@@ -326,12 +328,12 @@ export function StaffView() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <div>
               <CardTitle className="text-xl text-text">
-                {isOwnProfile ? 'My Profile' : `${selectedBudtenderData?.name}'s Profile`}
+                {isOwnProfile ? staffView.myProfile.title : `${selectedBudtenderData?.name}'s Profile`}
               </CardTitle>
               <CardDescription>
                 {isOwnProfile 
-                  ? 'Tell customers who you are and what you\'re best at'
-                  : 'Edit this staff member\'s profile information'
+                  ? staffView.myProfile.description
+                  : `Tweak ${selectedBudtenderData?.name}'s card and how they show up to guests.`
                 }
               </CardDescription>
             </div>
@@ -542,10 +544,10 @@ export function StaffView() {
             </div>
             <div>
               <h3 className="font-semibold text-text group-hover:text-primary transition-colors">
-                Add Pick
+                {staffView.addPick.cardTitle}
               </h3>
               <p className="text-sm text-text-muted">
-                Quick-add a recommendation to any category. Perfect for when inspiration strikes.
+                {staffView.addPick.cardDescription}
               </p>
             </div>
           </CardContent>
@@ -576,7 +578,7 @@ export function StaffView() {
               <CardContent className="space-y-3">
                 {categoryPicks.length === 0 ? (
                   <p className="text-sm text-text-muted italic">
-                    No {category.name.toLowerCase()} picks yet. Got a favorite? Add it above!
+                    {staffView.categoryEmpty}
                   </p>
                 ) : (
                   categoryPicks.map((pick) => (

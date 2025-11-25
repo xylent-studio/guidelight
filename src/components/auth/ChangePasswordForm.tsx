@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Key, Check, Info } from 'lucide-react';
+import { auth, errors } from '@/lib/copy';
 
 interface ChangePasswordFormProps {
   open: boolean;
@@ -69,7 +70,7 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
 
       if (updateError) {
         console.error('Password update error:', updateError);
-        setError(updateError.message || 'Failed to update password. Please try again.');
+        setError(updateError.message || errors.failedToSave);
         return;
       }
 
@@ -81,7 +82,7 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
       }, 2000);
     } catch (err) {
       console.error('Password change error:', err);
-      setError('Something went wrong. Please try again.');
+      setError(errors.somethingWentWrong);
     } finally {
       setLoading(false);
     }
@@ -91,9 +92,9 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Change password</DialogTitle>
+          <DialogTitle>{auth.passwordChange.title}</DialogTitle>
           <DialogDescription>
-            Choose a new password for your account.
+            {auth.passwordChange.description}
           </DialogDescription>
         </DialogHeader>
 
@@ -102,7 +103,7 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
             <div className="bg-primary/10 border border-primary/20 rounded-md p-4 flex items-center justify-center gap-2">
               <Check size={18} className="text-primary" />
               <p className="text-sm text-text font-medium">
-                Password updated! You're all set.
+                {auth.passwordChange.success}
               </p>
             </div>
           </div>
@@ -146,7 +147,7 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
 
             <div className="p-3 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-md flex items-start gap-2">
               <Info size={16} className="shrink-0 mt-0.5" />
-              <span>Password must be at least 6 characters. Make it something you'll remember!</span>
+              <span>{auth.passwordChange.hint}</span>
             </div>
 
             <DialogFooter>

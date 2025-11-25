@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogOut, Settings, User } from 'lucide-react';
+import { landing, auth, errors } from '@/lib/copy';
 import type { PropsWithChildren } from 'react';
 import type { AppMode } from './ModeToggle';
 
@@ -25,7 +26,8 @@ export function AppLayout({
   const [loggingOut, setLoggingOut] = useState(false);
 
   async function handleLogout() {
-    if (!confirm('Are you sure you want to log out?')) {
+    // Use native confirm with our copy
+    if (!confirm(`${auth.logout.title}\n\n${auth.logout.body}`)) {
       return;
     }
 
@@ -37,7 +39,7 @@ export function AppLayout({
       // Component will unmount when redirected to login
     } catch (error) {
       console.error('[AppLayout] Logout error:', error);
-      alert('Failed to log out. Please try again.');
+      alert(errors.signOutFailed);
       setLoggingOut(false); // Only reset if there's an error
     }
   }
@@ -48,16 +50,16 @@ export function AppLayout({
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <p className="text-xs uppercase tracking-wider text-text-muted font-semibold mb-2">
-              State of Mind · Guidelight v1
+              {landing.badge}
             </p>
             <h1 className="text-3xl font-bold text-text mb-1">
-              For the people behind the counter
+              {landing.title}
             </h1>
             <p className="text-sm text-text-muted mb-2">
-              For the people guests trust to turn a menu into a feeling.
+              {landing.subline}
             </p>
             <p className="text-xs text-text-muted/70 italic">
-              A guidelight is a small light that helps you find your way in the dark — this one is for SOM staff and the people you serve.
+              {landing.definition}
             </p>
           </div>
           <div className="flex flex-col items-end gap-1">
@@ -76,7 +78,7 @@ export function AppLayout({
               disabled={loggingOut}
             >
               <LogOut size={14} className="mr-1.5" />
-              {loggingOut ? 'Logging out...' : 'Logout'}
+              {loggingOut ? 'Signing out...' : auth.logout.confirm}
             </Button>
           </div>
         </div>
@@ -105,10 +107,10 @@ export function AppLayout({
       <main className="flex-1">{children}</main>
       <footer className="mt-auto pt-8 text-center">
         <p className="text-xs text-text-muted">
-          Guidelight v1 · Built by Xylent Studios for State of Mind
+          {landing.footer.line1}
         </p>
         <p className="text-[10px] text-text-muted/60 italic mt-1">
-          If a guest is reading this, someone forgot to switch to Customer View. 😉
+          {landing.footer.line2}
         </p>
       </footer>
     </div>
