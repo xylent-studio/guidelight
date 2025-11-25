@@ -14,10 +14,29 @@ I built this myself through my studio (Xylent Studios) and it honestly looks lik
 
 guidelight.xylent.studio
 
+
+HERE'S WHAT IT LOOKS LIKE:
+
+Customer View (what guests see):
+https://github.com/xylent-studio/guidelight/blob/main/docs/screenshots/customer-view/flower-picks-light.png
+
+Adding a Pick:
+https://github.com/xylent-studio/guidelight/blob/main/docs/screenshots/staff-view/add-pick-modal-light.png
+
+Your Profile Setup:
+https://github.com/xylent-studio/guidelight/blob/main/docs/screenshots/staff-view/profile-light.png
+
+
+HOW TO USE IT:
+
+Staff Guide (how to set up your profile and add picks):
+https://github.com/xylent-studio/guidelight/blob/main/docs/USER_GUIDE_STAFF.md
+
+
 If you want in, talk to Justin R or catch me on shift and we'll send you an invite. You click the link, you're in — takes like 2 minutes to set up your profile.
 
 And for any of our resident nerds who want to peek under the hood, here's the full codebase:
-github.com/xylent-studio/guidelight
+https://github.com/xylent-studio/guidelight
 
 Looking forward to seeing what everyone picks. Let's go.
 
