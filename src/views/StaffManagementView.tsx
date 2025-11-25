@@ -105,6 +105,26 @@ export function StaffManagementView() {
     }
   }
 
+  async function handleToggleCustomerView(member: StaffWithStatus) {
+    try {
+      await updateBudtender(member.id, {
+        show_in_customer_view: !member.show_in_customer_view,
+      });
+
+      // Update local state optimistically
+      setStaff((prev) =>
+        prev.map((s) =>
+          s.id === member.id ? { ...s, show_in_customer_view: !s.show_in_customer_view } : s
+        )
+      );
+    } catch (err: unknown) {
+      console.error('Failed to toggle customer view visibility:', err);
+      alert(`Failed to update ${member.name}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      // Reload to get correct state
+      loadStaff();
+    }
+  }
+
   async function handleResetPassword(member: StaffWithStatus) {
     if (resettingPassword) return; // Prevent double-clicks
     
@@ -351,6 +371,21 @@ export function StaffManagementView() {
                       id={`active-${member.id}`}
                       checked={member.is_active}
                       onCheckedChange={() => handleToggleActive(member)}
+                    />
+                  </div>
+
+                  {/* Show in Customer View Toggle */}
+                  <div className="flex items-center justify-between py-2 border-t border-border-subtle">
+                    <div>
+                      <Label htmlFor={`customer-view-${member.id}`} className="text-sm cursor-pointer">
+                        Show in Customer View
+                      </Label>
+                      <p className="text-xs text-text-muted">Hidden staff can still login and manage picks</p>
+                    </div>
+                    <Switch
+                      id={`customer-view-${member.id}`}
+                      checked={member.show_in_customer_view}
+                      onCheckedChange={() => handleToggleCustomerView(member)}
                     />
                   </div>
 

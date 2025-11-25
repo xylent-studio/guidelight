@@ -28,6 +28,7 @@ export type Database = {
           profile_tolerance: string | null
           profile_vibe: string | null
           role: string
+          show_in_customer_view: boolean
           slug: string | null
           updated_at: string
         }
@@ -44,6 +45,7 @@ export type Database = {
           profile_tolerance?: string | null
           profile_vibe?: string | null
           role?: string
+          show_in_customer_view?: boolean
           slug?: string | null
           updated_at?: string
         }
@@ -60,6 +62,7 @@ export type Database = {
           profile_tolerance?: string | null
           profile_vibe?: string | null
           role?: string
+          show_in_customer_view?: boolean
           slug?: string | null
           updated_at?: string
         }

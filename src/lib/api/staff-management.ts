@@ -11,6 +11,7 @@ export interface StaffWithStatus {
   profile_tolerance: string | null;
   location: string | null;
   is_active: boolean;
+  show_in_customer_view: boolean;
   created_at: string;
   updated_at: string;
   // Auth status fields

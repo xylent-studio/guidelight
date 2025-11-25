@@ -44,8 +44,11 @@ export function CustomerView() {
           getCategories(),
         ]);
 
+        // Filter to only show budtenders visible in Customer View
+        const visibleBudtenders = budtendersData.filter(b => b.show_in_customer_view);
+
         // Sort budtenders with current user first
-        const sortedBudtenders = [...budtendersData].sort((a, b) => {
+        const sortedBudtenders = [...visibleBudtenders].sort((a, b) => {
           if (a.id === profile?.id) return -1;
           if (b.id === profile?.id) return 1;
           return 0; // maintain original order for others
