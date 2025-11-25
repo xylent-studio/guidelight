@@ -47,7 +47,6 @@ export const customerView = {
     heading: 'Budtenders & their picks',
     subtext: 'Real people. Real lineups.',
   },
-  posNote: 'POS note: Looks best on a 1920×1080 front counter screen. On smaller devices, everything scrolls.',
   empty: {
     heading: 'No picks to show yet.',
     subtext: "Head to Staff View and add a few favorites you'd actually recommend to your favorite regular.",
@@ -261,4 +260,72 @@ export const deleteStaff = {
 
 export const globalSuccess = {
   allSaved: "Everything saved. This shift's lining up nicely.",
+};
+
+// =============================================================================
+// FEEDBACK & BUG REPORTING
+// =============================================================================
+
+export const feedback = {
+  button: {
+    tooltip: 'Got feedback?',
+    label: 'Feedback',
+  },
+  modal: {
+    title: "What's on your mind?",
+    subtitle: "Bugs, brain waves, brilliant ideas, or just vibes — we want to hear it all.",
+    typeLabel: 'What kind of feedback is this?',
+    types: {
+      bug: { label: 'Bug', description: "Something's broken or weird" },
+      suggestion: { label: 'Suggestion', description: 'This could be better' },
+      feature: { label: 'Feature idea', description: "Wouldn't it be cool if..." },
+      general: { label: 'General feedback', description: 'Just want to say something' },
+      other: { label: 'Something else', description: 'None of the above' },
+    },
+    descriptionLabel: 'Tell us more',
+    descriptionPlaceholder: 'Be as specific as you want. The more detail, the easier it is to fix or build.',
+    descriptionHelper: 'What happened? What did you expect? What would make it better?',
+    urgencyLabel: 'How urgent is this?',
+    urgencyPlaceholder: 'Select urgency (optional)',
+    urgencies: {
+      noting: { label: 'Just noting it', description: 'No rush, whenever' },
+      nice_to_have: { label: 'Would be nice', description: "Not blocking me, but I'd love this" },
+      annoying: { label: 'Kind of annoying', description: "It's getting in my way" },
+      blocking: { label: 'Blocking my work', description: "I literally can't do my job" },
+    },
+    anonymousLabel: 'Attach my name so Justin can follow up with me',
+    anonymousHelper: "Anonymous is totally fine — this isn't a performance review.",
+    submit: 'Send it',
+    submitting: 'Sending...',
+    cancel: 'Cancel',
+  },
+  success: "Thanks! Your feedback is on its way to Justin's eyeballs. 👀",
+  error: "Hmm, that didn't go through. Try again or reach out directly.",
+  contact: {
+    heading: 'Want to chat about it directly?',
+    phone: 'Call or text Justin: 518.852.8870',
+    email: 'Or email: justinmichalke@gmail.com',
+  },
+  // Manager view copy
+  management: {
+    tabLabel: 'Feedback',
+    title: 'Feedback & Bug Reports',
+    subtitle: "See what the team's thinking. Keep the good vibes flowing.",
+    empty: 'No feedback yet. Either everything is perfect, or nobody knows this button exists.',
+    statusLabels: {
+      new: 'New',
+      reviewed: 'Reviewed',
+      in_progress: 'In Progress',
+      done: 'Done',
+      wont_fix: "Won't Fix",
+    },
+    notesPlaceholder: 'Add internal notes...',
+    anonymous: 'Anonymous',
+    filters: {
+      all: 'All',
+      new: 'New',
+      in_progress: 'In Progress',
+      done: 'Done',
+    },
+  },
 };

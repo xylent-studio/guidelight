@@ -1962,3 +1962,229 @@ The AuthContext had race conditions, async work in callbacks, and a 10-second ti
 
 **Status: ✅ COMPLETE**
 
+---
+
+## 2025-11-25 · v1.3.0 Release - 5-Star Ratings & Feedback System
+
+### Summary
+
+Released v1.3.0 with two major features:
+1. **5-Star Rating System** with half-star support for picks
+2. **Feedback & Bug Reporting Portal** for alpha testing
+
+### 5-Star Rating System
+
+**Database Changes:**
+- Added `rating` column to `picks` (numeric 0.5-5, half-star increments)
+- Added `last_active_at` column for tracking when picks were last active
+- Deprecated `rank` column (legacy, kept for backward compatibility)
+- Applied constraint: `rating >= 0.5 AND rating <= 5 AND (rating * 2) = floor(rating * 2)`
+
+**UI Components:**
+- Created `StarRating` component (`src/components/ui/star-rating.tsx`)
+  - Supports display and input modes
+  - Half-star input via left/right click zones
+  - Keyboard navigation (arrow keys for 0.5 increments)
+  - Click same position twice to clear to null
+- Integrated into Staff View (pick list and form)
+- Integrated into Customer View (pick cards)
+
+**Sorting Logic:**
+- Active picks: `rating` desc (null last) → `updated_at` desc
+- Inactive picks: `last_active_at` desc (null last) → `updated_at` desc
+- Client-side sorting in `src/lib/api/picks.ts`
+
+### Feedback & Bug Reporting System
+
+**Database:**
+- Created `feedback` table with RLS policies
+  - Types: bug, suggestion, feature, general, other
+  - Urgency: noting, nice_to_have, annoying, blocking
+  - Status workflow: new → reviewed → in_progress → done/wont_fix
+  - Anonymous by default, optional name attachment
+- All staff can INSERT; only managers can SELECT/UPDATE
+
+**UI Components:**
+- `FeedbackButton` - Floating button (bottom-right, all pages)
+- `FeedbackModal` - Submission form with SOM-style copy
+- `FeedbackList` - Manager view in Staff Management tab
+
+**Integration:**
+- Added to `AppLayout` (visible on all views)
+- New "Feedback" tab in `StaffManagementView` with badge count
+- Created `src/lib/api/feedback.ts` with submit/get/update functions
+- Added comprehensive copy strings to `src/lib/copy.ts`
+
+### Security Fixes Applied
+
+- Fixed RLS function search_path vulnerability
+  - `is_current_user_manager()` - added `search_path = public`
+  - `get_current_user_budtender_id()` - added `search_path = public`
+
+### Performance Improvements
+
+- Added index on `feedback.submitter_id` for FK performance
+
+### Documentation Updated
+
+- `GUIDELIGHT_SPEC.md` - Added feedback table schema, rating semantics
+- `ARCHITECTURE_OVERVIEW.md` - Added feedback API module, component structure
+- `CHANGELOG.md` - Full v1.3.0 release notes
+- `docs/INDEX.md` - Updated version to v1.3.0
+
+### Validation
+
+- ✅ `npm run build` succeeds (652KB bundle)
+- ✅ All TypeScript types match database schema
+- ✅ Security advisors: Only "Leaked Password Protection" (Pro feature)
+- ✅ Performance advisors: Addressed (index added, known policy warnings documented)
+- ✅ All migrations applied (16 total)
+
+### Files Changed (Key)
+
+**New Files:**
+- `src/lib/api/feedback.ts`
+- `src/components/ui/star-rating.tsx`
+- `src/components/feedback/FeedbackButton.tsx`
+- `src/components/feedback/FeedbackModal.tsx`
+- `src/components/feedback/FeedbackList.tsx`
+- `src/components/feedback/index.ts`
+
+**Modified Files:**
+- `src/types/database.ts`
+- `src/lib/copy.ts`
+- `src/lib/api/picks.ts`
+- `src/views/StaffView.tsx`
+- `src/views/CustomerView.tsx`
+- `src/views/StaffManagementView.tsx`
+- `src/components/layout/AppLayout.tsx`
+- `src/components/picks/PickFormModal.tsx`
+
+### Known Advisory Notes
+
+**Security (WARN):**
+- Leaked Password Protection disabled - This is a Pro plan feature. Noted in DEPLOYMENT.md.
+
+**Performance (INFO/WARN):**
+- Multiple permissive RLS policies on `budtenders` and `picks` - Expected for role-based access (staff vs manager).
+- Unused indexes on `feedback` - Table is new/empty, will be used in production.
+- `budtenders_update_self` uses `auth.uid()` without SELECT wrapper - Low priority, acceptable for MVP.
+
+**Status: ✅ v1.3.0 RELEASED - Ready for Alpha Testing**
+
+---
+
+## 2025-11-25 · Alpha Testing Preparation
+
+### Pre-Deployment Checklist Completed
+
+1. ✅ All documentation updated and aligned
+2. ✅ TypeScript types match database schema
+3. ✅ Security advisors reviewed and documented
+4. ✅ Performance indexes added where needed
+5. ✅ Build succeeds with no errors
+6. ✅ Feedback system ready for bug reports from testers
+
+### Next Steps: Netlify Deployment
+
+1. Push latest code to GitHub
+2. Configure Netlify site (see DEPLOYMENT.md)
+3. Set environment variables in Netlify
+4. Update Supabase Site URL to production domain
+5. Add production domain to Redirect URLs
+6. Test authentication flows in production
+7. Begin alpha testing at State of Mind
+
+**Status: ✅ READY FOR ALPHA DEPLOYMENT**
+
+---
+
+## 2025-11-25 · v1.4.0 Release - Premium Color System & Theme Toggle
+
+### Summary
+
+Released v1.4.0 with a complete color system overhaul and theme switching:
+1. **Premium Color Palette** - Forest green + warm cream aesthetic
+2. **Theme Toggle** - Light/Dark/System mode support
+
+### Color System Overhaul
+
+**Design Philosophy:**
+- **Forest Green (Hue 155)** - Natural cannabis leaf green, replaces generic jade
+- **Warm Cream Neutrals** - Premium organic feel, not clinical white
+- **Gold/Champagne Accents** - Luxury stars and highlights
+- **Green-Tinted Dark Mode** - Spotify-inspired depth with brand DNA
+
+**Light Mode:**
+- Warm cream app shell (`40 30% 97%`)
+- Near-white cards with subtle warmth (`40 20% 99%`)
+- Deep forest green primary (`155 50% 32%`)
+- Warm near-black text (`35 15% 18%`)
+- Rich gold stars (`45 95% 52%`)
+
+**Dark Mode:**
+- Forest-tinted black (`155 20% 7%`)
+- Green-undertone surfaces (`155 15% 11%`)
+- Vibrant forest green (`155 55% 48%`)
+- Cream-white text (`40 8% 96%`)
+- Bright gold stars (`45 95% 55%`)
+
+### Theme Toggle Implementation
+
+**Components Created:**
+- `ThemeContext` (`src/contexts/ThemeContext.tsx`) - State management
+- `ThemeToggle` (`src/components/ui/theme-toggle.tsx`) - UI component
+
+**Features:**
+- Three modes: Light / System / Dark
+- Persists to localStorage (`guidelight-theme`)
+- Applies `data-theme` attribute to document root
+- Defaults to light mode on first visit
+- Staff-only (hidden in Customer View)
+
+### Files Changed
+
+**New Files:**
+- `src/contexts/ThemeContext.tsx`
+- `src/components/ui/theme-toggle.tsx`
+
+**Modified Files:**
+- `src/styles/theme.css` - Complete HSL rewrite
+- `tailwind.config.js` - Semantic color utilities
+- `src/App.tsx` - ThemeProvider integration
+- `src/components/layout/AppLayout.tsx` - ThemeToggle in footer
+- `src/components/ui/button.tsx` - Theme token usage
+- `src/components/ui/star-rating.tsx` - Star color tokens
+- `src/views/CustomerView.tsx` - Semantic tokens
+- `src/views/StaffView.tsx` - Semantic tokens
+- `src/views/StaffManagementView.tsx` - Semantic tokens
+- `src/components/layout/ModeToggle.tsx` - Chip styling
+- `src/components/auth/LoginPage.tsx` - Theme tokens
+- `src/components/auth/ForgotPasswordPage.tsx` - Theme tokens
+- `src/components/auth/ResetPasswordPage.tsx` - Theme tokens
+- `src/components/feedback/FeedbackButton.tsx` - Theme tokens
+- `src/components/feedback/FeedbackModal.tsx` - Theme tokens
+
+### Documentation Updated
+
+- `docs/GUIDELIGHT_DESIGN_SYSTEM.md` - Complete rewrite with:
+  - Design philosophy section
+  - Full HSL value tables for light and dark modes
+  - Semantic token reference
+  - Theme implementation guide
+  - Tailwind usage examples
+  - Color derivation guidelines
+- `CHANGELOG.md` - v1.4.0 release notes
+- `docs/INDEX.md` - Updated version reference
+
+### Validation
+
+- ✅ `npm run build` succeeds
+- ✅ Light mode renders with warm cream aesthetic
+- ✅ Dark mode renders with forest-tinted blacks
+- ✅ Theme toggle persists preference
+- ✅ All views use semantic color tokens
+- ✅ Star ratings display correctly in both modes
+
+**Status: ✅ v1.4.0 RELEASED**
+

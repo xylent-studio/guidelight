@@ -369,7 +369,10 @@ create table public.picks (
   doodle_key text,
 
   why_i_love_it text,
-  rank int not null default 1,
+  rating numeric(2,1) check (rating is null or (rating >= 0.5 and rating <= 5 and (rating * 2) = floor(rating * 2))),
+                              -- Staff-set 0.5-5 star rating (half-star increments); null = unrated
+  last_active_at timestamptz, -- When this pick was last active (for sorting inactive picks)
+  rank int not null default 1,-- DEPRECATED: Legacy sort field, no longer used in app
   is_active boolean not null default true,
 
   created_at timestamptz not null default now(),
@@ -377,16 +380,80 @@ create table public.picks (
 );
 
 create index picks_budtender_category_idx
-  on public.picks (budtender_id, category_id, rank);
+  on public.picks (budtender_id, category_id);
 
 create unique index picks_active_special_role_unique
   on public.picks (budtender_id, special_role)
   where (special_role is not null and is_active = true);
 ```
 
-For each staff member, only one active pick can occupy a given `special_role`, enforced by the partial unique index above. `rank` is a soft sort key for ordering cards within a category and is not constrained to be unique in the database.
+For each staff member, only one active pick can occupy a given `special_role`, enforced by the partial unique index above.
 
-`category_line` stores the short descriptive string shown on Customer View cards (e.g., “Indica Hybrid Flower”). `doodle_key` maps to small SVG icons (sun, moon, can, etc.) used on the Budtender Picks board; it is optional.
+**Ordering:** Picks are sorted by active status first, then rating, then recency:
+- **Active picks** appear first, ordered by `rating` descending (5→1, with unrated/null last), then by `updated_at` descending.
+- **Inactive picks** appear after all active picks, ordered by `last_active_at` descending (most recently active first, null last), then by `updated_at` descending.
+
+**Rating semantics:**
+- `rating` (0.5–5 stars in half-star increments) represents how strongly the staff member recommends this pick. Higher-rated picks appear first in both Staff View and Customer View.
+- `null` means unrated; these appear last among active picks.
+- New picks default to 4 stars.
+- In the UI, staff can click the left or right half of each star to select half-star values (e.g., 3.5).
+
+**`last_active_at` semantics:**
+- Set to `now()` when a pick is created as active.
+- Refreshed to `now()` when an active pick is edited (indicating it's being actively maintained).
+- Refreshed to `now()` when toggling `is_active` from false→true.
+- Preserved (not reset) when toggling `is_active` from true→false, so we know when it was last in use.
+
+**Deprecated:** `rank` is a legacy field kept for backward compatibility; it is not used in the UI or sort logic.
+
+`category_line` stores the short descriptive string shown on Customer View cards (e.g., "Indica Hybrid Flower"). `doodle_key` maps to small SVG icons (sun, moon, can, etc.) used on the Budtender Picks board; it is optional.
+
+### 4.4 `feedback`
+
+```sql
+create table public.feedback (
+  id uuid primary key default gen_random_uuid(),
+  
+  -- What kind of feedback
+  type text not null check (type in ('bug', 'suggestion', 'feature', 'general', 'other')),
+  
+  -- The actual feedback
+  description text not null,
+  
+  -- Optional urgency level
+  urgency text check (urgency in ('noting', 'nice_to_have', 'annoying', 'blocking')),
+  
+  -- Anonymous handling
+  is_anonymous boolean not null default true,
+  submitter_id uuid references public.budtenders(id) on delete set null,
+  submitter_name text,  -- denormalized for convenience, null if anonymous
+  
+  -- Metadata
+  page_context text,  -- which page they were on when submitting
+  created_at timestamptz not null default now(),
+  
+  -- For tracking/response
+  status text not null default 'new' check (status in ('new', 'reviewed', 'in_progress', 'done', 'wont_fix')),
+  reviewed_at timestamptz,
+  notes text  -- internal notes from manager
+);
+```
+
+**Purpose:** Captures bug reports, feature requests, suggestions, and general feedback from staff during alpha testing and ongoing use. All staff can submit feedback; managers can view and respond.
+
+**Fields:**
+- `type` – Category of feedback (bug, suggestion, feature, general, other).
+- `urgency` – Optional priority level from "just noting it" to "blocking my work".
+- `is_anonymous` – Whether the submitter chose to remain anonymous (default true).
+- `submitter_id` / `submitter_name` – If not anonymous, links to the staff member who submitted.
+- `page_context` – Which page/view the user was on when submitting (for debugging context).
+- `status` – Workflow state: new → reviewed → in_progress → done/wont_fix.
+- `notes` – Internal notes for manager tracking.
+
+**RLS:**
+- All authenticated staff can `INSERT` (submit feedback).
+- Only managers can `SELECT`, `UPDATE` (view feedback and update status/notes).
 
 MVP RLS / security model:
 

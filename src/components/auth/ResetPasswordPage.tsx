@@ -72,10 +72,10 @@ export function ResetPasswordPage({ onSuccess, onBackToLogin }: ResetPasswordPag
 
   if (success) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center px-4">
-        <Card className="w-full max-w-md bg-surface border-border">
+      <div className="min-h-screen bg-bg-app flex items-center justify-center px-4">
+        <Card className="w-full max-w-md bg-bg-surface border-border-subtle">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-text">
+            <CardTitle className="text-2xl font-bold text-text-default">
               Password updated!
             </CardTitle>
             <CardDescription className="text-text-muted">
@@ -84,7 +84,7 @@ export function ResetPasswordPage({ onSuccess, onBackToLogin }: ResetPasswordPag
           </CardHeader>
           <CardContent>
             <div className="bg-primary/10 border border-primary/20 rounded-md p-4 mb-4">
-              <p className="text-sm text-text">
+              <p className="text-sm text-text-default">
                 You can now sign in with your new password. Redirecting...
               </p>
             </div>
@@ -102,10 +102,10 @@ export function ResetPasswordPage({ onSuccess, onBackToLogin }: ResetPasswordPag
   }
 
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center px-4">
-      <Card className="w-full max-w-md bg-surface border-border">
+    <div className="min-h-screen bg-bg-app flex items-center justify-center px-4">
+      <Card className="w-full max-w-md bg-bg-surface border-border-subtle">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-text">
+          <CardTitle className="text-2xl font-bold text-text-default">
             Set a new password
           </CardTitle>
           <CardDescription className="text-text-muted">
@@ -115,7 +115,7 @@ export function ResetPasswordPage({ onSuccess, onBackToLogin }: ResetPasswordPag
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-text">
+              <Label htmlFor="password" className="text-text-default">
                 New password
               </Label>
               <PasswordInput
@@ -124,7 +124,7 @@ export function ResetPasswordPage({ onSuccess, onBackToLogin }: ResetPasswordPag
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
-                className="bg-bg border-border"
+                className="bg-bg-app border-border-subtle"
                 autoComplete="new-password"
                 autoFocus
                 required
@@ -132,7 +132,7 @@ export function ResetPasswordPage({ onSuccess, onBackToLogin }: ResetPasswordPag
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-text">
+              <Label htmlFor="confirmPassword" className="text-text-default">
                 Confirm new password
               </Label>
               <PasswordInput
@@ -141,7 +141,7 @@ export function ResetPasswordPage({ onSuccess, onBackToLogin }: ResetPasswordPag
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={loading}
-                className="bg-bg border-border"
+                className="bg-bg-app border-border-subtle"
                 autoComplete="new-password"
                 required
               />

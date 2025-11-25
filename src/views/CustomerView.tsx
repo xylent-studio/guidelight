@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { StarRating } from '@/components/ui/star-rating';
+import { useAuth } from '@/contexts/AuthContext';
 import { getActiveBudtenders } from '@/lib/api/budtenders';
 import { getCategories } from '@/lib/api/categories';
 import { getActivePicksForBudtender } from '@/lib/api/picks';
@@ -20,6 +22,7 @@ function truncate(text: string, maxLength: number): string {
 }
 
 export function CustomerView() {
+  const { profile } = useAuth();
   const [budtenders, setBudtenders] = useState<Budtender[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [picks, setPicks] = useState<Pick[]>([]);
@@ -41,12 +44,20 @@ export function CustomerView() {
           getCategories(),
         ]);
 
-        setBudtenders(budtendersData);
+        // Sort budtenders with current user first
+        const sortedBudtenders = [...budtendersData].sort((a, b) => {
+          if (a.id === profile?.id) return -1;
+          if (b.id === profile?.id) return 1;
+          return 0; // maintain original order for others
+        });
+
+        setBudtenders(sortedBudtenders);
         setCategories(categoriesData);
 
-        // Auto-select first budtender and category
-        if (budtendersData.length > 0) {
-          setSelectedBudtender(budtendersData[0].id);
+        // Auto-select current user, or first budtender if not found
+        if (sortedBudtenders.length > 0) {
+          const currentUserBudtender = sortedBudtenders.find(b => b.id === profile?.id);
+          setSelectedBudtender(currentUserBudtender?.id ?? sortedBudtenders[0].id);
         }
         if (categoriesData.length > 0) {
           setSelectedCategory(categoriesData[0].id);
@@ -60,7 +71,7 @@ export function CustomerView() {
     }
 
     loadInitialData();
-  }, []);
+  }, [profile?.id]);
 
   // Load picks when budtender selection changes
   useEffect(() => {
@@ -96,7 +107,7 @@ export function CustomerView() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <h3 className="text-lg font-semibold text-text">{errors.networkInline.heading}</h3>
+        <h3 className="text-lg font-semibold text-text-default">{errors.networkInline.heading}</h3>
         <p className="text-text-muted text-center max-w-md">{errors.networkInline.body}</p>
         <Button onClick={() => window.location.reload()} variant="outline">
           {errors.networkInline.retry}
@@ -108,7 +119,7 @@ export function CustomerView() {
   if (budtenders.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 text-center">
-        <h3 className="text-lg font-semibold text-text">{customerView.empty.heading}</h3>
+        <h3 className="text-lg font-semibold text-text-default">{customerView.empty.heading}</h3>
         <p className="text-text-muted max-w-md">{customerView.empty.subtext}</p>
       </div>
     );
@@ -118,7 +129,7 @@ export function CustomerView() {
     <div className="flex flex-col gap-6 lg:gap-8">
       {/* Budtender Selector */}
       <section>
-        <h2 className="text-lg font-semibold text-text mb-1">
+        <h2 className="text-lg font-semibold text-text-default mb-1">
           {customerView.budtenderSelector.heading}
         </h2>
         <p className="text-sm text-text-muted mb-4">
@@ -146,14 +157,14 @@ export function CustomerView() {
 
       {/* Profile Info Section */}
       {selectedBudtenderData && (selectedBudtenderData.profile_vibe || selectedBudtenderData.profile_tolerance) && (
-        <section className="bg-surface border border-border rounded-lg p-5">
+        <section className="bg-bg-surface border border-border-subtle rounded-lg p-5">
           <div className="flex items-start gap-4">
             {/* Avatar placeholder - could be enhanced later */}
             <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-lg shrink-0">
               {selectedBudtenderData.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0 space-y-2">
-              <h3 className="font-semibold text-text text-lg">{selectedBudtenderData.name}</h3>
+              <h3 className="font-semibold text-text-default text-lg">{selectedBudtenderData.name}</h3>
               
               {/* My vibe */}
               {selectedBudtenderData.profile_vibe && (
@@ -196,7 +207,7 @@ export function CustomerView() {
             <TabsTrigger
               key={category.id}
               value={category.id}
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="border transition-all data-[state=inactive]:bg-chip-unselected-bg data-[state=inactive]:border-chip-unselected-border data-[state=inactive]:text-chip-unselected-text data-[state=inactive]:hover:bg-bg-elevated data-[state=active]:bg-chip-selected-bg data-[state=active]:border-chip-selected-border data-[state=active]:text-chip-selected-text"
             >
               {category.name}
             </TabsTrigger>
@@ -217,11 +228,16 @@ export function CustomerView() {
                 {filteredPicks.slice(0, 6).map((pick) => (
                   <Card
                     key={pick.id}
-                    className="bg-surface border-border hover:border-primary transition-colors"
+                    className="bg-bg-surface border-border-subtle hover:border-primary transition-colors"
                   >
-                    <CardHeader>
-                      <CardTitle className="text-xl text-text">{pick.product_name}</CardTitle>
-                      {pick.brand && <p className="text-sm text-text-muted">{pick.brand}</p>}
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <CardTitle className="text-xl text-text-default">{pick.product_name}</CardTitle>
+                          {pick.brand && <p className="text-sm text-text-muted">{pick.brand}</p>}
+                        </div>
+                        <StarRating value={pick.rating} size={16} showEmpty={false} />
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {/* Effect Tags */}
@@ -231,7 +247,7 @@ export function CustomerView() {
                             <Badge
                               key={idx}
                               variant="secondary"
-                              className="bg-primary-soft text-text text-xs"
+                              className="bg-primary-soft text-text-default text-xs"
                             >
                               {tag}
                             </Badge>
@@ -241,7 +257,7 @@ export function CustomerView() {
 
                       {/* Time of Day Badge */}
                       <div>
-                        <Badge variant="outline" className="border-border text-text-muted text-xs">
+                        <Badge variant="outline" className="border-border-subtle text-text-muted text-xs">
                           {pick.time_of_day}
                         </Badge>
                       </div>
@@ -267,11 +283,6 @@ export function CustomerView() {
           </TabsContent>
         ))}
       </Tabs>
-
-      {/* POS Note */}
-      <p className="text-xs text-text-muted/60 text-center mt-4">
-        {customerView.posNote}
-      </p>
     </div>
   );
 }

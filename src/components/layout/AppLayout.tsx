@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { ModeToggle } from './ModeToggle';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { FeedbackButton } from '@/components/feedback';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogOut, Settings, User } from 'lucide-react';
 import { landing, auth, errors } from '@/lib/copy';
@@ -45,14 +47,14 @@ export function AppLayout({
   }
 
   return (
-    <div className="min-h-screen bg-bg px-4 py-10 sm:px-8 lg:px-16 flex flex-col gap-8">
+    <div className="min-h-screen bg-bg-app px-4 py-10 sm:px-8 lg:px-16 flex flex-col gap-8">
       <header className="flex flex-col gap-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <p className="text-xs uppercase tracking-wider text-text-muted font-semibold mb-2">
               {landing.badge}
             </p>
-            <h1 className="text-3xl font-bold text-text mb-1">
+            <h1 className="text-3xl font-bold text-text-default mb-1">
               {landing.title}
             </h1>
             <p className="text-sm text-text-muted mb-2">
@@ -65,7 +67,7 @@ export function AppLayout({
           <div className="flex flex-col items-end gap-1">
             <div className="flex items-center gap-2">
               <User size={16} className="text-text-muted" />
-              <p className="text-lg font-semibold text-text">{profile?.name}</p>
+              <p className="text-lg font-semibold text-text-default">{profile?.name}</p>
             </div>
             <p className="text-xs text-text-muted capitalize">
               {profile?.role?.replace('_', ' ')}
@@ -105,14 +107,26 @@ export function AppLayout({
         </div>
       </header>
       <main className="flex-1">{children}</main>
-      <footer className="mt-auto pt-8 text-center">
-        <p className="text-xs text-text-muted">
-          {landing.footer.line1}
-        </p>
-        <p className="text-[10px] text-text-muted/60 italic mt-1">
-          {landing.footer.line2}
-        </p>
+      <footer className="mt-auto pt-8">
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-xs text-text-muted">
+            {landing.footer.line1}
+          </p>
+          {/* Easter egg only shows when NOT in Customer View (since guests see Customer View) */}
+          {mode !== 'customer' && (
+            <p className="text-[10px] text-text-muted/60 italic">
+              {landing.footer.line2}
+            </p>
+          )}
+          {/* Theme toggle - only visible to staff, not customers */}
+          {mode !== 'customer' && (
+            <ThemeToggle className="mt-2" />
+          )}
+        </div>
       </footer>
+
+      {/* Floating feedback button - visible on all views */}
+      <FeedbackButton pageContext={mode} />
     </div>
   );
 }

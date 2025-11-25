@@ -57,10 +57,10 @@ export function ForgotPasswordPage({ onBackToLogin }: ForgotPasswordPageProps) {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center px-4">
-        <Card className="w-full max-w-md bg-surface border-border">
+      <div className="min-h-screen bg-bg-app flex items-center justify-center px-4">
+        <Card className="w-full max-w-md bg-bg-surface border-border-subtle">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-text">
+            <CardTitle className="text-2xl font-bold text-text-default">
               Check your email
             </CardTitle>
             <CardDescription className="text-text-muted">
@@ -69,7 +69,7 @@ export function ForgotPasswordPage({ onBackToLogin }: ForgotPasswordPageProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="bg-primary/10 border border-primary/20 rounded-md p-4">
-              <p className="text-sm text-text">
+              <p className="text-sm text-text-default">
                 Click the link in the email to reset your password. The link will expire in 24 hours.
               </p>
             </div>
@@ -104,10 +104,10 @@ export function ForgotPasswordPage({ onBackToLogin }: ForgotPasswordPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center px-4">
-      <Card className="w-full max-w-md bg-surface border-border">
+    <div className="min-h-screen bg-bg-app flex items-center justify-center px-4">
+      <Card className="w-full max-w-md bg-bg-surface border-border-subtle">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-text">
+          <CardTitle className="text-2xl font-bold text-text-default">
             Forgot your password?
           </CardTitle>
           <CardDescription className="text-text-muted">
@@ -117,7 +117,7 @@ export function ForgotPasswordPage({ onBackToLogin }: ForgotPasswordPageProps) {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-text">
+              <Label htmlFor="email" className="text-text-default">
                 Email address
               </Label>
               <Input
@@ -127,7 +127,7 @@ export function ForgotPasswordPage({ onBackToLogin }: ForgotPasswordPageProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                className="bg-bg border-border"
+                className="bg-bg-app border-border-subtle"
                 autoComplete="email"
                 autoFocus
                 required

@@ -262,17 +262,19 @@ guidelight/
 
 ## Status
 
-✅ **Version 1.0.0 - Ready for Production**
+✅ **Version 1.3.0 - Ready for Alpha Testing**
 
-MVP Complete:
+MVP Complete + Enhancements:
 
-- [x] Supabase schema created (`budtenders`, `categories`, `picks`)
+- [x] Supabase schema created (`budtenders`, `categories`, `picks`, `feedback`)
 - [x] Complete authentication & invite system
 - [x] Customer View: select budtender → see favorites by category
 - [x] Staff View: full CRUD for budtender picks
 - [x] Staff Management View: invite, edit, delete staff (manager-only)
 - [x] Edge Functions deployed (invite, status, password reset)
 - [x] RLS policies for role-based access control
+- [x] 5-star rating system (half-star support) for picks
+- [x] Feedback portal for bug reports & suggestions
 - [x] Ready for Netlify deployment
 
 **Production URL:** `https://guidelight.xylent.studio`

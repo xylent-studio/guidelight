@@ -8,39 +8,54 @@ import {
   formatInviteDate,
   type StaffWithStatus 
 } from '@/lib/api/staff-management';
+import { getNewFeedbackCount } from '@/lib/api/feedback';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { UserPlus, Pencil, Trash2, RotateCcw, Send, Users } from 'lucide-react';
+import { UserPlus, Pencil, Trash2, RotateCcw, Send, Users, MessageCircle } from 'lucide-react';
 import { InviteStaffForm } from '@/components/staff-management/InviteStaffForm';
 import { EditStaffForm } from '@/components/staff-management/EditStaffForm';
 import { DeleteStaffDialog } from '@/components/staff-management/DeleteStaffDialog';
-import { staffManagement, errors } from '@/lib/copy';
+import { FeedbackList } from '@/components/feedback';
+import { staffManagement, errors, feedback as feedbackCopy } from '@/lib/copy';
 
 type FilterMode = 'all' | 'active' | 'inactive' | 'pending';
+type ManagementTab = 'staff' | 'feedback';
 
 export function StaffManagementView() {
   const { isManager, profile } = useAuth();
+  const [managementTab, setManagementTab] = useState<ManagementTab>('staff');
   const [staff, setStaff] = useState<StaffWithStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterMode>('all');
+  const [newFeedbackCount, setNewFeedbackCount] = useState(0);
   
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [editingStaff, setEditingStaff] = useState<StaffWithStatus | null>(null);
   const [deletingStaff, setDeletingStaff] = useState<StaffWithStatus | null>(null);
   const [resettingPassword, setResettingPassword] = useState<string | null>(null);
 
-  // Load staff on mount - must be before any conditional returns!
+  // Load staff and feedback count on mount - must be before any conditional returns!
   useEffect(() => {
     // Only load if user is a manager
     if (isManager) {
       loadStaff();
+      loadFeedbackCount();
     }
   }, [isManager]);
+
+  async function loadFeedbackCount() {
+    try {
+      const count = await getNewFeedbackCount();
+      setNewFeedbackCount(count);
+    } catch (err) {
+      console.error('Failed to load feedback count:', err);
+    }
+  }
 
   async function loadStaff() {
     setLoading(true);
@@ -62,7 +77,7 @@ export function StaffManagementView() {
   if (!isManager) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <p className="text-text text-lg">Manager access required</p>
+        <p className="text-text-default text-lg">Manager access required</p>
         <p className="text-text-muted text-sm">
           Only managers can access Staff Management. Please contact your manager if you need access.
         </p>
@@ -120,6 +135,13 @@ export function StaffManagementView() {
     return true; // 'all'
   });
 
+  // Sort filtered staff with current user first (top-left position)
+  const sortedStaff = [...filteredStaff].sort((a, b) => {
+    if (a.id === profile?.id) return -1;
+    if (b.id === profile?.id) return 1;
+    return 0; // maintain original order for others
+  });
+
   // Count stats
   const activeCount = staff.filter((s) => s.is_active && s.invite_status === 'active').length;
   const inactiveCount = staff.filter((s) => !s.is_active).length;
@@ -137,7 +159,7 @@ export function StaffManagementView() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <h3 className="text-lg font-semibold text-text">{errors.networkInline.heading}</h3>
+        <h3 className="text-lg font-semibold text-text-default">{errors.networkInline.heading}</h3>
         <p className="text-text-muted text-center max-w-md">{errors.networkInline.body}</p>
         <Button onClick={loadStaff} variant="outline">
           {errors.networkInline.retry}
@@ -148,19 +170,39 @@ export function StaffManagementView() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-text mb-2">{staffManagement.heading}</h2>
-          <p className="text-text-muted">
-            {staffManagement.subtext}
-          </p>
-        </div>
-        <Button size="lg" className="shrink-0" onClick={() => setShowInviteForm(true)}>
-          <UserPlus size={18} className="mr-2" />
-          Invite Staff
-        </Button>
-      </div>
+      {/* Top-level Management Tabs */}
+      <Tabs value={managementTab} onValueChange={(v) => setManagementTab(v as ManagementTab)}>
+        <TabsList className="mb-6">
+          <TabsTrigger value="staff" className="gap-2">
+            <Users size={16} />
+            Staff Management
+          </TabsTrigger>
+          <TabsTrigger value="feedback" className="gap-2">
+            <MessageCircle size={16} />
+            {feedbackCopy.management.tabLabel}
+            {newFeedbackCount > 0 && (
+              <Badge variant="destructive" className="ml-1.5 h-5 min-w-5 text-xs">
+                {newFeedbackCount}
+              </Badge>
+            )}
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Staff Tab Content */}
+        <TabsContent value="staff" className="mt-0 space-y-6">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-bold text-text-default mb-2">{staffManagement.heading}</h2>
+              <p className="text-text-muted">
+                {staffManagement.subtext}
+              </p>
+            </div>
+            <Button size="lg" className="shrink-0" onClick={() => setShowInviteForm(true)}>
+              <UserPlus size={18} className="mr-2" />
+              Invite Staff
+            </Button>
+          </div>
 
       {/* Modals */}
       <InviteStaffForm
@@ -190,7 +232,7 @@ export function StaffManagementView() {
             <CardTitle className="text-sm font-medium text-text-muted">{staffManagement.stats.totalStaff}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-text">{staff.length}</div>
+            <div className="text-3xl font-bold text-text-default">{staff.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -244,7 +286,7 @@ export function StaffManagementView() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredStaff.map((member) => {
+          {sortedStaff.map((member) => {
             const statusDisplay = getStatusDisplay(member.invite_status);
             const isCurrentUser = member.id === profile?.id;
             
@@ -282,7 +324,7 @@ export function StaffManagementView() {
                   {member.email && (
                     <div>
                       <p className="text-xs text-text-muted mb-1">Email</p>
-                      <p className="text-sm text-text truncate">{member.email}</p>
+                      <p className="text-sm text-text-default truncate">{member.email}</p>
                     </div>
                   )}
 
@@ -301,7 +343,7 @@ export function StaffManagementView() {
                   )}
 
                   {/* Active Toggle */}
-                  <div className="flex items-center justify-between py-2 border-t border-border">
+                  <div className="flex items-center justify-between py-2 border-t border-border-subtle">
                     <Label htmlFor={`active-${member.id}`} className="text-sm cursor-pointer">
                       {staffManagement.card.canSignInLabel}
                     </Label>
@@ -365,6 +407,13 @@ export function StaffManagementView() {
           })}
         </div>
       )}
+        </TabsContent>
+
+        {/* Feedback Tab Content */}
+        <TabsContent value="feedback" className="mt-0">
+          <FeedbackList />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

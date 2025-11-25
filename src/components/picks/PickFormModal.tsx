@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { StarRating } from '@/components/ui/star-rating';
 import { Plus, Check } from 'lucide-react';
 import { createPick, updatePick } from '@/lib/api/picks';
 import { picks as picksCopy } from '@/lib/copy';
@@ -60,7 +61,7 @@ export function PickFormModal({
   const [productType, setProductType] = useState('flower');
   const [timeOfDay, setTimeOfDay] = useState('Anytime');
   const [whyILoveIt, setWhyILoveIt] = useState('');
-  const [rank, setRank] = useState(1);
+  const [rating, setRating] = useState<number | null>(4); // Default to 4 stars for new picks
   const [isActive, setIsActive] = useState(true);
 
   // Determine if category selector should be shown
@@ -82,7 +83,7 @@ export function PickFormModal({
         setProductType(editingPick.product_type);
         setTimeOfDay(editingPick.time_of_day || 'Anytime');
         setWhyILoveIt(editingPick.why_i_love_it || '');
-        setRank(editingPick.rank);
+        setRating(editingPick.rating);
         setIsActive(editingPick.is_active);
       } else {
         // Reset to defaults for add mode
@@ -92,7 +93,7 @@ export function PickFormModal({
         setProductType('flower');
         setTimeOfDay('Anytime');
         setWhyILoveIt('');
-        setRank(1);
+        setRating(4); // Default to 4 stars for new picks
         setIsActive(true);
       }
       setError(null);
@@ -129,14 +130,15 @@ export function PickFormModal({
         product_type: productType,
         time_of_day: timeOfDay,
         why_i_love_it: whyILoveIt.trim() || null,
-        rank,
+        rating,
         is_active: isActive,
       };
 
       if (mode === 'add') {
         await createPick(pickData as PickInsert);
       } else if (mode === 'edit' && editingPick) {
-        await updatePick(editingPick.id, pickData);
+        // Pass the current pick for last_active_at logic
+        await updatePick(editingPick.id, pickData, editingPick);
       }
 
       onSuccess();
@@ -295,21 +297,21 @@ export function PickFormModal({
             </p>
           </div>
 
-          {/* Rank */}
+          {/* Rating */}
           <div className="space-y-2">
-            <Label htmlFor="rank">Priority</Label>
-            <Input
-              id="rank"
-              type="number"
-              min="1"
-              max="10"
-              value={rank}
-              onChange={(e) => setRank(parseInt(e.target.value) || 1)}
-              disabled={saving}
-              className="w-24"
-            />
+            <Label>Your Rating</Label>
+            <div className="flex items-center gap-3">
+              <StarRating
+                value={rating}
+                onChange={setRating}
+                size={24}
+              />
+              <span className="text-sm text-text-muted">
+                {rating ? `${rating} star${rating !== 1 ? 's' : ''}` : 'Not rated'}
+              </span>
+            </div>
             <p className="text-xs text-text-muted">
-              Lower = higher priority. Your #1 pick should be rank 1.
+              How strongly do you recommend this? Higher ratings show first to guests. Click left/right half of a star for half-star ratings.
             </p>
           </div>
 

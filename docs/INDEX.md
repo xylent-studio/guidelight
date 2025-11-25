@@ -42,6 +42,7 @@ This is the central hub for all Guidelight project documentation. If you're new 
 |----------|---------|----------|--------|--------------|
 | [DEPLOYMENT.md](../DEPLOYMENT.md) | Complete guide for deploying to Netlify with Supabase | Engineering, Operations | ✅ Active | 2025-11-25 |
 | [DEPLOYMENT_CHECKLIST.md](../DEPLOYMENT_CHECKLIST.md) | Step-by-step deployment and testing checklist | Engineering, Operations | ✅ Active | 2025-11-25 |
+| [ALPHA_TESTING_CHECKLIST.md](../ALPHA_TESTING_CHECKLIST.md) | Field testing checklist for State of Mind alpha | All | ✅ Active | 2025-11-25 |
 | [QUICK_START.md](../QUICK_START.md) | Quick reference for deployment and local development | Engineering | ✅ Active | 2025-11-25 |
 | [CHANGELOG.md](../CHANGELOG.md) | Version history and release notes | All | ✅ Active | 2025-11-25 |
 
@@ -89,10 +90,11 @@ This is the central hub for all Guidelight project documentation. If you're new 
 ```
 guidelight/
 ├── README.md                              # Project overview & setup
-├── CHANGELOG.md                           # Version history (v1.0.0 released)
+├── CHANGELOG.md                           # Version history (v1.3.0 released)
 ├── CONTRIBUTING.md                        # Contribution guidelines
 ├── DEPLOYMENT.md                          # Complete deployment guide
 ├── DEPLOYMENT_CHECKLIST.md                # Deployment testing checklist
+├── ALPHA_TESTING_CHECKLIST.md             # ✨ NEW: Field testing checklist
 ├── QUICK_START.md                         # Quick deployment reference
 ├── NEXT_STEPS.md                          # Post-v1.0.0 roadmap
 ├── netlify.toml                           # Netlify configuration
@@ -165,5 +167,5 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for general contribution guidelines.
 
 ---
 
-**This index is maintained manually. Last reviewed: 2025-11-25 (v1.1.0 Profile Enhancement & Landing Screen)**
+**This index is maintained manually. Last reviewed: 2025-11-25 (v1.4.0 - Premium Color System)**
 

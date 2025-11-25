@@ -1,64 +1,165 @@
 /**
  * Guidelight Design Tokens
+ * Premium Cannabis Color Palette
  * 
- * Base scales from Radix Colors:
- * - Neutrals: slate (clean, professional, POS-friendly)
- * - Primary: jade (cannabis-appropriate emerald/green, calm and readable)
+ * Design Philosophy:
+ * - Forest Green (Hue 155) - Natural leaf green, unmistakably cannabis
+ * - Warm Cream Neutrals - Premium, organic feel (not clinical white)
+ * - Gold/Champagne Accents - Elevated, dispensary luxury
+ * - Green-Tinted Dark Mode - Brand DNA in every shade, Spotify-level richness
+ * - Subtle Depth - Soft shadows, slight elevation hierarchy
  * 
- * These tokens provide a single source of truth for Guidelight's visual language
- * and can be reused across future Xylent apps.
+ * Usage: hsl(var(--gl-token) / <alpha-value>) in Tailwind
  */
 
-@import '@radix-ui/colors/slate.css';
-@import '@radix-ui/colors/jade.css';
-@import '@radix-ui/colors/slate-dark.css';
-@import '@radix-ui/colors/jade-dark.css';
-
 :root {
-  /* Backgrounds */
-  --gl-bg: var(--slate-1);
-  --gl-bg-soft: var(--slate-2);
-  
-  /* Surfaces (cards, panels) */
-  --gl-surface: var(--slate-3);
-  
-  /* Borders */
-  --gl-border: var(--slate-6);
-  
-  /* Text */
-  --gl-text: var(--slate-12);
-  --gl-text-muted: var(--slate-11);
-  
-  /* Primary accent (jade emerald/green) */
-  --gl-primary: var(--jade-9);
-  --gl-primary-soft: var(--jade-4);
-  --gl-primary-foreground: var(--slate-1);
-  
-  /* Accent highlights */
-  --gl-accent: var(--jade-11);
+  /* ========================================
+     LIGHT MODE (Primary Experience)
+     Premium dispensary - warm cream + forest green
+     ======================================== */
+
+  /* ----------------------------------------
+     Backgrounds - Warm Cream Ramp
+     ---------------------------------------- */
+  --gl-bg-app: 40 30% 97%;        /* Warm cream shell */
+  --gl-bg-surface: 40 20% 99%;    /* Cards - near white with warmth */
+  --gl-bg-elevated: 40 25% 94%;   /* Lifted panels, hover states */
+
+  /* ----------------------------------------
+     Forest Green - Primary Brand
+     Deep natural leaf green (Hue 155)
+     ---------------------------------------- */
+  --gl-primary: 155 50% 32%;            /* Deep forest - main buttons, links */
+  --gl-primary-hover: 155 55% 26%;      /* Darker on hover */
+  --gl-primary-active: 155 58% 22%;     /* Pressed state */
+  --gl-primary-soft: 155 35% 91%;       /* Selected backgrounds, chips */
+  --gl-primary-soft-hover: 155 40% 87%; /* Hover on selected */
+  --gl-primary-outline: 155 50% 32%;    /* Focus rings */
+
+  /* ----------------------------------------
+     Text - Warm Near-Blacks
+     Organic feel, not clinical
+     ---------------------------------------- */
+  --gl-text-default: 35 15% 18%;   /* Primary text - warm dark */
+  --gl-text-muted: 35 10% 42%;     /* Secondary labels */
+  --gl-text-disabled: 35 8% 62%;   /* Disabled/placeholder */
+
+  /* ----------------------------------------
+     Borders - Cream-Tinted
+     ---------------------------------------- */
+  --gl-border-subtle: 40 15% 86%;  /* Card borders, dividers */
+  --gl-border-strong: 40 18% 75%;  /* Emphasized borders */
+
+  /* ----------------------------------------
+     Navigation
+     ---------------------------------------- */
+  --gl-nav-bg: var(--gl-bg-surface);
+  --gl-nav-item-active-bg: var(--gl-primary-soft);
+  --gl-nav-item-active-text: var(--gl-text-default);
+  --gl-nav-item-inactive-text: var(--gl-text-muted);
+
+  /* ----------------------------------------
+     Chips / Pills
+     ---------------------------------------- */
+  --gl-chip-selected-bg: var(--gl-primary-soft);
+  --gl-chip-selected-border: 155 40% 75%;
+  --gl-chip-selected-text: var(--gl-text-default);
+  --gl-chip-unselected-bg: var(--gl-bg-surface);
+  --gl-chip-unselected-border: var(--gl-border-subtle);
+  --gl-chip-unselected-text: var(--gl-text-muted);
+
+  /* ----------------------------------------
+     Buttons
+     ---------------------------------------- */
+  --gl-btn-primary-bg: var(--gl-primary);
+  --gl-btn-primary-bg-hover: var(--gl-primary-hover);
+  --gl-btn-primary-bg-active: var(--gl-primary-active);
+  --gl-btn-primary-text: 40 20% 99%;      /* Cream white on green */
+  --gl-btn-ghost-bg-hover: 155 25% 94%;   /* Subtle green tint on hover */
+  --gl-btn-ghost-border: var(--gl-border-subtle);
+  --gl-btn-ghost-text: var(--gl-text-default);
+
+  /* ----------------------------------------
+     Rating Stars - Rich Gold
+     ---------------------------------------- */
+  --gl-star-filled: 45 95% 52%;   /* Bright gold */
+  --gl-star-half: 45 85% 45%;     /* Slightly muted */
+  --gl-star-empty: 40 20% 82%;    /* Cream-tinted empty */
 }
 
-.dark {
-  /* Backgrounds */
-  --gl-bg: var(--slate-1);
-  --gl-bg-soft: var(--slate-2);
-  
-  /* Surfaces */
-  --gl-surface: var(--slate-3);
-  
-  /* Borders */
-  --gl-border: var(--slate-6);
-  
-  /* Text */
-  --gl-text: var(--slate-12);
-  --gl-text-muted: var(--slate-11);
-  
-  /* Primary accent */
-  --gl-primary: var(--jade-9);
-  --gl-primary-soft: var(--jade-4);
-  --gl-primary-foreground: var(--slate-1);
-  
-  /* Accent highlights */
-  --gl-accent: var(--jade-11);
-}
+[data-theme="dark"] {
+  /* ========================================
+     DARK MODE (Spotify-Inspired)
+     Green-tinted blacks, vibrant forest accents
+     ======================================== */
 
+  /* ----------------------------------------
+     Backgrounds - Forest-Tinted Blacks
+     Brand DNA in every shade
+     ---------------------------------------- */
+  --gl-bg-app: 155 20% 7%;        /* Deep forest black */
+  --gl-bg-surface: 155 15% 11%;   /* Cards - charcoal with green */
+  --gl-bg-elevated: 155 12% 16%;  /* Lifted surfaces */
+
+  /* ----------------------------------------
+     Forest Green - Brighter for Dark
+     Vibrant to pop against dark backgrounds
+     ---------------------------------------- */
+  --gl-primary: 155 55% 48%;            /* Vibrant forest */
+  --gl-primary-hover: 155 58% 42%;      /* Hover state */
+  --gl-primary-active: 155 60% 38%;     /* Pressed */
+  --gl-primary-soft: 155 40% 18%;       /* Deep forest selection */
+  --gl-primary-soft-hover: 155 45% 22%; /* Hover on selected */
+  --gl-primary-outline: 155 60% 55%;    /* Focus rings - brighter */
+
+  /* ----------------------------------------
+     Text - Cream Whites
+     Warm, not harsh pure white
+     ---------------------------------------- */
+  --gl-text-default: 40 8% 96%;    /* Cream white */
+  --gl-text-muted: 40 5% 68%;      /* Warm gray */
+  --gl-text-disabled: 40 4% 48%;   /* Dim warm gray */
+
+  /* ----------------------------------------
+     Borders - Green-Tinted
+     Subtle forest undertones
+     ---------------------------------------- */
+  --gl-border-subtle: 155 12% 22%;  /* Forest-tinted */
+  --gl-border-strong: 155 15% 32%;  /* Stronger green tint */
+
+  /* ----------------------------------------
+     Navigation
+     ---------------------------------------- */
+  --gl-nav-bg: var(--gl-bg-surface);
+  --gl-nav-item-active-bg: var(--gl-primary-soft);
+  --gl-nav-item-active-text: var(--gl-text-default);
+  --gl-nav-item-inactive-text: var(--gl-text-muted);
+
+  /* ----------------------------------------
+     Chips / Pills
+     ---------------------------------------- */
+  --gl-chip-selected-bg: var(--gl-primary-soft);
+  --gl-chip-selected-border: 155 45% 35%;
+  --gl-chip-selected-text: var(--gl-text-default);
+  --gl-chip-unselected-bg: var(--gl-bg-surface);
+  --gl-chip-unselected-border: var(--gl-border-subtle);
+  --gl-chip-unselected-text: var(--gl-text-muted);
+
+  /* ----------------------------------------
+     Buttons
+     ---------------------------------------- */
+  --gl-btn-primary-bg: var(--gl-primary);
+  --gl-btn-primary-bg-hover: var(--gl-primary-hover);
+  --gl-btn-primary-bg-active: var(--gl-primary-active);
+  --gl-btn-primary-text: 155 20% 7%;      /* Dark on bright green */
+  --gl-btn-ghost-bg-hover: 155 30% 14%;   /* Forest tint */
+  --gl-btn-ghost-border: var(--gl-border-subtle);
+  --gl-btn-ghost-text: var(--gl-text-default);
+
+  /* ----------------------------------------
+     Rating Stars - Gold Pops on Dark
+     ---------------------------------------- */
+  --gl-star-filled: 45 95% 55%;   /* Bright gold */
+  --gl-star-half: 45 88% 48%;     /* Rich gold */
+  --gl-star-empty: 45 25% 28%;    /* Muted gold */
+}

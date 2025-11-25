@@ -1,335 +1,402 @@
-# Guidelight Design System (Draft)
+# Guidelight Design System
 
-Guidelight’s UI layer is built with **Tailwind CSS**, **shadcn/ui**, and **Radix Colors** to ensure consistent, accessible styling across Staff and Customer views. This document is the **single source of truth** for all design tokens (colors, typography, spacing, radii, shadows) and the shared component patterns that keep the app POS-friendly. Every screen should follow the POS constraints described in `GUIDELIGHT_SPEC.md` and `ARCHITECTURE_OVERVIEW.md`: large tap targets, high contrast, and clean card-based layouts that remain readable on 1920×1080 kiosks and responsive devices.
+**Last Updated:** 2025-11-25  
+**Version:** 1.4.0
 
-## Outline
+Guidelight's UI layer is built with **Tailwind CSS**, **shadcn/ui**, and a **custom HSL color system** to ensure consistent, accessible styling across Staff and Customer views. This document is the **single source of truth** for all design tokens (colors, typography, spacing, radii, shadows) and the shared component patterns that keep the app POS-friendly.
 
-### 1. Colors
+---
 
-#### Base Scales (Radix Colors)
+## 1. Design Philosophy
 
-Guidelight uses two core Radix color scales:
+Guidelight's visual identity is built on four pillars:
 
-- **Neutrals:** `slate` – Clean, professional, and POS-friendly for backgrounds, surfaces, and text.
-- **Primary:** `jade` – Cannabis-appropriate emerald/green that remains calm and readable, never neon.
+| Pillar | Description |
+|--------|-------------|
+| **Forest Green (Hue 155)** | Natural leaf green — unmistakably cannabis, never neon |
+| **Warm Cream Neutrals** | Premium, organic feel (not clinical white) |
+| **Gold/Champagne Accents** | Elevated, dispensary luxury for ratings and highlights |
+| **Green-Tinted Dark Mode** | Brand DNA in every shade — Spotify-level richness |
 
-These scales provide semantic tokens via CSS variables (`--gl-*`) that can be reused across future Xylent apps.
+The palette draws inspiration from **premium dispensary aesthetics** and **modern SaaS applications** (Spotify dark mode, Linear, Notion) while maintaining the calm, approachable vibe appropriate for a cannabis retail environment.
 
-#### Semantic Token Reference
+---
 
-| Token | CSS Variable | Usage |
-|-------|--------------|-------|
-| **bg** | `--gl-bg` | Main background color (full-page backdrop) |
-| **bg-soft** | `--gl-bg-soft` | Slightly raised background (subtle sections) |
-| **surface** | `--gl-surface` | Card and panel backgrounds |
-| **border** | `--gl-border` | Default border color for cards, inputs, dividers |
-| **text** | `--gl-text` | Primary text color (high contrast) |
-| **text-muted** | `--gl-text-muted` | Secondary/muted text (labels, captions) |
-| **primary** | `--gl-primary` | Main brand accent (buttons, links, active states) |
-| **primary-soft** | `--gl-primary-soft` | Subtle primary tint (hover backgrounds, highlights) |
-| **primary-foreground** | `--gl-primary-foreground` | Text/icon color on primary backgrounds |
-| **accent** | `--gl-accent` | Highlight color (interactive elements, badges) |
+## 2. Color System
 
-#### Tailwind Usage
+### 2.1 Architecture
 
-These tokens are exposed as Tailwind utility classes:
+Colors are defined as **HSL triplets** in `src/styles/theme.css` and exposed to Tailwind via CSS variables. This approach enables:
 
-```tsx
-<div className="bg-surface border-border text-text">
-  <h2 className="text-primary">Staff Picks</h2>
-  <p className="text-text-muted">Browse our recommendations</p>
-  <button className="bg-primary text-primary-foreground">View All</button>
-</div>
+- **Theme switching** (light/dark/system) without rebuilding
+- **Alpha value support** (`bg-primary/50` for 50% opacity)
+- **Consistent brand DNA** across both themes (same hue families)
+
+```css
+/* Example usage */
+background: hsl(var(--gl-bg-app) / 1);
+color: hsl(var(--gl-text-default) / 0.8);
 ```
 
-#### Radix Base Values
+### 2.2 Light Mode Palette (Primary Experience)
 
-| Token | Light Mode | Dark Mode |
-|-------|------------|-----------|
-| `--gl-bg` | `var(--slate-1)` | `var(--slate-1)` |
-| `--gl-bg-soft` | `var(--slate-2)` | `var(--slate-2)` |
-| `--gl-surface` | `var(--slate-3)` | `var(--slate-3)` |
-| `--gl-border` | `var(--slate-6)` | `var(--slate-6)` |
-| `--gl-text` | `var(--slate-12)` | `var(--slate-12)` |
-| `--gl-text-muted` | `var(--slate-11)` | `var(--slate-11)` |
-| `--gl-primary` | `var(--jade-9)` | `var(--jade-9)` |
-| `--gl-primary-soft` | `var(--jade-4)` | `var(--jade-4)` |
-| `--gl-primary-foreground` | `var(--slate-1)` | `var(--slate-1)` |
-| `--gl-accent` | `var(--jade-11)` | `var(--jade-11)` |
+Light mode is the **default** experience, optimized for dispensary environments with good lighting.
 
-All tokens are defined in `src/styles/theme.css` and imported globally via `src/index.css`.
+#### Backgrounds — Warm Cream Ramp
+
+| Token | HSL Value | Usage |
+|-------|-----------|-------|
+| `--gl-bg-app` | `40 30% 97%` | Main app shell background |
+| `--gl-bg-surface` | `40 20% 99%` | Cards, panels (near-white with warmth) |
+| `--gl-bg-elevated` | `40 25% 94%` | Lifted surfaces, hover states |
+
+#### Primary — Forest Green (Hue 155)
+
+| Token | HSL Value | Usage |
+|-------|-----------|-------|
+| `--gl-primary` | `155 50% 32%` | Buttons, links, active indicators |
+| `--gl-primary-hover` | `155 55% 26%` | Hover state |
+| `--gl-primary-active` | `155 58% 22%` | Pressed/active state |
+| `--gl-primary-soft` | `155 35% 91%` | Selected backgrounds, chips |
+| `--gl-primary-soft-hover` | `155 40% 87%` | Hover on selected items |
+| `--gl-primary-outline` | `155 50% 32%` | Focus rings |
+
+#### Text — Warm Near-Blacks
+
+| Token | HSL Value | Usage |
+|-------|-----------|-------|
+| `--gl-text-default` | `35 15% 18%` | Primary body text |
+| `--gl-text-muted` | `35 10% 42%` | Secondary labels, captions |
+| `--gl-text-disabled` | `35 8% 62%` | Disabled states, placeholders |
+
+#### Borders — Cream-Tinted
+
+| Token | HSL Value | Usage |
+|-------|-----------|-------|
+| `--gl-border-subtle` | `40 15% 86%` | Card borders, dividers |
+| `--gl-border-strong` | `40 18% 75%` | Emphasized borders |
+
+#### Stars — Rich Gold
+
+| Token | HSL Value | Usage |
+|-------|-----------|-------|
+| `--gl-star-filled` | `45 95% 52%` | Filled star icons |
+| `--gl-star-half` | `45 85% 45%` | Half-filled stars |
+| `--gl-star-empty` | `40 20% 82%` | Empty star outlines |
+
+### 2.3 Dark Mode Palette (Green-Tinted Spotify Style)
+
+Dark mode maintains brand DNA by infusing forest green into neutral surfaces.
+
+#### Backgrounds — Forest-Tinted Blacks
+
+| Token | HSL Value | Usage |
+|-------|-----------|-------|
+| `--gl-bg-app` | `155 20% 7%` | Deep forest-black shell |
+| `--gl-bg-surface` | `155 15% 11%` | Cards (charcoal with green) |
+| `--gl-bg-elevated` | `155 12% 16%` | Lifted surfaces |
+
+#### Primary — Vibrant Forest (Brighter for Dark)
+
+| Token | HSL Value | Usage |
+|-------|-----------|-------|
+| `--gl-primary` | `155 55% 48%` | Vibrant forest green |
+| `--gl-primary-hover` | `155 58% 42%` | Hover state |
+| `--gl-primary-active` | `155 60% 38%` | Pressed state |
+| `--gl-primary-soft` | `155 40% 18%` | Deep forest selection |
+| `--gl-primary-soft-hover` | `155 45% 22%` | Hover on selected |
+| `--gl-primary-outline` | `155 60% 55%` | Focus rings (brighter) |
+
+#### Text — Cream Whites
+
+| Token | HSL Value | Usage |
+|-------|-----------|-------|
+| `--gl-text-default` | `40 8% 96%` | Cream-white text |
+| `--gl-text-muted` | `40 5% 68%` | Warm gray |
+| `--gl-text-disabled` | `40 4% 48%` | Dim warm gray |
+
+#### Borders — Green-Tinted
+
+| Token | HSL Value | Usage |
+|-------|-----------|-------|
+| `--gl-border-subtle` | `155 12% 22%` | Forest-tinted borders |
+| `--gl-border-strong` | `155 15% 32%` | Stronger green tint |
+
+#### Stars — Gold Pops on Dark
+
+| Token | HSL Value | Usage |
+|-------|-----------|-------|
+| `--gl-star-filled` | `45 95% 55%` | Bright gold |
+| `--gl-star-half` | `45 88% 48%` | Rich gold |
+| `--gl-star-empty` | `45 25% 28%` | Muted gold |
+
+### 2.4 Semantic Token Reference
+
+These tokens are derived from the base palette and used for specific UI patterns:
+
+| Token Group | Light Mode | Dark Mode | Usage |
+|-------------|------------|-----------|-------|
+| **Navigation** | | | |
+| `--gl-nav-bg` | `var(--gl-bg-surface)` | `var(--gl-bg-surface)` | Nav bar background |
+| `--gl-nav-item-active-bg` | `var(--gl-primary-soft)` | `var(--gl-primary-soft)` | Active nav item |
+| `--gl-nav-item-active-text` | `var(--gl-text-default)` | `var(--gl-text-default)` | Active nav text |
+| `--gl-nav-item-inactive-text` | `var(--gl-text-muted)` | `var(--gl-text-muted)` | Inactive nav text |
+| **Chips/Pills** | | | |
+| `--gl-chip-selected-bg` | `var(--gl-primary-soft)` | `var(--gl-primary-soft)` | Selected chip fill |
+| `--gl-chip-selected-border` | `155 40% 75%` | `155 45% 35%` | Selected chip stroke |
+| `--gl-chip-selected-text` | `var(--gl-text-default)` | `var(--gl-text-default)` | Selected chip label |
+| `--gl-chip-unselected-bg` | `var(--gl-bg-surface)` | `var(--gl-bg-surface)` | Unselected chip |
+| `--gl-chip-unselected-border` | `var(--gl-border-subtle)` | `var(--gl-border-subtle)` | Unselected stroke |
+| `--gl-chip-unselected-text` | `var(--gl-text-muted)` | `var(--gl-text-muted)` | Unselected label |
+| **Buttons** | | | |
+| `--gl-btn-primary-bg` | `var(--gl-primary)` | `var(--gl-primary)` | Primary button fill |
+| `--gl-btn-primary-text` | `40 20% 99%` | `155 20% 7%` | Primary button text |
+| `--gl-btn-ghost-bg-hover` | `155 25% 94%` | `155 30% 14%` | Ghost button hover |
+
+### 2.5 Tailwind Usage
+
+Colors are exposed as Tailwind utilities via `tailwind.config.js`:
+
+```tsx
+// Backgrounds
+<div className="bg-bg-app">          {/* App shell */}
+<div className="bg-bg-surface">      {/* Cards */}
+<div className="bg-bg-elevated">     {/* Lifted panels */}
+
+// Text
+<p className="text-text-default">    {/* Primary text */}
+<p className="text-text-muted">      {/* Secondary text */}
+
+// Primary colors
+<button className="bg-primary text-btn-primary-text hover:bg-primary-hover">
+<div className="bg-primary-soft">    {/* Selected state */}
+
+// Stars
+<Star className="text-star-filled" />
+<Star className="text-star-half" />
+<Star className="text-star-empty" />
+
+// With alpha values
+<div className="bg-primary/50">      {/* 50% opacity */}
+<div className="border-border-subtle/80">
+```
+
+### 2.6 Theme Implementation
+
+#### Theme Context (`src/contexts/ThemeContext.tsx`)
+
+```tsx
+type Theme = 'light' | 'dark' | 'system';
+
+const ThemeContext = createContext<{
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+}>();
+```
+
+- Persists preference to `localStorage` under key `guidelight-theme`
+- Applies `data-theme="light|dark"` attribute to `<html>` element
+- Defaults to **light mode** on first visit
+- System preference detected via `window.matchMedia('(prefers-color-scheme: dark)')`
+
+#### Theme Toggle (`src/components/ui/theme-toggle.tsx`)
+
+- Located in app footer, **staff-only** (hidden in Customer View)
+- Three options: Light (sun icon) / System (monitor) / Dark (moon)
+- Radio group pattern for accessibility
 
 ---
 
-### 2. Typography
+## 3. Typography
 
-**Font Stack:**
-- Primary: System UI fonts (matches device defaults for optimal rendering)
-- Fallback: `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
+### Font Stack
 
-**Type Scale (Tailwind classes used in the app):**
+```css
+font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+```
 
-| Purpose | Tailwind Class | Font Size | Usage |
-|---------|----------------|-----------|-------|
-| **Eyebrow labels** | `text-xs` | 0.75rem (12px) | Uppercase section headers, metadata |
-| **Helper text** | `text-sm` | 0.875rem (14px) | Form hints, captions, muted descriptions |
-| **Body text** | `text-base` | 1rem (16px) | Default paragraph text, form labels |
-| **Card titles** | `text-lg` | 1.125rem (18px) | Category headers, pick card subtitles |
-| **Section headers** | `text-xl` | 1.25rem (20px) | Card headers, form section titles |
-| **Page titles** | `text-2xl` | 1.5rem (24px) | Staff View page titles |
-| **Hero titles** | `text-3xl` | 1.875rem (30px) | App shell main heading |
+System fonts ensure optimal rendering and performance across devices.
 
-**Weights:**
-- `font-normal` (400) – body text, descriptions
-- `font-semibold` (600) – labels, eyebrows, button text
-- `font-bold` (700) – headings, product names
+### Type Scale
 
-**Line Heights:**
-- `leading-relaxed` (1.625) – body paragraphs for readability
-- `leading-tight` (1.25) – headings
+| Purpose | Tailwind | Size | Weight | Usage |
+|---------|----------|------|--------|-------|
+| Eyebrow | `text-xs` | 12px | 600 | Uppercase section labels |
+| Helper | `text-sm` | 14px | 400 | Form hints, captions |
+| Body | `text-base` | 16px | 400 | Default paragraph text |
+| Card Title | `text-lg` | 18px | 600 | Product names, subtitles |
+| Section | `text-xl` | 20px | 700 | Card headers |
+| Page Title | `text-2xl` | 24px | 700 | Staff View titles |
+| Hero | `text-3xl` | 30px | 700 | App landing headline |
 
-**Case & Tracking:**
-- `uppercase tracking-wider` – eyebrow labels for visual hierarchy
+### Line Heights
+
+- `leading-relaxed` (1.625) — body paragraphs
+- `leading-tight` (1.25) — headings
 
 ---
 
-### 3. Spacing
+## 4. Spacing
 
-Guidelight uses Tailwind's default spacing scale (0.25rem increments, 4px base):
+Tailwind's default 4px scale:
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| `gap-2` | 0.5rem (8px) | Badge clusters, tight inline groups |
-| `gap-3` | 0.75rem (12px) | Grid gaps for buttons, pick cards |
-| `gap-4` | 1rem (16px) | Form field spacing, card content sections |
-| `gap-5` | 1.25rem (20px) | Header sections, large card groups |
-| `gap-6` | 1.5rem (24px) | Major layout sections (Customer/Staff view) |
-| `gap-8` | 2rem (32px) | Top-level app shell sections |
-| `px-4` | 1rem (16px) | Mobile horizontal padding |
-| `px-5` | 1.25rem (20px) | Card horizontal padding |
-| `py-4` | 1rem (16px) | Button vertical padding, card content |
-| `py-10` | 2.5rem (40px) | App shell vertical padding |
+| `gap-2` | 8px | Badge clusters, tight groups |
+| `gap-3` | 12px | Grid gaps, button groups |
+| `gap-4` | 16px | Form fields, card sections |
+| `gap-6` | 24px | Major layout sections |
+| `gap-8` | 32px | App shell sections |
+| `px-4` | 16px | Mobile horizontal padding |
+| `py-4` | 16px | Button vertical padding |
 
-**POS Touch Targets:**
-- Minimum button height: `py-4` (provides ~48px tap target with text)
-- Form inputs: `h-10` or larger (40px minimum)
-- Card padding: `p-4` to `p-6` for comfortable spacing
+### POS Touch Targets
+
+- Minimum button height: `py-4` (~48px with text)
+- Form inputs: `h-10` minimum (40px)
+- Card tap areas: `p-4` to `p-6`
 
 ---
 
-### 4. Radii (Border Radius)
+## 5. Radii (Border Radius)
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| `rounded` | 0.25rem (4px) | Inline code tags, small badges |
-| `rounded-md` | 0.375rem (6px) | Inputs, selects, textareas |
-| `rounded-lg` | 0.5rem (8px) | Cards, pick cards, buttons |
-| `rounded-xl` | 0.75rem (12px) | Larger cards, modal containers (future) |
-
-**Implementation:**
-- Cards use `rounded-lg` by default
-- shadcn components inherit appropriate radii from Tailwind config
-- Buttons and inputs use `rounded-md` for clean, POS-friendly aesthetics
+| `rounded` | 4px | Small badges, inline code |
+| `rounded-md` | 6px | Inputs, selects |
+| `rounded-lg` | 8px | Cards, buttons |
+| `rounded-xl` | 12px | Modal containers |
 
 ---
 
-### 5. Shadows
+## 6. Shadows
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| None | Default | Most cards rely on borders (`border-border`) rather than shadows for definition |
-| `hover:shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle hover lift on interactive cards (future enhancement) |
-| Future: elevation system | TBD | May add card shadows for Customer View depth if needed |
+Guidelight prioritizes **borders over shadows** for POS clarity in varying lighting:
 
-**Current approach:**
-- Guidelight prioritizes **borders over shadows** for POS clarity
-- High contrast borders (`border-border`) ensure elements are visible in varying lighting
-- Hover states use `border-primary` color transitions instead of shadow changes
+| Context | Treatment |
+|---------|-----------|
+| Default | `border-border-subtle` (no shadow) |
+| Hover | `border-primary` color transition |
+| Focus | `ring-2 ring-primary-outline` |
+| Future | May add subtle elevation for depth |
 
 ---
 
-### 6. Components
+## 7. Components
 
-All UI components are built with **shadcn/ui** (Radix primitives + Tailwind styling) and live in `src/components/ui/`.
+Built with **shadcn/ui** (Radix primitives + Tailwind):
 
-**Core Components in Use:**
+### Core Components
 
-| Component | Usage | Key Props/Classes |
-|-----------|-------|-------------------|
-| **Button** | Mode toggles, CTAs, form actions | `variant="default"` (primary), `variant="outline"` (secondary), `size="lg"` for POS |
-| **Card** | Pick cards, category sections, form containers | `bg-surface`, `border-border`, hover states with `hover:border-primary` |
-| **Input** | Product name, brand, rank | `bg-bg` for subtle background, `border-border` |
-| **Label** | Form field labels | `text-text` or `text-text-muted`, paired with inputs |
-| **Textarea** | "Why I love it" field | `resize-none`, `rows={3}`, `bg-bg` |
-| **Select** | Dropdowns for category, product type, time of day | `bg-bg`, full-width on mobile |
-| **Switch** | Active toggles for picks | `checked` state, paired with Label |
-| **Badge** | Effect tags, special roles | `variant="secondary"` with `bg-primary-soft`, `text-xs` |
-| **Tabs** | Category navigation in Customer View | Active tab uses `bg-primary text-primary-foreground` |
+| Component | Location | Key Classes |
+|-----------|----------|-------------|
+| Button | `src/components/ui/button.tsx` | `bg-btn-primary-bg`, `text-btn-primary-text` |
+| Card | `src/components/ui/card.tsx` | `bg-bg-surface`, `border-border-subtle` |
+| StarRating | `src/components/ui/star-rating.tsx` | `text-star-filled`, `text-star-half`, `text-star-empty` |
+| ThemeToggle | `src/components/ui/theme-toggle.tsx` | Radio group with icons |
 
-**Composition Patterns:**
-- **Pick Cards (Customer View):**
-  ```tsx
-  <Card className="bg-surface border-border hover:border-primary transition-colors">
-    <CardHeader>
-      <CardTitle className="text-xl text-text">Product Name</CardTitle>
-      <p className="text-sm text-text-muted">Brand</p>
-    </CardHeader>
-    <CardContent className="space-y-3">
-      {/* Badges, quote, metadata */}
-    </CardContent>
-  </Card>
-  ```
+### Composition Patterns
 
-- **Form Fields (Staff View):**
-  ```tsx
-  <div className="space-y-2">
-    <Label htmlFor="field">Field Label</Label>
-    <Input id="field" className="bg-bg" />
-    <p className="text-xs text-text-muted">Helper text</p>
-  </div>
-  ```
-
-**Responsive Breakpoints:**
-- `sm:` 640px – Stack to 2 columns
-- `md:` 768px – 2-column pick grid
-- `lg:` 1024px – 3-column pick grid (POS optimal)
-
-**POS-Specific Constraints:**
-- Customer View on desktop (lg+): Fixed layout, 3-column grid, ~6-9 cards visible
-- Staff View: Always scrollable, comfortable on any device
-- All touch targets ≥44px for accessibility
-
----
-
-### 7. Icons
-
-Guidelight uses **Lucide React** icons — the same library that powers shadcn/ui. These icons are clean, recognizable, and feel at home in premium apps.
-
-#### Icon Library
-
+**Pick Card (Customer View):**
 ```tsx
-import { Plus, Pencil, Trash2, Check, X, LogOut, LogIn, User, Settings, ChevronDown } from 'lucide-react';
+<Card className="bg-bg-surface border-border-subtle hover:border-primary transition-colors">
+  <CardHeader>
+    <CardTitle className="text-text-default">Product Name</CardTitle>
+    <StarRating value={4.5} readonly />
+  </CardHeader>
+  <CardContent>
+    <p className="text-text-muted">Brand • Category</p>
+  </CardContent>
+</Card>
 ```
 
-#### Standard Icon Mapping
-
-| Action | Icon | Usage Pattern | Context |
-|--------|------|---------------|---------|
-| Add/Create | `Plus` | `<Plus size={16} /> Add` | Primary creation actions |
-| Edit | `Pencil` | Icon-only or with label | Inline edit buttons |
-| Delete | `Trash2` | Icon-only with confirmation | Destructive actions (use sparingly) |
-| Save/Confirm | `Check` | `<Check size={16} /> Save` | Form submissions, confirmations |
-| Cancel/Close | `X` | Icon-only or `Cancel` | Dismiss actions, modal close |
-| Logout | `LogOut` | `<LogOut size={16} /> Logout` | Session end |
-| Login | `LogIn` | `<LogIn size={16} /> Sign in` | Session start |
-| Profile/User | `User` | Icon-only or with name | Profile sections, avatars |
-| Settings | `Settings` | Icon-only or with label | Configuration, management |
-| Expand/Dropdown | `ChevronDown` | Icon-only | Dropdowns, accordions |
-
-#### Size Conventions
-
-| Context | Size | Usage |
-|---------|------|-------|
-| Inline with text | `size={16}` | Buttons, labels, badges |
-| Standalone small | `size={20}` | Icon-only buttons, cards |
-| Standalone large | `size={24}` | Feature cards, empty states |
-
-#### Icon Button Patterns
-
-**Icon + Label (Primary Actions):**
+**Selected Chip:**
 ```tsx
-<Button>
-  <Plus size={16} className="mr-1.5" />
-  Add Pick
-</Button>
+<button className={cn(
+  "border rounded-lg px-4 py-2",
+  isSelected 
+    ? "bg-chip-selected-bg border-chip-selected-border text-chip-selected-text"
+    : "bg-chip-unselected-bg border-chip-unselected-border text-chip-unselected-text"
+)}>
+  {label}
+</button>
 ```
-
-**Icon-Only (Secondary/Inline):**
-```tsx
-<Button variant="ghost" size="sm" aria-label="Edit pick">
-  <Pencil size={16} />
-</Button>
-```
-
-#### Accessibility
-
-- Icon-only buttons **must** have `aria-label` describing the action
-- Icons inherit `currentColor` — no separate icon color tokens needed
-- Ensure sufficient contrast when icons appear on colored backgrounds
 
 ---
 
-### 8. Voice & Tone
+## 8. Icons
 
-Guidelight isn't just functional — it's **friendly, helpful, and a little playful**. We're building for budtenders and their guests, so our voice should feel like a knowledgeable coworker who's happy to help.
+Using **Lucide React** (same as shadcn/ui):
 
-#### Core Principles
+```tsx
+import { Plus, Pencil, Star, Sun, Moon, Monitor } from 'lucide-react';
+```
 
-1. **Helpful, not bossy** — Guide users, don't command them
-2. **Warm, not corporate** — Sound like a person, not a policy document
-3. **Confident, not arrogant** — We know our stuff but stay humble
-4. **Playful, not silly** — A light touch, appropriate for a cannabis dispensary
+### Size Conventions
 
-#### Microcopy Patterns
+| Context | Size | Example |
+|---------|------|---------|
+| Inline with text | `16px` | Button labels |
+| Standalone small | `20px` | Icon-only buttons |
+| Standalone large | `24px` | Empty states |
 
-**Form Field Helper Text:**
-Instead of: "Enter product name"
-Write: "What's the product called? Include the strain name if it's flower."
+### Accessibility
 
-**Empty States:**
-Instead of: "No picks found"
-Write: "No picks yet. Add one to get started."
-
-**Success Messages:**
-Instead of: "Profile updated successfully"
-Write: "Profile saved! Looking good."
-
-**Error Messages:**
-Instead of: "Error: Invalid input"
-Write: "Something's not quite right. Check the highlighted fields?"
-
-#### Examples from the App
-
-**Profile Editing (My vibe field):**
-> "A couple short lines about you and how you like to live & light up. Mix real life (where you're from, hobbies, pets) with how you sesh and the vibes you love."
-
-**Tolerance Cards:**
-> "Heavy hitter — You go through a lot and need stronger options to feel it."
-
-**Footer Easter Egg:**
-> "If a guest is reading this, someone forgot to switch to Customer View. 😉"
-
-#### When to Use Personality
-
-- ✅ Helper text and descriptions
-- ✅ Empty states and onboarding
-- ✅ Success messages and confirmations
-- ✅ Easter eggs in non-critical places
-- ❌ Error messages that block work (keep clear and actionable)
-- ❌ Legal or compliance text
-- ❌ Data labels and form field names (keep scannable)
+- Icon-only buttons **must** have `aria-label`
+- Icons inherit `currentColor` — no separate color needed
 
 ---
 
-## Implementation Notes
+## 9. Voice & Tone
 
-1. **Theme Adjustments:**
-   - To change contrast, edit `src/styles/theme.css` Radix scale steps
-   - To swap primary color, replace `jade` imports with another Radix scale (e.g., `green`, `teal`)
-   - Changes propagate automatically via CSS variables → Tailwind utilities
+Guidelight is **friendly, helpful, and a little playful**.
 
-2. **Adding Components:**
-   - Install via `npx shadcn@latest add <component>`
-   - Components auto-configure with our theme tokens
+### Principles
 
-3. **Custom Styling:**
-   - Use Tailwind utilities first
-   - For one-off tweaks, add inline classes
-   - Avoid custom CSS files; keep styling in JSX
+1. **Helpful, not bossy** — guide users, don't command
+2. **Warm, not corporate** — sound like a person
+3. **Playful, not silly** — light touch, appropriate for cannabis
 
-4. **Future Enhancements:**
-   - Multi-select component for effect tags
-   - Photo upload for budtender profiles
-   - Drag-to-reorder for pick ranking
-   - Toast notifications for save/error states 
+### Examples
 
+| Context | Instead of | Write |
+|---------|------------|-------|
+| Empty state | "No picks found" | "No picks yet. Add one to get started." |
+| Success | "Profile updated" | "Profile saved! Looking good." |
+| Error | "Invalid input" | "Something's not quite right. Check the highlighted fields?" |
+
+---
+
+## 10. Files Reference
+
+| File | Purpose |
+|------|---------|
+| `src/styles/theme.css` | HSL color token definitions |
+| `tailwind.config.js` | Tailwind color utility mapping |
+| `src/contexts/ThemeContext.tsx` | Theme state management |
+| `src/components/ui/theme-toggle.tsx` | Theme switcher component |
+| `src/components/ui/star-rating.tsx` | 5-star rating display/input |
+| `src/components/ui/button.tsx` | Button variants with theme tokens |
+
+---
+
+## 11. Adding New Colors
+
+When you need a new state or variation:
+
+1. **Don't use ad-hoc hex colors** in components
+2. **Derive from existing tokens** by adjusting lightness (±4%) or saturation (±5%)
+3. **Add as a new CSS variable** in `theme.css`
+4. **Expose via Tailwind** in `tailwind.config.js`
+5. **Document here** with usage context
+
+**Example:** Need a warning state?
+```css
+/* In theme.css */
+--gl-warning: 45 90% 50%;        /* Gold-ish, derived from star-filled hue */
+--gl-warning-soft: 45 60% 92%;   /* Light background */
+```
+
+---
+
+**Questions?** Ask Justin or file an issue in the repository.

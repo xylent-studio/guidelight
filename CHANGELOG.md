@@ -11,6 +11,113 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] - 2025-11-25
+
+### Added - Premium Color System & Theme Toggle
+
+#### Color System Overhaul
+- **Forest Green Primary (Hue 155):** Natural cannabis leaf green replaces generic jade
+- **Warm Cream Backgrounds:** Premium organic feel, not clinical white
+- **Gold Rating Stars:** Champagne luxury accents (hue 45)
+- **Green-Tinted Dark Mode:** Spotify-inspired depth with brand DNA in every shade
+
+#### Light Mode Palette
+- Warm cream app shell (`40 30% 97%`) — inviting, not sterile
+- Near-white cards (`40 20% 99%`) with subtle warmth
+- Deep forest green (`155 50% 32%`) for buttons and accents
+- Warm near-black text (`35 15% 18%`) — organic, not harsh
+
+#### Dark Mode Palette  
+- Forest-tinted black (`155 20% 7%`) — brand DNA in backgrounds
+- Green-undertone surfaces (`155 15% 11%`) — Spotify-level richness
+- Vibrant forest green (`155 55% 48%`) — pops on dark
+- Cream-white text (`40 8% 96%`) — warm, not clinical
+
+#### Theme Toggle
+- **ThemeContext:** Light/Dark/System mode management with localStorage persistence
+- **ThemeToggle Component:** Sun/Monitor/Moon radio group in app footer
+- **Staff-Only:** Theme toggle hidden in Customer View
+- **Light Default:** New users start in light mode
+
+### Changed
+- **`src/styles/theme.css`:** Complete rewrite with HSL triplets (no more Radix Color imports)
+- **`tailwind.config.js`:** Added semantic color utilities (`bg-bg-app`, `text-text-muted`, etc.)
+- **Button Component:** Updated to use `bg-btn-primary-bg`, `text-btn-primary-text`
+- **StarRating Component:** Uses `text-star-filled`, `text-star-half`, `text-star-empty`
+- **All Views:** Migrated to semantic color tokens
+
+### Documentation
+- **Complete rewrite of `GUIDELIGHT_DESIGN_SYSTEM.md`:**
+  - Design philosophy section
+  - Full HSL value tables for light and dark modes
+  - Semantic token reference
+  - Theme implementation guide
+  - Tailwind usage examples
+  - Color derivation guidelines
+
+---
+
+## [1.3.0] - 2025-11-25
+
+### Added - 5-Star Rating System & Feedback Portal
+
+#### 5-Star Rating System
+- **Rating Field:** Added `rating` column to picks table (numeric 0.5-5, half-star increments)
+- **StarRating Component:** New reusable component (`src/components/ui/star-rating.tsx`)
+  - Displays filled, half-filled, or empty stars
+  - Input mode: click left/right half of each star for 0.5 increments
+  - Keyboard navigation with arrow keys
+  - Click same position twice to clear rating
+- **`last_active_at` Timestamp:** Tracks when picks were last in active rotation
+- **Sorting Logic:** Active picks sorted by rating (desc) → updated_at (desc); inactive by last_active_at (desc)
+- **Staff View:** Shows star ratings next to each pick, dimmed rows for inactive picks
+- **Customer View:** Shows star rating on each pick card
+
+#### Feedback & Bug Reporting System
+- **Feedback Table:** New `feedback` table with RLS policies
+  - Types: bug, suggestion, feature, general, other
+  - Urgency levels: noting, nice_to_have, annoying, blocking
+  - Anonymous by default, optional name attachment
+  - Status workflow: new → reviewed → in_progress → done/wont_fix
+- **FeedbackButton:** Floating button in bottom-right corner (all pages)
+- **FeedbackModal:** Full submission form with warm SOM-style copy
+  - Type selector with descriptions
+  - Urgency dropdown
+  - Anonymous toggle (default on)
+  - Direct contact info (phone: 518.852.8870, email: justinmichalke@gmail.com)
+- **FeedbackList:** Manager view in Staff Management
+  - New "Feedback" tab with unread badge count
+  - Filter by status (All, New, In Progress, Done)
+  - Status dropdown to update workflow state
+  - Inline internal notes editing
+  - Urgency highlighting for blocking issues
+- **API Layer:** New `src/lib/api/feedback.ts` module
+- **Copy Strings:** Added feedback section to `src/lib/copy.ts`
+
+### Changed
+- **Pick Form:** Removed legacy "Rank (1-3)" field, replaced with star rating input
+- **Database Schema:** 
+  - `picks.rating` changed from integer to `numeric(2,1)` for half-star support
+  - `picks.rank` marked as deprecated (kept for backward compatibility)
+  - Added check constraint for valid half-star values
+
+### Fixed
+- **Rating Column Type:** Fixed migration to properly convert to numeric(2,1)
+- **RLS Function Security:** Added explicit `search_path = public` to helper functions
+  - `is_current_user_manager()` - now secure
+  - `get_current_user_budtender_id()` - now secure
+
+### Security
+- Fixed function search_path vulnerability (2 functions)
+- Note: Enable "Leaked Password Protection" in Supabase Auth settings for production
+
+### Documentation
+- Updated `GUIDELIGHT_SPEC.md` with feedback table schema and rating semantics
+- Updated `ARCHITECTURE_OVERVIEW.md` with feedback API module and component structure
+- Updated `INDEX.md` to reflect v1.3.0
+
+---
+
 ## [1.2.0] - 2025-11-25
 
 ### Added - Guidelight-Branded Email Templates & Warm Copy Audit
@@ -255,6 +362,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Key Changes |
 |---------|------|-------------|
+| 1.4.0 | 2025-11-25 | Premium color system (forest green + cream), theme toggle, design system docs |
+| 1.3.0 | 2025-11-25 | 5-star ratings (half-star support), feedback portal, security fixes |
+| 1.2.0 | 2025-11-25 | Custom email templates, centralized copy system, pick form modal |
+| 1.1.0 | 2025-11-25 | Profile field enhancements, landing screen polish, RLS fixes |
+| 1.0.0 | 2025-11-25 | Auth system, staff management, invite flow, Edge Functions |
 | 0.3.0 | 2025-11-19 | UI foundation (Tailwind + shadcn), API helpers, live data, docs overhaul |
 | 0.2.0 | 2025-11-19 | Supabase schema, RLS policies, type generation |
 | 0.1.0 | 2025-11-19 | Initial scaffolding, placeholder views, core docs |

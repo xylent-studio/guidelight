@@ -23,9 +23,10 @@ Guidelight is a **client-side React app** that reads and writes data directly to
 
 - **Frontend:** Vite + React + TypeScript
 - **Backend-as-a-service:** Supabase
-  - Tables: `budtenders`, `categories`, `picks`
+  - Tables: `budtenders`, `categories`, `picks`, `feedback`
   - Optional later: `packs`, `sessions`, etc.
   - `budtenders` rows map 1:1 with Supabase `auth.users` via a unique `auth_user_id`, include optional `slug` + `picks_note_override` fields, and `picks` enforce one active `special_role` per staff member with a partial unique index plus optional `category_line` + `doodle_key` metadata for the Budtender Board layout.
+  - `feedback` stores bug reports, suggestions, and feature requests from staff with status tracking for managers.
 - **Runtime:** Node.js ≥ 20.19.0 or 22.12+ (see README prerequisites).
 - **Hosting:**
   - Static frontend hosted on **Netlify** (production: `guidelight.xylent.studio`)
@@ -47,21 +48,30 @@ Planned `src/` layout:
 src/
   lib/
     supabaseClient.ts
+    copy.ts             # Centralized UI copy/strings
     api/
+      auth.ts
       budtenders.ts
       categories.ts
       picks.ts
+      feedback.ts       # Feedback submission and management
+      staff-management.ts
   components/
     ui/               # shadcn/ui components (Button, Card, Input, etc.)
-    layout/
+    layout/           # AppLayout, ModeToggle
     budtenders/
     picks/
+    feedback/         # FeedbackButton, FeedbackModal, FeedbackList
+    staff-management/
     shared/
+  contexts/
+    AuthContext.tsx   # Authentication state provider
   styles/
     theme.css         # Radix Colors + semantic design tokens
   views/
     CustomerView.tsx
     StaffView.tsx
+    StaffManagementView.tsx
   App.tsx
   main.tsx
   index.css           # Tailwind imports + global styles
@@ -139,9 +149,18 @@ Each file wraps Supabase calls for a specific domain:
 
 - `picks.ts`
   - `getPicksForBudtender()`, `getPicksForBudtenderAndCategory()`, `getActivePicksForBudtender()`
-  - `createPick(data)`, `updatePick(id, data)`, `deletePick(id)`, `deactivatePick(id)`
+  - `createPick(data)`, `updatePick(id, data, currentPick?)`, `deletePick(id)`, `deactivatePick(id)`, `togglePickActive(pick)`
+  - All list functions apply client-side sorting: active picks first (by `rating` desc, then `updated_at` desc), then inactive picks (by `last_active_at` desc, then `updated_at` desc).
+  - Create/update functions automatically manage `last_active_at` timestamps.
 
-These modules return typed data structures (`Pick`, `Budtender`, etc.) used by views and components. All mutations respect RLS policies (no service role key usage).
+- `feedback.ts`
+  - `submitFeedback(data)` - Submit feedback (all staff)
+  - `getFeedback()` - Get all feedback sorted by created_at desc (manager-only, RLS enforced)
+  - `getFeedbackByStatus(status)` - Filter feedback by status (manager-only)
+  - `updateFeedbackStatus(id, updates)` - Update status and/or notes (manager-only)
+  - `getNewFeedbackCount()` - Get count of unreviewed feedback (for badge display)
+
+These modules return typed data structures (`Pick`, `Budtender`, `Feedback`, etc.) used by views and components. All mutations respect RLS policies (no service role key usage).
 
 ---
 
@@ -291,7 +310,8 @@ Roles: `budtender`, `vault_tech`, `manager`. Vault techs are back-of-house inven
 
 - **`budtenders`**: everyone can `SELECT`; staff may `UPDATE` only their own row; managers can `UPDATE` any row; managers can `INSERT` new budtenders (for invite flow); managers can `DELETE` (hard delete with cascades, with UI + RLS self-deletion protection).
 - **`categories`**: everyone can `SELECT`; mutations are seed/admin-only for MVP.
-- **`picks`**: everyone can `SELECT`; staff can `INSERT`/`UPDATE`/`DELETE` picks tied to their own `budtender_id`; managers can modify picks for any staff member. A partial unique index ensures only one active `special_role` per staff member, while `rank` stays a soft client-side sort key.
+- **`picks`**: everyone can `SELECT`; staff can `INSERT`/`UPDATE`/`DELETE` picks tied to their own `budtender_id`; managers can modify picks for any staff member. A partial unique index ensures only one active `special_role` per staff member. Picks are sorted client-side by: active status first, then `rating` (5→1, null last), then `updated_at` (most recent first). Inactive picks sort by `last_active_at` descending.
+- **`feedback`**: all authenticated staff can `INSERT` (submit feedback); only managers can `SELECT` (view) and `UPDATE` (change status/notes).
 
 Future:
 

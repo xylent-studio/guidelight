@@ -57,7 +57,57 @@ export async function inviteStaff(name, email, role, metadata) {
 
 ---
 
-### **2. Toast Notifications**
+### **2. Customer View Fullscreen Mode** 🆕
+**Current (MVP):** No fullscreen option  
+**Improvement:** Toggle fullscreen for POS displays
+
+**Requirements:**
+- **Button location:** Centered-right of the "Budtenders & their picks" header
+- **Icon:** Expand/fullscreen icon (e.g., `Maximize2` from Lucide)
+- **Behavior:** 
+  - Click toggles browser Fullscreen API (`document.documentElement.requestFullscreen()`)
+  - When fullscreen: Show small exit button (corner) to return to normal view
+  - Escape key also exits fullscreen (browser default)
+- **States:**
+  - Normal: Show expand icon with "Fullscreen" tooltip
+  - Fullscreen: Show minimize icon with "Exit Fullscreen" tooltip
+
+**Implementation:**
+```typescript
+// Custom hook for fullscreen
+function useFullscreen() {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  
+  const toggle = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }, []);
+  
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+  
+  return { isFullscreen, toggle };
+}
+```
+
+**Benefits:**
+- ✅ Cleaner POS display (no browser chrome)
+- ✅ Maximizes screen real estate for customer-facing view
+- ✅ Professional kiosk-like experience
+- ✅ Easy to exit when needed
+
+**Effort:** 2-3 hours  
+**Priority:** High (requested for POS experience)
+
+---
+
+### **4. Toast Notifications**
 **Current (MVP):** `alert()` for all feedback  
 **Improvement:** Non-blocking toast notifications
 
@@ -91,7 +141,7 @@ toast.success('Profile created!', { id: toastId });
 
 ---
 
-### **3. Audit Logging**
+### **5. Audit Logging**
 **Current (MVP):** No activity tracking  
 **Improvement:** Log all critical actions
 
@@ -139,7 +189,7 @@ create index audit_logs_action_created_idx on audit_logs(action, created_at desc
 
 ## 🎯 Medium Priority (V1.2)
 
-### **4. Soft Delete with Restore**
+### **6. Soft Delete with Restore**
 **Current (MVP):** Hard delete only  
 **Improvement:** 30-day grace period
 
@@ -170,7 +220,7 @@ create view active_budtenders as
 
 ---
 
-### **5. Bulk Operations**
+### **7. Bulk Operations**
 **Current (MVP):** One-at-a-time actions  
 **Improvement:** Multi-select + bulk actions
 
@@ -190,7 +240,7 @@ create view active_budtenders as
 
 ---
 
-### **6. Staff Profile Photos**
+### **8. Staff Profile Photos**
 **Current (MVP):** No photos  
 **Improvement:** Upload/display photos
 
@@ -212,45 +262,45 @@ create view active_budtenders as
 
 ## 💡 Nice to Have (V2.0)
 
-### **7. Email Customization**
+### **9. Email Customization**
 Allow managers to customize invite email template:
 - Custom welcome message
 - Store branding
 - Training resources links
 
-### **8. Role-Based Permissions**
+### **10. Role-Based Permissions**
 More granular than budtender/manager:
 - View-only users (for ownership/corporate)
 - Inventory manager (vault tech + special permissions)
 - Custom roles with permission matrix
 
-### **9. Staff Onboarding Checklist**
+### **11. Staff Onboarding Checklist**
 Track new hire progress:
 - Profile completed
 - First pick added
 - Training modules viewed
 - First Customer View session
 
-### **10. Performance Analytics**
+### **12. Performance Analytics**
 Track staff engagement:
 - Pick update frequency
 - Customer View usage
 - Popular picks by staff
 - Conversion metrics (if integrated with POS)
 
-### **11. Advanced Search & Filtering**
+### **13. Advanced Search & Filtering**
 Search staff by:
 - Name, email, role
 - Expertise, vibe, tolerance (profile fields)
 - Date added, last active
 - Pick count, categories covered
 
-### **12. Import/Export**
+### **14. Import/Export**
 - Bulk import staff from CSV
 - Export staff list with picks
 - Backup/restore functionality
 
-### **13. Mobile App Optimization**
+### **15. Mobile App Optimization**
 - Progressive Web App (PWA)
 - Offline mode
 - Push notifications
@@ -260,19 +310,19 @@ Search staff by:
 
 ## 🔒 Security Enhancements
 
-### **14. Two-Factor Authentication (2FA)**
+### **16. Two-Factor Authentication (2FA)**
 For manager accounts:
 - TOTP (Google Authenticator)
 - SMS backup codes
 - Required for sensitive actions (delete staff)
 
-### **15. Session Management**
+### **17. Session Management**
 - View active sessions
 - Force logout (security breach)
 - Session timeout customization
 - IP whitelisting for managers
 
-### **16. Advanced RLS**
+### **18. Advanced RLS**
 - Time-based access (work hours only)
 - Location-based access (in-store only)
 - Temporary elevated permissions
@@ -281,24 +331,24 @@ For manager accounts:
 
 ## 🛠️ Technical Debt
 
-### **17. Automated Testing**
+### **19. Automated Testing**
 - Unit tests (Vitest)
 - Integration tests (Playwright)
 - E2E tests for critical flows
 - RLS policy tests
 
-### **18. Performance Optimization**
+### **20. Performance Optimization**
 - Code splitting (reduce bundle size)
 - Image optimization
 - Lazy loading for staff list
 - Virtual scrolling for large lists
 
-### **19. Error Boundary**
+### **21. Error Boundary**
 - Catch React errors gracefully
 - Show friendly error page
 - Auto-report to error tracking (Sentry)
 
-### **20. TypeScript Strictness**
+### **22. TypeScript Strictness**
 - Enable `strict: true`
 - Remove any `any` types
 - Proper error typing
@@ -323,23 +373,24 @@ For manager accounts:
 
 ### **Phase 1: Production Hardening (Week 1-2)**
 1. ✅ Proper invite flow (Edge Function)
-2. ✅ Toast notifications
-3. ✅ Audit logging
+2. 🔜 Customer View fullscreen mode (High priority for POS)
+3. Toast notifications
+4. Audit logging
 
 ### **Phase 2: UX Polish (Week 3-4)**
-4. ✅ Soft delete with restore
-5. ✅ Bulk operations
-6. ✅ Staff photos
+5. Soft delete with restore
+6. Bulk operations
+7. Staff photos
 
 ### **Phase 3: Advanced Features (Month 2)**
-7. ✅ Email customization
-8. ✅ Role-based permissions
-9. ✅ Performance analytics
+8. Email customization
+9. Role-based permissions
+10. Performance analytics
 
 ### **Phase 4: Scale & Security (Month 3+)**
-10. ✅ Advanced search
-11. ✅ 2FA for managers
-12. ✅ Automated testing
+11. Advanced search
+12. 2FA for managers
+13. Automated testing
 
 ---
 

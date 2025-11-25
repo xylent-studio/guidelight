@@ -62,10 +62,10 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center px-4">
-      <Card className="w-full max-w-md bg-surface border-border">
+    <div className="min-h-screen bg-bg-app flex items-center justify-center px-4">
+      <Card className="w-full max-w-md bg-bg-surface border-border-subtle">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-text">
+          <CardTitle className="text-2xl font-bold text-text-default">
             {auth.login.title}
           </CardTitle>
           <CardDescription className="text-text-muted">
@@ -75,7 +75,7 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-text">
+              <Label htmlFor="email" className="text-text-default">
                 Email
               </Label>
               <Input
@@ -85,14 +85,14 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                className="bg-bg border-border"
+                className="bg-bg-app border-border-subtle"
                 autoComplete="email"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-text">
+              <Label htmlFor="password" className="text-text-default">
                 Password
               </Label>
               <PasswordInput
@@ -101,7 +101,7 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
-                className="bg-bg border-border"
+                className="bg-bg-app border-border-subtle"
                 autoComplete="current-password"
                 required
               />
@@ -114,7 +114,7 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
                 checked={rememberMe}
                 onChange={(e) => handleRememberMeChange(e.target.checked)}
                 disabled={loading}
-                className="h-4 w-4 rounded border-border text-primary focus:ring-primary focus:ring-offset-bg"
+                className="h-4 w-4 rounded border-border-subtle text-primary focus:ring-primary focus:ring-offset-bg-app"
               />
               <Label 
                 htmlFor="remember-me" 

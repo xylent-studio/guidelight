@@ -83,6 +83,59 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          id: string
+          type: string
+          description: string
+          urgency: string | null
+          is_anonymous: boolean
+          submitter_id: string | null
+          submitter_name: string | null
+          page_context: string | null
+          created_at: string
+          status: string
+          reviewed_at: string | null
+          notes: string | null
+        }
+        Insert: {
+          id?: string
+          type: string
+          description: string
+          urgency?: string | null
+          is_anonymous?: boolean
+          submitter_id?: string | null
+          submitter_name?: string | null
+          page_context?: string | null
+          created_at?: string
+          status?: string
+          reviewed_at?: string | null
+          notes?: string | null
+        }
+        Update: {
+          id?: string
+          type?: string
+          description?: string
+          urgency?: string | null
+          is_anonymous?: boolean
+          submitter_id?: string | null
+          submitter_name?: string | null
+          page_context?: string | null
+          created_at?: string
+          status?: string
+          reviewed_at?: string | null
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_submitter_id_fkey"
+            columns: ["submitter_id"]
+            isOneToOne: false
+            referencedRelation: "budtenders"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       picks: {
         Row: {
           brand: string | null
@@ -96,10 +149,12 @@ export type Database = {
           experience_level: string | null
           id: string
           is_active: boolean
+          last_active_at: string | null
           pre_roll_subtype: string | null
           product_name: string
           product_type: string
           rank: number
+          rating: number | null
           special_role: string | null
           time_of_day: string
           updated_at: string
@@ -117,10 +172,12 @@ export type Database = {
           experience_level?: string | null
           id?: string
           is_active?: boolean
+          last_active_at?: string | null
           pre_roll_subtype?: string | null
           product_name: string
           product_type: string
           rank?: number
+          rating?: number | null
           special_role?: string | null
           time_of_day?: string
           updated_at?: string
@@ -138,10 +195,12 @@ export type Database = {
           experience_level?: string | null
           id?: string
           is_active?: boolean
+          last_active_at?: string | null
           pre_roll_subtype?: string | null
           product_name?: string
           product_type?: string
           rank?: number
+          rating?: number | null
           special_role?: string | null
           time_of_day?: string
           updated_at?: string

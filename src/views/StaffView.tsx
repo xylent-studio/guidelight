@@ -7,12 +7,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { StarRating } from '@/components/ui/star-rating';
 import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm';
 import { PickFormModal } from '@/components/picks';
 import { Plus, Pencil, Check, X } from 'lucide-react';
 import { getActiveBudtenders, updateBudtender } from '@/lib/api/budtenders';
 import { getCategories } from '@/lib/api/categories';
-import { getPicksForBudtender, updatePick } from '@/lib/api/picks';
+import { getPicksForBudtender, togglePickActive } from '@/lib/api/picks';
 import { useAuth } from '@/contexts/AuthContext';
 import { staffView, profile, errors } from '@/lib/copy';
 import type { Database } from '@/types/database';
@@ -200,9 +201,9 @@ export function StaffView() {
     }
   };
 
-  const handleToggleActive = async (pickId: string, currentActive: boolean) => {
+  const handleToggleActive = async (pick: Pick) => {
     try {
-      await updatePick(pickId, { is_active: !currentActive });
+      await togglePickActive(pick);
       const picksData = await getPicksForBudtender(selectedBudtender);
       setPicks(picksData);
     } catch (err) {
@@ -281,7 +282,7 @@ export function StaffView() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <h3 className="text-lg font-semibold text-text">{errors.networkInline.heading}</h3>
+        <h3 className="text-lg font-semibold text-text-default">{errors.networkInline.heading}</h3>
         <p className="text-text-muted text-center max-w-md">{errors.networkInline.body}</p>
         <Button onClick={() => window.location.reload()} variant="outline">
           {errors.networkInline.retry}
@@ -301,9 +302,9 @@ export function StaffView() {
       )}
 
       {/* Budtender Selector */}
-      <Card className="bg-surface border-border">
+      <Card className="bg-bg-surface border-border-subtle">
         <CardHeader>
-          <CardTitle className="text-xl text-text">{staffView.budtenderSelector.heading}</CardTitle>
+          <CardTitle className="text-xl text-text-default">{staffView.budtenderSelector.heading}</CardTitle>
           <CardDescription>{staffView.budtenderSelector.subtext}</CardDescription>
         </CardHeader>
         <CardContent>
@@ -324,10 +325,10 @@ export function StaffView() {
 
       {/* My Profile Section */}
       {selectedBudtender && canEditProfile && (
-        <Card className="bg-surface border-border">
+        <Card className="bg-bg-surface border-border-subtle">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <div>
-              <CardTitle className="text-xl text-text">
+              <CardTitle className="text-xl text-text-default">
                 {isOwnProfile ? staffView.myProfile.title : `${selectedBudtenderData?.name}'s Profile`}
               </CardTitle>
               <CardDescription>
@@ -376,7 +377,7 @@ export function StaffView() {
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-text-muted mb-1">My vibe</p>
-                  <p className="text-text">
+                  <p className="text-text-default">
                     {selectedBudtenderData?.profile_vibe || (
                       <span className="text-text-muted italic">Not set yet</span>
                     )}
@@ -384,7 +385,7 @@ export function StaffView() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-text-muted mb-1">Expertise</p>
-                  <p className="text-text">
+                  <p className="text-text-default">
                     {selectedBudtenderData?.profile_expertise || (
                       <span className="text-text-muted italic">Not set yet</span>
                     )}
@@ -392,7 +393,7 @@ export function StaffView() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-text-muted mb-1">Tolerance</p>
-                  <p className="text-text">
+                  <p className="text-text-default">
                     {selectedBudtenderData?.profile_tolerance || (
                       <span className="text-text-muted italic">Not set yet</span>
                     )}
@@ -411,8 +412,8 @@ export function StaffView() {
                     </p>
                   </div>
                   
-                  <div className="p-3 bg-bg-soft border border-border rounded-md text-xs text-text-muted space-y-2">
-                    <p className="font-medium text-text">Try one of these patterns (1–3 sentences is perfect):</p>
+                  <div className="p-3 bg-bg-elevated border border-border-subtle rounded-md text-xs text-text-muted space-y-2">
+                    <p className="font-medium text-text-default">Try one of these patterns (1–3 sentences is perfect):</p>
                     <ul className="list-disc list-inside space-y-1">
                       <li>"I'm a [hometown] [role/hobby] who loves [product type] for [kind of night]."</li>
                       <li>"When I'm not at SOM, I'm usually [hobby], and my go-tos are [product] for [situation]."</li>
@@ -427,7 +428,7 @@ export function StaffView() {
                     onChange={(e) => setProfileVibe(e.target.value)}
                     disabled={profileSaving}
                     rows={3}
-                    className="resize-none bg-bg"
+                    className="resize-none bg-bg-app"
                   />
 
                   <button
@@ -463,7 +464,7 @@ export function StaffView() {
                     value={profileExpertise}
                     onChange={(e) => setProfileExpertise(e.target.value)}
                     disabled={profileSaving}
-                    className="bg-bg"
+                    className="bg-bg-app"
                   />
 
                   <div className="flex flex-wrap gap-1.5">
@@ -472,7 +473,7 @@ export function StaffView() {
                         key={idx}
                         type="button"
                         onClick={() => setProfileExpertise(example)}
-                        className="px-2 py-1 text-xs bg-bg-soft border border-border rounded hover:border-primary hover:bg-primary-soft/20 transition-colors"
+                        className="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded hover:border-primary hover:bg-primary-soft transition-colors"
                         disabled={profileSaving}
                       >
                         {example}
@@ -500,11 +501,11 @@ export function StaffView() {
                         disabled={profileSaving}
                         className={`p-3 text-left border rounded-lg transition-all ${
                           selectedToleranceBand === band.id
-                            ? 'border-primary bg-primary-soft/30 ring-1 ring-primary'
-                            : 'border-border hover:border-primary/50 hover:bg-bg-soft'
+                            ? 'border-primary bg-primary-soft ring-1 ring-primary'
+                            : 'border-border-subtle hover:border-primary/50 hover:bg-bg-elevated'
                         }`}
                       >
-                        <p className="font-medium text-sm text-text">{band.label}</p>
+                        <p className="font-medium text-sm text-text-default">{band.label}</p>
                         <p className="text-xs text-text-muted mt-1">{band.description}</p>
                       </button>
                     ))}
@@ -520,7 +521,7 @@ export function StaffView() {
                       setSelectedToleranceBand(null);
                     }}
                     disabled={profileSaving}
-                    className="bg-bg"
+                    className="bg-bg-app"
                   />
                   <p className="text-xs text-text-muted">
                     Select a band above to get started, then edit the text to make it your own.
@@ -535,7 +536,7 @@ export function StaffView() {
       {/* Quick Add Pick Card */}
       {selectedBudtender && (isOwnProfile || isManager) && (
         <Card 
-          className="bg-surface border-border border-dashed hover:border-primary cursor-pointer transition-colors group"
+          className="bg-bg-surface border-border-subtle border-dashed hover:border-primary cursor-pointer transition-colors group"
           onClick={handleAddPickGeneral}
         >
           <CardContent className="flex items-center gap-4 py-5">
@@ -543,7 +544,7 @@ export function StaffView() {
               <Plus size={20} className="text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold text-text group-hover:text-primary transition-colors">
+              <h3 className="font-semibold text-text-default group-hover:text-primary transition-colors">
                 {staffView.addPick.cardTitle}
               </h3>
               <p className="text-sm text-text-muted">
@@ -560,10 +561,10 @@ export function StaffView() {
           const categoryPicks = picks.filter((pick) => pick.category_id === category.id);
 
           return (
-            <Card key={category.id} className="bg-surface border-border">
+            <Card key={category.id} className="bg-bg-surface border-border-subtle">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                 <div>
-                  <CardTitle className="text-lg text-text">{category.name}</CardTitle>
+                  <CardTitle className="text-lg text-text-default">{category.name}</CardTitle>
                   <CardDescription>
                     {categoryPicks.length} pick{categoryPicks.length !== 1 ? 's' : ''}
                   </CardDescription>
@@ -584,11 +585,14 @@ export function StaffView() {
                   categoryPicks.map((pick) => (
                     <div
                       key={pick.id}
-                      className="flex items-center justify-between p-4 bg-bg-soft border border-border rounded-lg hover:border-primary transition-colors"
+                      className={`flex items-center justify-between p-4 bg-bg-elevated border border-border-subtle rounded-lg hover:border-primary transition-colors ${
+                        !pick.is_active ? 'opacity-50' : ''
+                      }`}
                     >
                       <div className="flex-1 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-semibold text-text">{pick.product_name}</h4>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="font-semibold text-text-default">{pick.product_name}</h4>
+                          <StarRating value={pick.rating} size={14} />
                           {pick.special_role && (
                             <Badge variant="outline" className="text-xs">
                               {pick.special_role.replace(/_/g, ' ')}
@@ -600,7 +604,17 @@ export function StaffView() {
                             </Badge>
                           )}
                         </div>
-                        {pick.brand && <p className="text-sm text-text-muted">{pick.brand}</p>}
+                        <div className="flex items-center gap-2 text-sm text-text-muted">
+                          {pick.brand && <span>{pick.brand}</span>}
+                          {!pick.is_active && pick.last_active_at && (
+                            <>
+                              {pick.brand && <span>·</span>}
+                              <span className="text-xs">
+                                Last active {new Date(pick.last_active_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </span>
+                            </>
+                          )}
+                        </div>
                       </div>
                       {(isOwnProfile || isManager) && (
                         <div className="flex items-center gap-4">
@@ -611,7 +625,7 @@ export function StaffView() {
                             <Switch
                               id={`active-${pick.id}`}
                               checked={pick.is_active}
-                              onCheckedChange={() => handleToggleActive(pick.id, pick.is_active)}
+                              onCheckedChange={() => handleToggleActive(pick)}
                             />
                           </div>
                           <Button onClick={() => handleEditPick(pick)} variant="ghost" size="sm" aria-label="Edit pick">
