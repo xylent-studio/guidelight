@@ -3,10 +3,13 @@
 # 
 # To apply email template changes to the hosted project:
 # See DEPLOYMENT.md for instructions on syncing via Dashboard or Management API
+# 
+# Project Reference: nczhptgnaghunfrsriuz (Guidelight)
 
-[project]
-id = "guidelight"
-name = "Guidelight"
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
 
 # ============================================================================
 # Email Templates - Guidelight / State of Mind branded

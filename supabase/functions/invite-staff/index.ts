@@ -120,6 +120,73 @@ serve(async (req) => {
       }
     )
 
+    // Check if user already exists
+    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers()
+    const existingUser = existingUsers?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase())
+    
+    if (existingUser) {
+      console.log('[Edge Function] User already exists:', existingUser.id, 'confirmed:', existingUser.email_confirmed_at)
+      
+      // Check if they have a budtender profile
+      const { data: existingProfile } = await supabaseAdmin
+        .from('budtenders')
+        .select('id, name, is_active')
+        .eq('auth_user_id', existingUser.id)
+        .single()
+      
+      if (existingProfile) {
+        // User fully exists - can't re-invite
+        throw new Error(`${email} is already a staff member (${existingProfile.name}). You can resend their password reset from Staff Management if they need access.`)
+      }
+      
+      // User exists in auth but no profile - this shouldn't happen normally
+      // Create the profile for them
+      console.log('[Edge Function] Creating missing profile for existing auth user')
+      const { data: budtenderData, error: budtenderError } = await supabaseAdmin
+        .from('budtenders')
+        .insert({
+          auth_user_id: existingUser.id,
+          name,
+          role,
+          location: location || null,
+          profile_expertise: profile_expertise || null,
+          profile_vibe: profile_vibe || null,
+          profile_tolerance: profile_tolerance || null,
+          is_active: true,
+        })
+        .select()
+        .single()
+      
+      if (budtenderError) {
+        console.error('[Edge Function] Profile creation error:', budtenderError)
+        throw new Error(`Failed to create budtender profile: ${budtenderError.message}`)
+      }
+      
+      // Resend invite email for existing user
+      const { error: resendError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email)
+      if (resendError) {
+        console.log('[Edge Function] Could not resend invite (user may already be confirmed):', resendError.message)
+      }
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          data: {
+            auth_user_id: existingUser.id,
+            budtender_id: budtenderData.id,
+            name,
+            email,
+            role,
+          },
+          message: `Profile created for ${name}. They can log in with their existing credentials or use password reset.`,
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      )
+    }
+
     // Step 1: Create auth user and send invite email
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
       email,
@@ -133,9 +200,10 @@ serve(async (req) => {
 
     if (authError) {
       console.error('[Edge Function] Auth creation error:', authError)
-      // Check for duplicate email
-      if (authError.message.includes('already registered') || authError.message.includes('User already registered')) {
-        throw new Error(`Email ${email} is already registered. Please use a different email.`)
+      // Check for duplicate email (fallback check)
+      if (authError.message.toLowerCase().includes('already registered') || 
+          authError.message.toLowerCase().includes('already been registered')) {
+        throw new Error(`${email} is already registered in the system. Use password reset if they need access.`)
       }
       throw new Error(`Failed to create auth user: ${authError.message}`)
     }
