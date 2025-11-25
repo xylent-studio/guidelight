@@ -15,6 +15,13 @@ This is the central hub for all Guidelight project documentation. If you're new 
 3. [docs/GUIDELIGHT_SPEC.md](./GUIDELIGHT_SPEC.md) - Full product specification
 4. [notes/DEV_QUICK_REFERENCE.md](../notes/DEV_QUICK_REFERENCE.md) - Code patterns & quick lookup
 
+### **For Staff: User Guides**
+| Document | Purpose | Audience | Status | Last Updated |
+|----------|---------|----------|--------|--------------|
+| [USER_GUIDE_STAFF.md](./USER_GUIDE_STAFF.md) | Budtender onboarding: profile setup, adding picks, using Customer View | Budtenders | ✅ Active | 2025-11-25 |
+| [USER_GUIDE_MANAGER.md](./USER_GUIDE_MANAGER.md) | Manager admin: inviting staff, team management, feedback review | Managers | ✅ Active | 2025-11-25 |
+| [screenshots/README.md](./screenshots/README.md) | Screenshot gallery for demos and documentation | All | ✅ Active | 2025-11-25 |
+
 ### **Product Documentation**
 | Document | Purpose | Audience | Status | Last Updated |
 |----------|---------|----------|--------|--------------|
@@ -62,6 +69,11 @@ This is the central hub for all Guidelight project documentation. If you're new 
 
 ## 🎯 Quick Links by Task
 
+### "I'm a new staff member..."
+- **Budtender getting started** → [USER_GUIDE_STAFF.md](./USER_GUIDE_STAFF.md)
+- **Manager getting started** → [USER_GUIDE_MANAGER.md](./USER_GUIDE_MANAGER.md)
+- **What does Guidelight look like?** → [screenshots/README.md](./screenshots/README.md)
+
 ### "I need to understand..."
 - **What Guidelight is** → [README.md](../README.md)
 - **What features we're building** → [GUIDELIGHT_SPEC.md](./GUIDELIGHT_SPEC.md)
@@ -101,13 +113,17 @@ guidelight/
 │
 ├── docs/                                  # Core documentation
 │   ├── INDEX.md                           # ← You are here
+│   ├── USER_GUIDE_STAFF.md                # ✨ Budtender onboarding guide
+│   ├── USER_GUIDE_MANAGER.md              # ✨ Manager admin guide
 │   ├── GUIDELIGHT_SPEC.md                 # Product specification
 │   ├── ARCHITECTURE_OVERVIEW.md           # Technical architecture
 │   ├── GUIDELIGHT_DESIGN_SYSTEM.md        # Design system
 │   ├── AI_ASSISTANCE.md                   # AI tooling guide
 │   ├── GUIDELIGHT_DEV_AGENT.md            # Cursor agent instructions
 │   ├── BUDTENDER_PICKS_BOARD_SPEC.md      # Future feature spec
-│   └── BUDTENDER_PICKS_BOARD_TECH_DESIGN.md  # Future feature tech design
+│   ├── BUDTENDER_PICKS_BOARD_TECH_DESIGN.md  # Future feature tech design
+│   └── screenshots/                       # ✨ MVP screenshot gallery
+│       └── README.md                      # Screenshot documentation
 │
 ├── notes/                                 # Planning, decisions, logs
 │   ├── GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md  # MVP plan (completed)
@@ -167,5 +183,5 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for general contribution guidelines.
 
 ---
 
-**This index is maintained manually. Last reviewed: 2025-11-25 (v1.4.0 - Premium Color System)**
+**This index is maintained manually. Last reviewed: 2025-11-25 (v1.4.0 - User Guides + Screenshots)**
 
