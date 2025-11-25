@@ -8,9 +8,10 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm';
+import { PickFormModal } from '@/components/picks';
 import { getActiveBudtenders, updateBudtender } from '@/lib/api/budtenders';
 import { getCategories } from '@/lib/api/categories';
-import { getPicksForBudtender, createPick, updatePick } from '@/lib/api/picks';
+import { getPicksForBudtender, updatePick } from '@/lib/api/picks';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Database } from '@/types/database';
 
@@ -18,7 +19,6 @@ import type { Database } from '@/types/database';
 type Budtender = Database['public']['Tables']['budtenders']['Row'];
 type Category = Database['public']['Tables']['categories']['Row'];
 type Pick = Database['public']['Tables']['picks']['Row'];
-type PickInsert = Database['public']['Tables']['picks']['Insert'];
 
 type FormMode = 'closed' | 'add' | 'edit';
 
@@ -73,9 +73,10 @@ export function StaffView() {
   const [selectedBudtender, setSelectedBudtender] = useState<string>('');
   const [formMode, setFormMode] = useState<FormMode>('closed');
   const [editingPick, setEditingPick] = useState<Pick | null>(null);
+  const [formCategoryId, setFormCategoryId] = useState<string>('');
+  const [formCategoryName, setFormCategoryName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Partial<PickInsert>>({});
 
   // Profile editing state
   const [profileEditing, setProfileEditing] = useState(false);
@@ -153,60 +154,33 @@ export function StaffView() {
   }, [selectedBudtenderData]);
 
   const handleAddPick = (categoryId: string) => {
+    const category = categories.find(c => c.id === categoryId);
+    setFormCategoryId(categoryId);
+    setFormCategoryName(category?.name || 'Unknown Category');
     setFormMode('add');
     setEditingPick(null);
-    setFormData({
-      budtender_id: selectedBudtender,
-      category_id: categoryId,
-      product_name: '',
-      product_type: 'flower',
-      time_of_day: 'Anytime',
-      rank: 1,
-      is_active: true,
-    });
   };
 
   const handleEditPick = (pick: Pick) => {
+    const category = categories.find(c => c.id === pick.category_id);
+    setFormCategoryId(pick.category_id);
+    setFormCategoryName(category?.name || 'Unknown Category');
     setFormMode('edit');
     setEditingPick(pick);
-    setFormData({
-      product_name: pick.product_name,
-      brand: pick.brand,
-      category_id: pick.category_id,
-      product_type: pick.product_type,
-      pre_roll_subtype: pick.pre_roll_subtype,
-      time_of_day: pick.time_of_day,
-      effect_tags: pick.effect_tags,
-      experience_level: pick.experience_level,
-      budget_level: pick.budget_level,
-      special_role: pick.special_role,
-      why_i_love_it: pick.why_i_love_it,
-      rank: pick.rank,
-      is_active: pick.is_active,
-    });
   };
 
-  const handleCancelForm = () => {
+  const handlePickFormClose = () => {
     setFormMode('closed');
     setEditingPick(null);
-    setFormData({});
   };
 
-  const handleSaveForm = async () => {
+  const handlePickFormSuccess = async () => {
     try {
-      if (formMode === 'add') {
-        await createPick(formData as PickInsert);
-      } else if (formMode === 'edit' && editingPick) {
-        await updatePick(editingPick.id, formData);
-      }
-
       // Reload picks
       const picksData = await getPicksForBudtender(selectedBudtender);
       setPicks(picksData);
-
-      handleCancelForm();
     } catch (err) {
-      console.error('Error saving pick:', err);
+      console.error('Error reloading picks:', err);
       alert(err instanceof Error ? err.message : 'Failed to save pick');
     }
   };
@@ -608,136 +582,17 @@ export function StaffView() {
         })}
       </div>
 
-      {/* Add/Edit Pick Form */}
-      {formMode !== 'closed' && (
-        <Card className="bg-surface border-border border-primary">
-          <CardHeader>
-            <CardTitle className="text-xl text-text">
-              {formMode === 'add' ? 'Add New Pick' : 'Edit Pick'}
-            </CardTitle>
-            <CardDescription>Fill out the details for this pick.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Basic Info */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="product-name">Product Name *</Label>
-                <Input
-                  id="product-name"
-                  value={formData.product_name || ''}
-                  onChange={(e) => setFormData({ ...formData, product_name: e.target.value })}
-                  placeholder="e.g., Blue Dream"
-                  className="bg-bg"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="brand">Brand</Label>
-                <Input
-                  id="brand"
-                  value={formData.brand || ''}
-                  onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                  placeholder="e.g., Pacific Stone"
-                  className="bg-bg"
-                />
-              </div>
-            </div>
-
-            {/* Product Type & Time of Day */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="product-type">Product Type *</Label>
-                <Select
-                  value={formData.product_type || 'flower'}
-                  onValueChange={(value) => setFormData({ ...formData, product_type: value })}
-                >
-                  <SelectTrigger id="product-type" className="bg-bg">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="flower">Flower</SelectItem>
-                    <SelectItem value="pre_roll">Pre-roll</SelectItem>
-                    <SelectItem value="vape">Vape</SelectItem>
-                    <SelectItem value="edible">Edible</SelectItem>
-                    <SelectItem value="beverage">Beverage</SelectItem>
-                    <SelectItem value="concentrate">Concentrate</SelectItem>
-                    <SelectItem value="wellness">Wellness</SelectItem>
-                    <SelectItem value="topical">Topical</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="time-of-day">Time of Day</Label>
-                <Select
-                  value={formData.time_of_day || 'Anytime'}
-                  onValueChange={(value) => setFormData({ ...formData, time_of_day: value })}
-                >
-                  <SelectTrigger id="time-of-day" className="bg-bg">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Day">Day</SelectItem>
-                    <SelectItem value="Evening">Evening</SelectItem>
-                    <SelectItem value="Night">Night</SelectItem>
-                    <SelectItem value="Anytime">Anytime</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Why I Love It */}
-            <div className="space-y-2">
-              <Label htmlFor="why-i-love-it">Why I Love It</Label>
-              <Textarea
-                id="why-i-love-it"
-                value={formData.why_i_love_it || ''}
-                onChange={(e) => setFormData({ ...formData, why_i_love_it: e.target.value })}
-                placeholder="Share your personal take on this product..."
-                rows={3}
-                className="bg-bg resize-none"
-              />
-            </div>
-
-            {/* Rank */}
-            <div className="space-y-2">
-              <Label htmlFor="rank">Rank (Sort Order)</Label>
-              <Input
-                id="rank"
-                type="number"
-                min="1"
-                max="10"
-                value={formData.rank || 1}
-                onChange={(e) => setFormData({ ...formData, rank: parseInt(e.target.value) })}
-                className="bg-bg w-32"
-              />
-              <p className="text-xs text-text-muted">
-                Lower numbers appear first within the category.
-              </p>
-            </div>
-
-            {/* Form Actions */}
-            <div className="flex items-center justify-between pt-4 border-t border-border">
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="form-active"
-                  checked={formData.is_active !== false}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-                />
-                <Label htmlFor="form-active" className="text-sm text-text-muted">
-                  Active (visible to customers)
-                </Label>
-              </div>
-              <div className="flex gap-3">
-                <Button onClick={handleCancelForm} variant="outline">
-                  Cancel
-                </Button>
-                <Button onClick={handleSaveForm} variant="default">
-                  {formMode === 'add' ? 'Add Pick' : 'Save Changes'}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Add/Edit Pick Modal */}
+      <PickFormModal
+        open={formMode !== 'closed'}
+        onOpenChange={(open) => !open && handlePickFormClose()}
+        onSuccess={handlePickFormSuccess}
+        mode={formMode === 'closed' ? 'add' : formMode}
+        categoryId={formCategoryId}
+        categoryName={formCategoryName}
+        budtenderId={selectedBudtender}
+        editingPick={editingPick}
+      />
     </div>
   );
 }
