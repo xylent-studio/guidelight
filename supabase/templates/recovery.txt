@@ -1,0 +1,12 @@
+Hi{{ if .Data.name }} {{ .Data.name }}{{ end }},
+
+We got a request to reset your Guidelight password for your State of Mind staff account.
+
+If that was you, open this link to choose a new password:
+{{ .ConfirmationURL }}
+
+If you didn't ask for this, you can ignore this email — your current password will stay the same.
+
+– State of Mind
+Guidelight · Built by Xylent Studios
+

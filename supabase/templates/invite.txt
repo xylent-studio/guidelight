@@ -1,0 +1,17 @@
+Hi{{ if .Data.name }} {{ .Data.name }}{{ end }},
+
+You've been invited to use Guidelight, State of Mind's internal app for staff picks and profiles.
+
+With Guidelight you can:
+- Set up your staff card (vibe, expertise, tolerance).
+- Build a lineup of picks you're genuinely excited about recommending.
+- Flip to a clean, counter-ready view when you're with guests.
+
+To accept your invite and set up your account, open this link:
+{{ .ConfirmationURL }}
+
+If you weren't expecting this, you can ignore this email — your account won't be created unless someone completes the setup.
+
+– State of Mind
+Guidelight · Built by Xylent Studios
+

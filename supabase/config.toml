@@ -1,0 +1,43 @@
+# Guidelight Supabase Configuration
+# For local development with `supabase start`
+# 
+# To apply email template changes to the hosted project:
+# See DEPLOYMENT.md for instructions on syncing via Dashboard or Management API
+
+[project]
+id = "guidelight"
+name = "Guidelight"
+
+# ============================================================================
+# Email Templates - Guidelight / State of Mind branded
+# ============================================================================
+# These templates customize the emails sent by Supabase Auth.
+# Variables available in templates:
+#   {{ .ConfirmationURL }}  - Full confirmation/action URL
+#   {{ .Token }}            - 6-digit OTP code
+#   {{ .TokenHash }}        - Hashed version of token
+#   {{ .SiteURL }}          - Application site URL
+#   {{ .RedirectTo }}       - Redirect URL after action
+#   {{ .Data }}             - User metadata from auth.users.user_metadata
+#   {{ .Email }}            - User's email address
+
+# Staff Invite Email - sent when a manager invites new staff
+[auth.email.template.invite]
+subject = "Your Guidelight invite from State of Mind"
+content_path = "./supabase/templates/invite.html"
+
+# Password Recovery Email - sent when password reset is requested
+[auth.email.template.recovery]
+subject = "Reset your Guidelight password"
+content_path = "./supabase/templates/recovery.html"
+
+# Magic Link Email - sent for passwordless login
+[auth.email.template.magic_link]
+subject = "Your Guidelight login link"
+content_path = "./supabase/templates/magic_link.html"
+
+# Email Confirmation - sent when user signs up
+[auth.email.template.confirmation]
+subject = "Confirm your Guidelight account"
+content_path = "./supabase/templates/confirmation.html"
+

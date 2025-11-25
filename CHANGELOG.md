@@ -11,6 +11,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] - 2025-11-25
+
+### Added - Guidelight-Branded Email Templates & Warm Copy Audit
+- **Custom Email Templates:**
+  - Created `supabase/templates/` folder with version-controlled email templates
+  - `invite.html` / `invite.txt` - Staff invite email with Guidelight branding
+  - `recovery.html` / `recovery.txt` - Password reset email with Guidelight branding
+  - `magic_link.html` - Magic link login email
+  - `confirmation.html` - Email confirmation email
+- **Supabase Local Config:**
+  - Added `supabase/config.toml` for local development email template configuration
+  - Documents template variables and paths for `supabase start`
+- **Centralized Copy System:**
+  - Created `src/lib/copy.ts` with all in-app messaging strings
+  - Warm, SOM-themed microcopy throughout the app
+  - Consistent voice: "Clear first, a little stoner, a little playful"
+- **Icon System (Lucide React):**
+  - Added icons to all major action buttons
+  - Documented icon-to-action mapping in `GUIDELIGHT_DESIGN_SYSTEM.md`
+- **Pick Form Modal:**
+  - Converted inline pick form to modal overlay (`PickFormModal.tsx`)
+  - Category shown in modal header: "Add New Pick — Flower"
+  - Created `src/components/picks/` folder structure
+
+### Changed
+- **All In-App Copy Updated:**
+  - Landing hero: "For the people behind the counter" / "Guests trust you to turn a menu into a feeling"
+  - Customer View: "Who's guiding this sesh?" / "Tap the budtender that's actually talking with the guest"
+  - Staff View: "Who are you managing?" / "This is the 3-second story guests get about you"
+  - Staff Management: "Invite new teammates, tune their profiles, and control who can log in"
+  - Auth messages: "Session took a little nap" / "Log back in next shift when it's time to talk terps again"
+  - Error messages: "The connection spaced out for a sec" / "Well, that wasn't on the menu"
+- **DEPLOYMENT.md:** Added email template sync instructions (Dashboard + Management API methods)
+
+### Documentation
+- Added "Voice & Tone" section to `GUIDELIGHT_DESIGN_SYSTEM.md`
+- Added "Icons" section with Lucide React conventions
+- Updated DEPLOYMENT.md v1.1.0 with email template sync guide
+
+---
+
 ## [1.1.0] - 2025-11-25
 
 ### Added - Profile Enhancement & Landing Screen Polish

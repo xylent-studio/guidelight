@@ -74,19 +74,86 @@ Verify in: Supabase Dashboard → Edge Functions
 2. Under "SMTP Settings", verify:
    - **Sender email:** `xylent.studio@gmail.com`
    - **Sender name:** `Guidelight` (or your preferred name)
-3. Default email templates are being used (can customize later)
-
-**Email Template Variables:**
-- `{{ .ConfirmationURL }}` - Full invite/reset link
-- `{{ .SiteURL }}` - Your Site URL (set above)
-- `{{ .Token }}` - 6-digit OTP (alternative to link)
 
 **Testing Emails:**
 - Invite emails come from Supabase's default sender unless custom SMTP is configured
 - Check spam folder if emails don't arrive
 - Rate limit: 4 emails per hour per recipient (Supabase default)
 
-#### D. Database Migration
+#### D. Email Templates (Guidelight-branded)
+
+**Template Files Location:** `supabase/templates/`
+
+The project includes custom Guidelight-branded email templates:
+- `invite.html` / `invite.txt` - Staff invite email
+- `recovery.html` / `recovery.txt` - Password reset email
+- `magic_link.html` - Magic link login email
+- `confirmation.html` - Email confirmation email
+
+**Template Variables (Go template syntax):**
+- `{{ .ConfirmationURL }}` - Full action URL (invite/reset/confirm link)
+- `{{ .SiteURL }}` - Your Site URL (set in URL Configuration)
+- `{{ .Token }}` - 6-digit OTP (alternative to link)
+- `{{ .Data.name }}` - User's name from metadata (if available)
+- `{{ .Email }}` - User's email address
+
+**Syncing Templates to Hosted Supabase (Dashboard Method):**
+
+1. Go to Supabase Dashboard → Authentication → Email Templates
+2. Select each template type and update:
+
+   **Invite User Template:**
+   - Subject: `Your Guidelight invite from State of Mind`
+   - Body: Copy content from `supabase/templates/invite.html`
+
+   **Reset Password Template:**
+   - Subject: `Reset your Guidelight password`
+   - Body: Copy content from `supabase/templates/recovery.html`
+
+   **Magic Link Template:**
+   - Subject: `Your Guidelight login link`
+   - Body: Copy content from `supabase/templates/magic_link.html`
+
+   **Confirm Signup Template:**
+   - Subject: `Confirm your Guidelight account`
+   - Body: Copy content from `supabase/templates/confirmation.html`
+
+3. Click "Save" for each template
+
+**Syncing Templates via Management API (Automated Method):**
+
+```bash
+# Get your access token from https://supabase.com/dashboard/account/tokens
+export SUPABASE_ACCESS_TOKEN="your-access-token"
+export PROJECT_REF="your-project-ref"
+
+# Update invite email template
+curl -X PATCH "https://api.supabase.com/v1/projects/$PROJECT_REF/config/auth" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mailer_subjects_invite": "Your Guidelight invite from State of Mind",
+    "mailer_templates_invite_content": "<html>... (paste HTML content) ...</html>",
+    "mailer_subjects_recovery": "Reset your Guidelight password",
+    "mailer_templates_recovery_content": "<html>... (paste HTML content) ...</html>"
+  }'
+```
+
+**Local Development:**
+
+For local development with `supabase start`, the templates are configured in `supabase/config.toml`. Run:
+```bash
+supabase stop && supabase start
+```
+to apply template changes locally.
+
+**Verifying Template Updates:**
+
+1. Trigger a test invite (Staff Management → Invite Staff)
+2. Check the email received matches the Guidelight branding
+3. Verify links work and redirect correctly
+
+#### E. Database Migration
 
 Verify the `location` column exists in `budtenders` table:
 ```sql
@@ -294,5 +361,5 @@ For issues:
 ---
 
 **Last Updated:** 2025-11-25
-**Version:** 1.0.0
+**Version:** 1.1.0
 
