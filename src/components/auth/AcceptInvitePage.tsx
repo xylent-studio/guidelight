@@ -57,8 +57,8 @@ export function AcceptInvitePage({ onComplete, onBackToLogin }: AcceptInvitePage
       return;
     }
 
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters');
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
       return;
     }
 
@@ -168,7 +168,7 @@ export function AcceptInvitePage({ onComplete, onBackToLogin }: AcceptInvitePage
               </Label>
               <PasswordInput
                 id="password"
-                placeholder="At least 8 characters"
+                placeholder="At least 6 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
@@ -203,7 +203,7 @@ export function AcceptInvitePage({ onComplete, onBackToLogin }: AcceptInvitePage
 
             <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
               <p className="text-sm text-blue-800">
-                💡 Your password must be at least 8 characters long. You'll use this to sign in next time.
+                💡 Your password must be at least 6 characters long. You'll use this to sign in next time.
               </p>
             </div>
 

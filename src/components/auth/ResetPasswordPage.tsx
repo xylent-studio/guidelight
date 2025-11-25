@@ -27,8 +27,8 @@ export function ResetPasswordPage({ onSuccess, onBackToLogin }: ResetPasswordPag
       return;
     }
 
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters');
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
       return;
     }
 
@@ -108,7 +108,7 @@ export function ResetPasswordPage({ onSuccess, onBackToLogin }: ResetPasswordPag
             Set a new password
           </CardTitle>
           <CardDescription className="text-text-muted">
-            Enter your new password below. Make sure it's at least 8 characters.
+            Enter your new password below. Make sure it's at least 6 characters.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -119,7 +119,7 @@ export function ResetPasswordPage({ onSuccess, onBackToLogin }: ResetPasswordPag
               </Label>
               <PasswordInput
                 id="password"
-                placeholder="At least 8 characters"
+                placeholder="At least 6 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
@@ -154,7 +154,7 @@ export function ResetPasswordPage({ onSuccess, onBackToLogin }: ResetPasswordPag
 
             <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
               <p className="text-sm text-blue-800">
-                💡 Password must be at least 8 characters long
+                💡 Password must be at least 6 characters long
               </p>
             </div>
 

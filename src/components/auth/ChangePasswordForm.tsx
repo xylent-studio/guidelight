@@ -57,8 +57,8 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
       return;
     }
 
-    if (newPassword.length < 8) {
-      setError('New password must be at least 8 characters');
+    if (newPassword.length < 6) {
+      setError('New password must be at least 6 characters');
       return;
     }
 
@@ -153,7 +153,7 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
               </Label>
               <PasswordInput
                 id="newPassword"
-                placeholder="At least 8 characters"
+                placeholder="At least 6 characters"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 disabled={loading}
@@ -184,7 +184,7 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
             )}
 
             <div className="p-3 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-md">
-              💡 Password must be at least 8 characters long
+              💡 Password must be at least 6 characters long
             </div>
 
             <DialogFooter>

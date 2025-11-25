@@ -28,15 +28,36 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 
 ### 2. Supabase Configuration
 
-#### A. Update Redirect URLs
+#### A. Update URL Configuration (CRITICAL for Invites)
+
+**This is essential for invite emails to work correctly.**
 
 1. Go to Supabase Dashboard → Authentication → URL Configuration
 2. Set **Site URL** to: `https://guidelight.xylent.studio`
+   - ⚠️ This is where invite/reset links will redirect to
+   - Must match your production domain exactly
 3. Add to **Redirect URLs**:
    - `https://guidelight.xylent.studio`
    - `https://guidelight.xylent.studio/**`
    - `http://localhost:5173` (for local dev)
    - `http://localhost:5173/**` (for local dev)
+
+**How Invite Flow Works:**
+1. Manager clicks "Invite Staff" → Edge Function creates auth user + sends email
+2. New user clicks email link → Supabase redirects to `Site URL` with `#type=invite&access_token=...`
+3. App detects `type=invite` → Shows password setup page
+4. User sets password → Redirected to main app
+
+**Important:** When testing locally, temporarily change Site URL to `http://localhost:5173` or invite links will redirect to production.
+
+#### B. Password Security Settings
+
+1. Go to Supabase Dashboard → Authentication → Providers → Email
+2. Set **Minimum password length** to: `6` (minimum allowed)
+3. Leave other settings at defaults for MVP
+4. ⚠️ Do NOT enable "Leaked password protection" (Pro plan feature)
+
+**Note:** Password requirements are enforced both client-side (6 char minimum) and server-side by Supabase.
 
 #### B. Verify Edge Functions
 
@@ -49,9 +70,21 @@ Verify in: Supabase Dashboard → Edge Functions
 
 #### C. Email Configuration
 
-1. Go to Supabase Dashboard → Authentication → Email Templates
-2. Verify email sender: `xylent.studio@gmail.com`
-3. Default templates are being used (can customize later)
+1. Go to Supabase Dashboard → Project Settings → Authentication
+2. Under "SMTP Settings", verify:
+   - **Sender email:** `xylent.studio@gmail.com`
+   - **Sender name:** `Guidelight` (or your preferred name)
+3. Default email templates are being used (can customize later)
+
+**Email Template Variables:**
+- `{{ .ConfirmationURL }}` - Full invite/reset link
+- `{{ .SiteURL }}` - Your Site URL (set above)
+- `{{ .Token }}` - 6-digit OTP (alternative to link)
+
+**Testing Emails:**
+- Invite emails come from Supabase's default sender unless custom SMTP is configured
+- Check spam folder if emails don't arrive
+- Rate limit: 4 emails per hour per recipient (Supabase default)
 
 #### D. Database Migration
 
@@ -195,6 +228,24 @@ If issues arise post-deployment:
 
 ## Common Issues
 
+### Issue: Invite Links Redirect to Wrong URL
+**Cause:** Site URL in Supabase doesn't match your deployment
+**Solution:** 
+1. Go to Supabase Dashboard → Authentication → URL Configuration
+2. Set Site URL to exactly: `https://guidelight.xylent.studio`
+3. For local testing, temporarily change to `http://localhost:5173`
+
+### Issue: User Clicks Invite But Doesn't See Password Setup
+**Cause:** URL hash not being parsed correctly or localStorage has stale data
+**Solution:**
+1. Clear browser localStorage for the site
+2. Ensure URL contains `#type=invite&access_token=...`
+3. Check browser console for `[App] Auth flow detected: invite`
+
+### Issue: Existing User Session Conflicts with Invite
+**Cause:** Another user was logged in when invite link was clicked
+**Solution:** This is handled automatically - Supabase replaces the existing session with the new invited user's session when the invite link is clicked. The new user will be prompted to set their password.
+
 ### Issue: Redirect Loop After Login
 **Solution:** Verify Site URL in Supabase matches production domain exactly
 
@@ -205,7 +256,14 @@ If issues arise post-deployment:
 **Solution:** 
 - Verify email configuration in Supabase Dashboard
 - Check spam folder
-- Verify rate limits haven't been hit
+- Verify rate limits haven't been hit (4/hour per recipient)
+- Check Edge Function logs for errors
+
+### Issue: Password Too Short Error
+**Solution:** 
+- Client enforces 6 character minimum
+- Supabase default is 6 characters
+- If error persists, check Supabase Dashboard → Auth → Providers → Email → Min password length
 
 ### Issue: Database Connection Errors
 **Solution:** 

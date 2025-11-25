@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LoginPage } from './components/auth/LoginPage';
 import { ForgotPasswordPage } from './components/auth/ForgotPasswordPage';
@@ -36,24 +36,46 @@ function AppContent() {
   const [view, setView] = useState<AppView>('customer');
   const [authPage, setAuthPage] = useState<AuthPage>('login');
   const [needsPasswordSetup, setNeedsPasswordSetup] = useState(false);
+  const hasProcessedHash = useRef(false);
 
   // Determine mode for the toggle (customer/staff only)
   const mode: AppMode = view === 'customer' ? 'customer' : 'staff';
 
-  // Check URL hash for auth flow on mount and user changes
+  // Handle auth flow from URL hash on mount
+  // This runs BEFORE user state is available to handle invite/recovery links
+  useEffect(() => {
+    // Only process once per page load
+    if (hasProcessedHash.current) return;
+    
+    const { type, accessToken } = parseAuthHash();
+    
+    if (!type || !accessToken) return;
+    
+    hasProcessedHash.current = true;
+    console.log('[App] Auth flow detected:', type);
+    
+    if (type === 'recovery') {
+      // Password reset flow - show reset page
+      setAuthPage('reset-password');
+    } else if (type === 'invite') {
+      // Invite flow - Supabase has already exchanged the token for a session
+      // The new invited user is now logged in (replacing any previous session)
+      // Show password setup page
+      setNeedsPasswordSetup(true);
+    }
+  }, []);
+
+  // Also check when user changes (for invite flow after session is established)
   useEffect(() => {
     const { type } = parseAuthHash();
     
-    if (type === 'recovery') {
-      // Password reset flow
-      setAuthPage('reset-password');
-    } else if (type === 'invite' && user) {
-      // Invite flow - check if user needs to set password
+    if (type === 'invite' && user) {
+      // User is logged in from invite - check if they need to set password
       const hasSetPassword = localStorage.getItem(`password_set_${user.id}`);
       if (!hasSetPassword) {
         setNeedsPasswordSetup(true);
       } else {
-        // Clear hash and proceed to app
+        // Already set password, clear hash and proceed
         window.location.hash = '';
       }
     }
@@ -64,6 +86,7 @@ function AppContent() {
     window.location.hash = '';
     setAuthPage('login');
     setNeedsPasswordSetup(false);
+    hasProcessedHash.current = false;
   }
 
   // Show loading spinner while checking session
