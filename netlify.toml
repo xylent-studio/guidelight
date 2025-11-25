@@ -1,5 +1,4 @@
 [build]
-  base = "02_projects/guidelight"
   command = "npm run build"
   publish = "dist"
 
