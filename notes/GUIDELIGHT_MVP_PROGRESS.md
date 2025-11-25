@@ -1884,3 +1884,81 @@ After fix, console shows successful auth flow:
 
 **Status: ✅ FIXED**
 
+## 2025-11-25 · AuthContext Production Reliability Refactor
+
+### Problem
+The AuthContext had race conditions, async work in callbacks, and a 10-second timeout hack that masked underlying issues. This caused intermittent loading failures and unpredictable auth state.
+
+### Root Cause Analysis
+1. **Race condition**: `checkSession()` AND `onAuthStateChange` both ran on mount, potentially triggering `loadProfile()` simultaneously
+2. **Async in callback**: `await loadProfile()` inside `onAuthStateChange` caused unpredictable behavior
+3. **Timeout band-aid**: 10-second `setTimeout` hid the real problem instead of solving it
+4. **RLS infinite recursion**: Manager check queried `budtenders` inside a policy on `budtenders`
+
+### Solution: Official Supabase Pattern
+
+**Effect 1 - Session Management:**
+- Call `getSession()` once on mount
+- Subscribe to `onAuthStateChange` but ONLY update session state (no async work)
+- Store `session` in state (not just `user`)
+
+**Effect 2 - Profile Loading (reactive):**
+- Watch for `session` changes via dependency array
+- When session exists, load profile
+- When session is null, clear profile
+- Handle "no profile" error gracefully
+
+### Code Changes
+
+**`src/contexts/AuthContext.tsx`:**
+- Replaced single useEffect with two separate effects
+- Removed 10-second timeout hack
+- Added `profileError` state for graceful error handling
+- Added `refreshProfile()` function for components to sync after updates
+- Store `session` instead of just `user`
+
+**`src/components/auth/ProfileErrorScreen.tsx`:** (NEW)
+- Shows friendly error when user is logged in but profile can't load
+- Offers "Try Again" and "Sign Out" options
+- Replaces the old `alert()` + force sign-out behavior
+
+**`src/App.tsx`:**
+- Added `profileError` handling to show ProfileErrorScreen
+- Import ProfileErrorScreen component
+
+**`src/views/StaffView.tsx`:**
+- Calls `refreshProfile()` after saving own profile to sync auth context
+
+### RLS Policy Fixes
+
+**Migration: `fix_rls_infinite_recursion`**
+- Created `is_current_user_manager()` SECURITY DEFINER function
+- Created `get_current_user_budtender_id()` SECURITY DEFINER function
+- These functions bypass RLS to avoid infinite recursion
+
+**Migration: `fix_budtenders_update_policies`**
+- Added WITH CHECK clauses to UPDATE policies
+- Uses SECURITY DEFINER functions for manager checks
+
+**Migration: `fix_delete_policy_recursion`**
+- Fixed DELETE policy to use SECURITY DEFINER function
+
+### Validation
+- ✅ Build passes (`npm run build`)
+- ✅ Fresh page load with existing session works
+- ✅ Logout flow clears session and shows login
+- ✅ Auth state changes handled cleanly (INITIAL_SESSION, SIGNED_OUT)
+- ✅ No more timeout errors in console
+- ✅ Profile loads immediately without 10-second delay
+
+### Console Output (Success)
+```
+[Auth] Loading profile for user: 0297e940-...
+[Auth] Auth state changed: INITIAL_SESSION
+[Auth] Profile loaded: Justin
+[Auth] Signing out...
+[Auth] Auth state changed: SIGNED_OUT
+```
+
+**Status: ✅ COMPLETE**
+

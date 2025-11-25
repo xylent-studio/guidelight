@@ -50,6 +50,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Database Performance:**
   - Added missing index on `picks.category_id` for better JOIN performance
   - Optimized 12 RLS policies with `(SELECT auth.uid())` wrapper to prevent re-evaluation
+- **AuthContext Production Reliability Refactor:**
+  - Separated session management from profile loading (official Supabase pattern)
+  - Removed 10-second timeout hack that masked auth issues
+  - Added `profileError` state for graceful error handling
+  - Added `refreshProfile()` function for components to sync after updates
+  - Created `ProfileErrorScreen` component for "no profile" errors
+- **RLS Infinite Recursion Fix:**
+  - Created `is_current_user_manager()` SECURITY DEFINER function
+  - Created `get_current_user_budtender_id()` SECURITY DEFINER function
+  - Fixed manager check policies to use functions instead of inline subqueries
 
 ### Documentation
 - Updated `GUIDELIGHT_SPEC.md` with new field names and semantics

@@ -12,10 +12,84 @@ if (!supabaseAnonKey) {
   throw new Error('Missing VITE_SUPABASE_ANON_KEY. See README for environment setup instructions.');
 }
 
+// Key to store the "remember me" preference
+const REMEMBER_ME_KEY = 'guidelight_remember_me';
+
+/**
+ * Get whether "remember me" is enabled.
+ * Defaults to true for better UX on personal devices.
+ */
+export function getRememberMe(): boolean {
+  return localStorage.getItem(REMEMBER_ME_KEY) !== 'false';
+}
+
+/**
+ * Set the "remember me" preference.
+ * When false, session will be cleared when browser closes.
+ */
+export function setRememberMe(remember: boolean): void {
+  if (remember) {
+    localStorage.setItem(REMEMBER_ME_KEY, 'true');
+  } else {
+    localStorage.setItem(REMEMBER_ME_KEY, 'false');
+  }
+}
+
+/**
+ * Custom storage adapter that routes to localStorage or sessionStorage
+ * based on the "remember me" preference.
+ * 
+ * - Remember me ON: Uses localStorage (persists across browser sessions)
+ * - Remember me OFF: Uses sessionStorage (cleared when browser closes)
+ */
+const adaptiveStorage = {
+  getItem: (key: string): string | null => {
+    // Always check localStorage first for the preference key
+    if (key === REMEMBER_ME_KEY) {
+      return localStorage.getItem(key);
+    }
+    
+    // For auth data, use the appropriate storage based on preference
+    const rememberMe = getRememberMe();
+    if (rememberMe) {
+      return localStorage.getItem(key);
+    } else {
+      // Check sessionStorage first, fall back to localStorage for migration
+      const sessionValue = sessionStorage.getItem(key);
+      if (sessionValue) return sessionValue;
+      // If they previously had "remember me" on and switched it off,
+      // we still need to read from localStorage once
+      return localStorage.getItem(key);
+    }
+  },
+  
+  setItem: (key: string, value: string): void => {
+    const rememberMe = getRememberMe();
+    if (rememberMe) {
+      localStorage.setItem(key, value);
+      // Clean up sessionStorage if switching from session-only
+      sessionStorage.removeItem(key);
+    } else {
+      sessionStorage.setItem(key, value);
+      // Clean up localStorage if switching to session-only (but keep preference)
+      if (key !== REMEMBER_ME_KEY) {
+        localStorage.removeItem(key);
+      }
+    }
+  },
+  
+  removeItem: (key: string): void => {
+    // Remove from both to ensure cleanup
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+  },
+};
+
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     detectSessionInUrl: true,
+    storage: adaptiveStorage,
   },
 });
 

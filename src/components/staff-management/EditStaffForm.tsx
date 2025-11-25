@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { updateBudtender } from '@/lib/api/budtenders';
+import { setStaffPassword } from '@/lib/api/staff-management';
 import type { StaffWithStatus } from '@/lib/api/staff-management';
 import type { Database } from '@/types';
+import { PasswordInput } from '@/components/ui/password-input';
 import {
   Dialog,
   DialogContent,
@@ -61,6 +63,9 @@ const TOLERANCE_BANDS = [
 ] as const;
 
 // Example expertise phrases
+// Sentinel value for "no location" since Radix Select doesn't allow empty strings
+const NO_LOCATION = '_none';
+
 const EXPERTISE_EXAMPLES = [
   'Edibles for sleep & anxiety',
   'Budget pre-rolls that still hit',
@@ -87,31 +92,91 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
 
   const [name, setName] = useState('');
   const [role, setRole] = useState<BudtenderRole>('budtender');
-  const [location, setLocation] = useState('');
+  const [location, setLocation] = useState(NO_LOCATION);
   const [profileVibe, setProfileVibe] = useState('');
   const [profileExpertise, setProfileExpertise] = useState('');
   const [profileTolerance, setProfileTolerance] = useState('');
   const [selectedToleranceBand, setSelectedToleranceBand] = useState<string | null>(null);
+
+  // Password setting state
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
 
   // Populate form when staff prop changes
   useEffect(() => {
     if (staff) {
       setName(staff.name);
       setRole(staff.role as BudtenderRole);
-      setLocation(staff.location || '');
+      setLocation(staff.location || NO_LOCATION);
       setProfileVibe(staff.profile_vibe || '');
       setProfileExpertise(staff.profile_expertise || '');
       setProfileTolerance(staff.profile_tolerance || '');
       setSelectedToleranceBand(null);
       setShowVibeExamples(false);
       setError(null);
+      // Reset password section
+      setShowPasswordSection(false);
+      setNewPassword('');
+      setConfirmPassword('');
+      setPasswordError(null);
+      setPasswordSuccess(false);
     }
   }, [staff]);
 
   function handleClose() {
-    if (!loading) {
+    if (!loading && !passwordLoading) {
       setError(null);
+      setPasswordError(null);
+      setPasswordSuccess(false);
+      setShowPasswordSection(false);
+      setNewPassword('');
+      setConfirmPassword('');
       onOpenChange(false);
+    }
+  }
+
+  async function handleSetPassword() {
+    setPasswordError(null);
+    setPasswordSuccess(false);
+
+    if (!staff) {
+      setPasswordError('No staff member selected.');
+      return;
+    }
+
+    if (!newPassword) {
+      setPasswordError('Please enter a new password');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
+
+    setPasswordLoading(true);
+
+    try {
+      await setStaffPassword(staff.id, newPassword);
+      setPasswordSuccess(true);
+      setNewPassword('');
+      setConfirmPassword('');
+      // Hide success message after 3 seconds
+      setTimeout(() => setPasswordSuccess(false), 3000);
+    } catch (err: unknown) {
+      console.error('Failed to set password:', err);
+      setPasswordError(err instanceof Error ? err.message : 'Failed to set password. Please try again.');
+    } finally {
+      setPasswordLoading(false);
     }
   }
 
@@ -143,7 +208,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
       await updateBudtender(staff.id, {
         name: name.trim(),
         role,
-        location: location.trim() || null,
+        location: location === NO_LOCATION ? null : location.trim() || null,
         profile_vibe: profileVibe.trim() || null,
         profile_expertise: profileExpertise.trim() || null,
         profile_tolerance: profileTolerance.trim() || null,
@@ -233,7 +298,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
                   <SelectValue placeholder="Select location" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No location</SelectItem>
+                  <SelectItem value={NO_LOCATION}>No location</SelectItem>
                   {LOCATIONS.map((loc) => (
                     <SelectItem key={loc} value={loc}>
                       {loc}
@@ -375,6 +440,73 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
               Select a band above to get started, then edit the text to make it their own.
             </p>
           </div>
+
+          {/* Password Setting Section (Manager-only) */}
+          {staff.auth_user_id && (
+            <div className="border-t border-border pt-4 space-y-3">
+              <button
+                type="button"
+                onClick={() => setShowPasswordSection(!showPasswordSection)}
+                className="flex items-center gap-2 text-sm font-semibold text-text hover:text-primary"
+              >
+                <span>{showPasswordSection ? '▼' : '▶'}</span>
+                Set New Password
+              </button>
+
+              {showPasswordSection && (
+                <div className="space-y-4 pl-4 border-l-2 border-border">
+                  <p className="text-xs text-text-muted">
+                    Directly set a new password for {staff.name}. They will not receive an email notification.
+                  </p>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-newPassword">New password</Label>
+                    <PasswordInput
+                      id="edit-newPassword"
+                      placeholder="At least 6 characters"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      disabled={passwordLoading}
+                      autoComplete="new-password"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-confirmPassword">Confirm password</Label>
+                    <PasswordInput
+                      id="edit-confirmPassword"
+                      placeholder="Re-enter the password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      disabled={passwordLoading}
+                      autoComplete="new-password"
+                    />
+                  </div>
+
+                  {passwordError && (
+                    <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                      {passwordError}
+                    </div>
+                  )}
+
+                  {passwordSuccess && (
+                    <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
+                      ✓ Password updated successfully
+                    </div>
+                  )}
+
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleSetPassword}
+                    disabled={passwordLoading || !newPassword || !confirmPassword}
+                  >
+                    {passwordLoading ? 'Setting password...' : 'Set Password'}
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Error Display */}
           {error && (

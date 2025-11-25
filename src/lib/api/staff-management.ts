@@ -36,6 +36,13 @@ interface ResetPasswordResponse {
   error?: string;
 }
 
+interface SetPasswordResponse {
+  success: boolean;
+  message?: string;
+  staffName?: string;
+  error?: string;
+}
+
 /**
  * Get all staff members with their auth/invite status
  * Manager-only endpoint
@@ -120,6 +127,51 @@ export async function resetStaffPassword(staffId: string): Promise<ResetPassword
     return response;
   } catch (err) {
     console.error('[Staff API] Failed to reset staff password:', err);
+    throw err;
+  }
+}
+
+/**
+ * Directly set a new password for a staff member
+ * Manager-only endpoint
+ */
+export async function setStaffPassword(staffId: string, newPassword: string): Promise<SetPasswordResponse> {
+  try {
+    const { data: functionData, error } = await supabase.functions.invoke('set-staff-password', {
+      body: { staffId, newPassword },
+    });
+
+    if (error) {
+      console.error('[Staff API] Edge function error:', error);
+      
+      // Try to extract error message from response
+      if (error.context && error.context instanceof Response) {
+        try {
+          const errorBody = await error.context.json();
+          if (errorBody?.error) {
+            throw new Error(errorBody.error);
+          }
+        } catch {
+          // Ignore parse errors
+        }
+      }
+      
+      throw new Error('Failed to set password');
+    }
+
+    if (!functionData) {
+      throw new Error('No response from server');
+    }
+
+    const response = functionData as SetPasswordResponse;
+
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to set password');
+    }
+
+    return response;
+  } catch (err) {
+    console.error('[Staff API] Failed to set staff password:', err);
     throw err;
   }
 }

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
@@ -19,8 +18,6 @@ interface ChangePasswordFormProps {
 }
 
 export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormProps) {
-  const { user } = useAuth();
-  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,7 +25,6 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
   const [success, setSuccess] = useState(false);
 
   function resetForm() {
-    setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
     setError(null);
@@ -47,47 +43,25 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
     setError(null);
 
     // Validation
-    if (!currentPassword) {
-      setError('Please enter your current password');
-      return;
-    }
-
     if (!newPassword) {
       setError('Please enter a new password');
       return;
     }
 
     if (newPassword.length < 6) {
-      setError('New password must be at least 6 characters');
+      setError('Password must be at least 6 characters');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError('New passwords do not match');
-      return;
-    }
-
-    if (currentPassword === newPassword) {
-      setError('New password must be different from current password');
+      setError('Passwords do not match');
       return;
     }
 
     try {
       setLoading(true);
 
-      // Step 1: Re-authenticate with current password to verify identity
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user?.email || '',
-        password: currentPassword,
-      });
-
-      if (signInError) {
-        console.error('Re-authentication error:', signInError);
-        setError('Current password is incorrect');
-        return;
-      }
-
-      // Step 2: Update to new password
+      // Update password directly (no re-auth needed for logged-in user)
       const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword,
       });
@@ -118,7 +92,7 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
         <DialogHeader>
           <DialogTitle>Change password</DialogTitle>
           <DialogDescription>
-            Enter your current password and choose a new one.
+            Choose a new password for your account.
           </DialogDescription>
         </DialogHeader>
 
@@ -132,21 +106,6 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="currentPassword">
-                Current password <span className="text-red-600">*</span>
-              </Label>
-              <PasswordInput
-                id="currentPassword"
-                placeholder="Enter your current password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                disabled={loading}
-                autoComplete="current-password"
-                required
-              />
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="newPassword">
                 New password <span className="text-red-600">*</span>
@@ -164,7 +123,7 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
 
             <div className="space-y-2">
               <Label htmlFor="confirmNewPassword">
-                Confirm new password <span className="text-red-600">*</span>
+                Confirm password <span className="text-red-600">*</span>
               </Label>
               <PasswordInput
                 id="confirmNewPassword"
@@ -201,4 +160,3 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
     </Dialog>
   );
 }
-

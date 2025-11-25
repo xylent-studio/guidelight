@@ -7,12 +7,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm';
 import { getActiveBudtenders, updateBudtender } from '@/lib/api/budtenders';
 import { getCategories } from '@/lib/api/categories';
 import { getPicksForBudtender, createPick, updatePick } from '@/lib/api/picks';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Database } from '@/types/database';
 
+// Get refreshProfile from auth context to sync profile after save
 type Budtender = Database['public']['Tables']['budtenders']['Row'];
 type Category = Database['public']['Tables']['categories']['Row'];
 type Pick = Database['public']['Tables']['picks']['Row'];
@@ -63,7 +65,7 @@ const VIBE_EXAMPLES = [
 ];
 
 export function StaffView() {
-  const { profile: currentUserProfile, isManager } = useAuth();
+  const { profile: currentUserProfile, isManager, refreshProfile } = useAuth();
   
   const [budtenders, setBudtenders] = useState<Budtender[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -83,6 +85,7 @@ export function StaffView() {
   const [profileTolerance, setProfileTolerance] = useState('');
   const [selectedToleranceBand, setSelectedToleranceBand] = useState<string | null>(null);
   const [showVibeExamples, setShowVibeExamples] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   // Check if viewing own profile
   const isOwnProfile = currentUserProfile?.id === selectedBudtender;
@@ -250,6 +253,11 @@ export function StaffView() {
           : b
       ));
 
+      // Sync auth context if user edited their own profile
+      if (selectedBudtender === currentUserProfile?.id) {
+        await refreshProfile();
+      }
+
       setProfileEditing(false);
       alert('Profile saved!');
     } catch (err) {
@@ -294,6 +302,14 @@ export function StaffView() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
+      {/* Change Password Dialog (only for own profile) */}
+      {isOwnProfile && (
+        <ChangePasswordForm
+          open={showChangePassword}
+          onOpenChange={setShowChangePassword}
+        />
+      )}
+
       {/* Budtender Selector */}
       <Card className="bg-surface border-border">
         <CardHeader>
@@ -336,13 +352,24 @@ export function StaffView() {
                 Edit Profile
               </Button>
             ) : (
-              <div className="flex gap-2">
-                <Button onClick={handleCancelProfileEdit} variant="outline" size="sm" disabled={profileSaving}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSaveProfile} size="sm" disabled={profileSaving}>
-                  {profileSaving ? 'Saving...' : 'Save Profile'}
-                </Button>
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex gap-2">
+                  <Button onClick={handleCancelProfileEdit} variant="outline" size="sm" disabled={profileSaving}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSaveProfile} size="sm" disabled={profileSaving}>
+                    {profileSaving ? 'Saving...' : 'Save Profile'}
+                  </Button>
+                </div>
+                {isOwnProfile && (
+                  <button
+                    type="button"
+                    onClick={() => setShowChangePassword(true)}
+                    className="text-xs text-text-muted hover:text-text underline"
+                  >
+                    Change password
+                  </button>
+                )}
               </div>
             )}
           </CardHeader>

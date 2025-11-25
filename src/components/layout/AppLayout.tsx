@@ -3,7 +3,6 @@ import { ModeToggle } from './ModeToggle';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm';
 import type { PropsWithChildren } from 'react';
 import type { AppMode } from './ModeToggle';
 
@@ -23,7 +22,6 @@ export function AppLayout({
 }: AppLayoutProps) {
   const { profile, signOut } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
-  const [showChangePassword, setShowChangePassword] = useState(false);
 
   async function handleLogout() {
     if (!confirm('Are you sure you want to log out?')) {
@@ -45,23 +43,20 @@ export function AppLayout({
 
   return (
     <div className="min-h-screen bg-bg px-4 py-10 sm:px-8 lg:px-16 flex flex-col gap-8">
-      {/* Change Password Modal */}
-      <ChangePasswordForm
-        open={showChangePassword}
-        onOpenChange={setShowChangePassword}
-      />
-
       <header className="flex flex-col gap-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
-            <p className="text-xs uppercase tracking-wider text-text-muted font-semibold mb-1">
-              State of Mind · Internal App
+            <p className="text-xs uppercase tracking-wider text-text-muted font-semibold mb-2">
+              State of Mind · Guidelight v1
             </p>
             <h1 className="text-3xl font-bold text-text mb-1">
-              Staff Picks &amp; Profiles
+              For the people behind the counter
             </h1>
-            <p className="text-xs text-text-muted/60 italic">
-              A guidelight helps you find your way — this one's for SOM.
+            <p className="text-sm text-text-muted mb-2">
+              For the people guests trust to turn a menu into a feeling.
+            </p>
+            <p className="text-xs text-text-muted/70 italic">
+              A guidelight is a small light that helps you find your way in the dark — this one is for SOM staff and the people you serve.
             </p>
           </div>
           <div className="flex flex-col items-end gap-1">
@@ -70,23 +65,14 @@ export function AppLayout({
               {profile?.role?.replace('_', ' ')}
               {profile?.location && ` · ${profile.location}`}
             </p>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowChangePassword(true)}
-              >
-                Change Password
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLogout}
-                disabled={loggingOut}
-              >
-                {loggingOut ? 'Logging out...' : 'Logout'}
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              disabled={loggingOut}
+            >
+              {loggingOut ? 'Logging out...' : 'Logout'}
+            </Button>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row items-start gap-4">

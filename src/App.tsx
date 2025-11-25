@@ -4,6 +4,7 @@ import { LoginPage } from './components/auth/LoginPage';
 import { ForgotPasswordPage } from './components/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './components/auth/ResetPasswordPage';
 import { AcceptInvitePage } from './components/auth/AcceptInvitePage';
+import { ProfileErrorScreen } from './components/auth/ProfileErrorScreen';
 import AppLayout from './components/layout/AppLayout';
 import type { AppMode } from './components/layout/ModeToggle';
 import CustomerView from './views/CustomerView';
@@ -32,7 +33,7 @@ function parseAuthHash(): { type: string | null; accessToken: string | null } {
 }
 
 function AppContent() {
-  const { user, loading, isManager } = useAuth();
+  const { user, loading, isManager, profileError } = useAuth();
   const [view, setView] = useState<AppView>('customer');
   const [authPage, setAuthPage] = useState<AuthPage>('login');
   const [needsPasswordSetup, setNeedsPasswordSetup] = useState(false);
@@ -99,6 +100,11 @@ function AppContent() {
         </div>
       </div>
     );
+  }
+
+  // Show profile error screen if user is logged in but profile couldn't load
+  if (user && profileError) {
+    return <ProfileErrorScreen message={profileError} />;
   }
 
   // Handle password reset flow (can happen when not logged in)

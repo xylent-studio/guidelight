@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getRememberMe, setRememberMe } from '@/lib/supabaseClient';
 
 interface LoginPageProps {
   onForgotPassword?: () => void;
@@ -14,8 +15,20 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMeState] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Load saved "remember me" preference on mount
+  useEffect(() => {
+    setRememberMeState(getRememberMe());
+  }, []);
+
+  // Update preference when checkbox changes
+  function handleRememberMeChange(checked: boolean) {
+    setRememberMeState(checked);
+    setRememberMe(checked);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -90,6 +103,23 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
                 autoComplete="current-password"
                 required
               />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="remember-me"
+                checked={rememberMe}
+                onChange={(e) => handleRememberMeChange(e.target.checked)}
+                disabled={loading}
+                className="h-4 w-4 rounded border-border text-primary focus:ring-primary focus:ring-offset-bg"
+              />
+              <Label 
+                htmlFor="remember-me" 
+                className="text-sm text-text-muted cursor-pointer select-none"
+              >
+                Remember me on this device
+              </Label>
             </div>
 
             {error && (
