@@ -19,7 +19,7 @@ This is the central hub for all Guidelight project documentation. If you're new 
 | Document | Purpose | Audience | Status | Last Updated |
 |----------|---------|----------|--------|--------------|
 | [GUIDELIGHT_SPEC.md](./GUIDELIGHT_SPEC.md) | Complete product specification: features, flows, data model, permissions | Product, Engineering | ✅ Active | 2025-11-25 |
-| [GUIDELIGHT_DESIGN_SYSTEM.md](./GUIDELIGHT_DESIGN_SYSTEM.md) | Design tokens, color palette, typography, component patterns | Design, Engineering | ✅ Active | 2025-11-19 |
+| [GUIDELIGHT_DESIGN_SYSTEM.md](./GUIDELIGHT_DESIGN_SYSTEM.md) | Design tokens, color palette, typography, component patterns | Design, Engineering | ✅ Active | 2025-11-25 |
 
 ### **Technical Documentation**
 | Document | Purpose | Audience | Status | Last Updated |
@@ -32,10 +32,10 @@ This is the central hub for all Guidelight project documentation. If you're new 
 | Document | Purpose | Audience | Status | Last Updated |
 |----------|---------|----------|--------|--------------|
 | [notes/GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md](../notes/GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md) | Step-by-step MVP implementation guide (8 steps) | Engineering | ✅ Complete | 2025-11-25 |
-| [notes/GUIDELIGHT_MVP_PROGRESS.md](../notes/GUIDELIGHT_MVP_PROGRESS.md) | Complete progress log of v1.0.0 implementation | Engineering, Product | ✅ Complete | 2025-11-25 |
+| [notes/GUIDELIGHT_MVP_PROGRESS.md](../notes/GUIDELIGHT_MVP_PROGRESS.md) | Progress log of v1.0.0 and v1.1.0 implementation | Engineering, Product | ✅ Active | 2025-11-25 |
 | [notes/MVP_CRITICAL_DECISIONS.md](../notes/MVP_CRITICAL_DECISIONS.md) | Record of key architectural and product decisions | Engineering, Product | ✅ Active | 2025-11-25 |
-| [notes/DEV_QUICK_REFERENCE.md](../notes/DEV_QUICK_REFERENCE.md) | Copy-paste code patterns, common errors, commands | Engineering | ✅ Active | 2025-11-19 |
-| [notes/DOCUMENTATION_STANDARDS.md](../notes/DOCUMENTATION_STANDARDS.md) | Documentation guidelines, conventions, and best practices | All | ✅ Active | 2025-11-19 |
+| [notes/DEV_QUICK_REFERENCE.md](../notes/DEV_QUICK_REFERENCE.md) | Copy-paste code patterns, common errors, commands | Engineering | ✅ Active | 2025-11-25 |
+| [notes/DOCUMENTATION_STANDARDS.md](../notes/DOCUMENTATION_STANDARDS.md) | Documentation guidelines, conventions, and best practices | All | ✅ Active | 2025-11-25 |
 
 ### **Deployment & Operations**
 | Document | Purpose | Audience | Status | Last Updated |
@@ -48,7 +48,7 @@ This is the central hub for all Guidelight project documentation. If you're new 
 ### **Future Features (Post-MVP)**
 | Document | Purpose | Audience | Status | Last Updated |
 |----------|---------|----------|--------|--------------|
-| [NEXT_STEPS.md](../NEXT_STEPS.md) | Post-v1.0.0 roadmap: 20 prioritized enhancements | Engineering, Product | ✅ Active | 2025-11-19 |
+| [NEXT_STEPS.md](../NEXT_STEPS.md) | Post-v1.0.0 roadmap: 20 prioritized enhancements | Engineering, Product | ✅ Active | 2025-11-25 |
 | [BUDTENDER_PICKS_BOARD_SPEC.md](./BUDTENDER_PICKS_BOARD_SPEC.md) | Product spec for customer-facing board feature | Product, Design | 📋 Future | Pre-MVP |
 | [BUDTENDER_PICKS_BOARD_TECH_DESIGN.md](./BUDTENDER_PICKS_BOARD_TECH_DESIGN.md) | Technical design for board feature implementation | Engineering | 📋 Future | Pre-MVP |
 
@@ -109,16 +109,17 @@ guidelight/
 │
 ├── notes/                                 # Planning, decisions, logs
 │   ├── GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md  # MVP plan (completed)
-│   ├── GUIDELIGHT_MVP_PROGRESS.md         # Complete v1.0.0 progress log
-│   ├── MVP_CRITICAL_DECISIONS.md          # Decision log
+│   ├── GUIDELIGHT_MVP_PROGRESS.md         # v1.0.0 + v1.1.0 progress log
+│   ├── MVP_CRITICAL_DECISIONS.md          # Decision log (includes v1.1.0 updates)
 │   ├── DEV_QUICK_REFERENCE.md             # Code patterns
+│   ├── DOCUMENTATION_STANDARDS.md         # Doc guidelines
 │   ├── RLS_MANAGER_POLICIES.sql           # SQL migrations (applied)
 │   ├── STEP_7_STAFF_MANAGEMENT_PLAN.md    # Staff management spec
 │   └── GUIDELIGHT_MVP_SPRINT_PLAN.md      # (Archived) Original sprint plan
 │
 └── supabase/functions/                   # Edge Functions (deployed)
-    ├── invite-staff/                      # v6 - One-click staff invitation
-    ├── get-staff-with-status/             # v1 - Staff dashboard data
+    ├── invite-staff/                      # v7 - One-click staff invitation
+    ├── get-staff-with-status/             # v2 - Staff dashboard data
     └── reset-staff-password/              # v1 - Manager password reset
 ```
 
@@ -164,5 +165,5 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for general contribution guidelines.
 
 ---
 
-**This index is maintained manually. Last reviewed: 2025-11-25 (v1.0.0 Release)**
+**This index is maintained manually. Last reviewed: 2025-11-25 (v1.1.0 Profile Enhancement & Landing Screen)**
 

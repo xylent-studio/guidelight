@@ -185,6 +185,29 @@ if (!profile) return <Navigate to="/login" />;
 
 **Fix:** Catch error, show user-friendly message: "Only one active [role] pick allowed. Deactivate the existing one first."
 
+### "White page" / Auth timeout - No Supabase API calls
+**Problem:** App shows header/footer but no data loads. Console shows `[Auth] Loading profile...` but never `Profile fetched`. 10-second timeout fires.
+
+**Cause:** `.env.local` file has formatting issues:
+- Leading whitespace on lines (e.g., `   VITE_SUPABASE_URL=...`)
+- Truncated API key (JWT cut off)
+- BOM encoding issues
+
+**Fix:**
+1. Check `.env.local` format - no leading/trailing spaces:
+   ```bash
+   Get-Content ".env.local"
+   ```
+2. Verify key length (should be ~229 chars for anon key):
+   ```bash
+   $lines = Get-Content ".env.local"; $lines[1].Length
+   ```
+3. Rewrite file with clean formatting:
+   ```bash
+   $content = "VITE_SUPABASE_URL=...\nVITE_SUPABASE_ANON_KEY=..."
+   [System.IO.File]::WriteAllText(".env.local", $content, [System.Text.UTF8Encoding]::new($false))
+   ```
+
 ---
 
 ## 📁 File Structure Reference
@@ -271,5 +294,5 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 
 ---
 
-**Last Updated:** 2025-11-19
+**Last Updated:** 2025-11-25
 

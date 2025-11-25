@@ -55,24 +55,21 @@ export function AppLayout({
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <p className="text-xs uppercase tracking-wider text-text-muted font-semibold mb-1">
-              Guidelight MVP
+              State of Mind · Internal App
             </p>
-            <h1 className="text-3xl font-bold text-text mb-2">
-              State of Mind Staff Toolkit
+            <h1 className="text-3xl font-bold text-text mb-1">
+              Staff Picks &amp; Profiles
             </h1>
-            <p className="text-text-muted max-w-3xl leading-relaxed">
-              Internal-only web app built with Vite + React + Supabase. Use the toggle below to switch between Customer and
-              Staff flows while staying authenticated.
+            <p className="text-xs text-text-muted/60 italic">
+              A guidelight helps you find your way — this one's for SOM.
             </p>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <div className="text-right">
-              <p className="text-sm font-semibold text-text">{profile?.name}</p>
-              <p className="text-xs text-text-muted capitalize">
-                {profile?.role?.replace('_', ' ')}
-                {profile?.location && ` · ${profile.location}`}
-              </p>
-            </div>
+          <div className="flex flex-col items-end gap-1">
+            <p className="text-lg font-semibold text-text">{profile?.name}</p>
+            <p className="text-xs text-text-muted capitalize">
+              {profile?.role?.replace('_', ' ')}
+              {profile?.location && ` · ${profile.location}`}
+            </p>
             <div className="flex gap-2">
               <Button
                 variant="ghost"
@@ -114,11 +111,12 @@ export function AppLayout({
         </div>
       </header>
       <main className="flex-1">{children}</main>
-      <footer className="mt-auto text-text-muted text-sm">
-        <p>
-          Spec alignment: see <code className="px-1.5 py-0.5 bg-surface rounded text-xs">README.md</code>,{' '}
-          <code className="px-1.5 py-0.5 bg-surface rounded text-xs">GUIDELIGHT_SPEC.md</code>, and{' '}
-          <code className="px-1.5 py-0.5 bg-surface rounded text-xs">ARCHITECTURE_OVERVIEW.md</code>.
+      <footer className="mt-auto pt-8 text-center">
+        <p className="text-xs text-text-muted">
+          Guidelight v1 · Built by Xylent Studios for State of Mind
+        </p>
+        <p className="text-[10px] text-text-muted/60 italic mt-1">
+          If a guest is reading this, someone forgot to switch to Customer View. 😉
         </p>
       </footer>
     </div>

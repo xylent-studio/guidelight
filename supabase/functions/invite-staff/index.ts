@@ -14,9 +14,9 @@ interface InviteStaffRequest {
   name: string;
   role: 'budtender' | 'vault_tech' | 'manager';
   location?: string | null;
-  archetype?: string | null;
-  ideal_high?: string | null;
-  tolerance_level?: string | null;
+  profile_expertise?: string | null;
+  profile_vibe?: string | null;
+  profile_tolerance?: string | null;
 }
 
 serve(async (req) => {
@@ -93,7 +93,7 @@ serve(async (req) => {
 
     // Parse request body
     const body: InviteStaffRequest = await req.json()
-    const { email, name, role, location, archetype, ideal_high, tolerance_level } = body
+    const { email, name, role, location, profile_expertise, profile_vibe, profile_tolerance } = body
 
     // Validate required fields
     if (!email || !name || !role) {
@@ -154,9 +154,9 @@ serve(async (req) => {
         name,
         role,
         location: location || null,
-        archetype: archetype || null,
-        ideal_high: ideal_high || null,
-        tolerance_level: tolerance_level || null,
+        profile_expertise: profile_expertise || null,
+        profile_vibe: profile_vibe || null,
+        profile_tolerance: profile_tolerance || null,
         is_active: true,
       })
       .select()

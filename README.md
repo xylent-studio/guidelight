@@ -27,7 +27,7 @@ Budtenders know the answers, but:
 
 **Guidelight** solves this by giving each budtender:
 
-- A small **profile** (name, archetype, ideal high, tolerance).
+- A small **profile** (name, My vibe, Expertise, Tolerance).
 - A structured set of **favorite slots** (e.g., “Daytime flower”, “Sleep edible”, “Favorite blunt”, “Best value pack”, “Overall current favorite”).
 - A simple UI to **edit their picks**.
 - A **customer-facing view** you can pull up on the POS, flip the screen, and walk through together.
@@ -143,7 +143,7 @@ All staff authenticate via Supabase Auth (email + password):
 Core tables:
 
 - `budtenders`
-  - Name, nickname, archetype, ideal high, tolerance level, is_active.
+  - Name, nickname, profile_vibe (My vibe), profile_expertise (Expertise), profile_tolerance (Tolerance), is_active.
 - `categories`
   - Product category names (`Flower`, `Pre-rolls`, `Vapes`, `Edibles`, `Beverages`, `Concentrates`, `Wellness`, `Topicals`).
 - `picks`

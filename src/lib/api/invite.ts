@@ -8,9 +8,9 @@ export interface InviteStaffData {
   name: string;
   role: BudtenderRole;
   location?: string | null;
-  archetype?: string | null;
-  ideal_high?: string | null;
-  tolerance_level?: string | null;
+  profile_expertise?: string | null;
+  profile_vibe?: string | null;
+  profile_tolerance?: string | null;
 }
 
 export interface InviteStaffResponse {

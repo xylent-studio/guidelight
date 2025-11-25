@@ -16,51 +16,51 @@ export type Database = {
     Tables: {
       budtenders: {
         Row: {
-          archetype: string | null
           auth_user_id: string
           created_at: string
           id: string
-          ideal_high: string | null
           is_active: boolean
           location: string | null
           name: string
           nickname: string | null
           picks_note_override: string | null
+          profile_expertise: string | null
+          profile_tolerance: string | null
+          profile_vibe: string | null
           role: string
           slug: string | null
-          tolerance_level: string | null
           updated_at: string
         }
         Insert: {
-          archetype?: string | null
           auth_user_id: string
           created_at?: string
           id?: string
-          ideal_high?: string | null
           is_active?: boolean
           location?: string | null
           name: string
           nickname?: string | null
           picks_note_override?: string | null
+          profile_expertise?: string | null
+          profile_tolerance?: string | null
+          profile_vibe?: string | null
           role?: string
           slug?: string | null
-          tolerance_level?: string | null
           updated_at?: string
         }
         Update: {
-          archetype?: string | null
           auth_user_id?: string
           created_at?: string
           id?: string
-          ideal_high?: string | null
           is_active?: boolean
           location?: string | null
           name?: string
           nickname?: string | null
           picks_note_override?: string | null
+          profile_expertise?: string | null
+          profile_tolerance?: string | null
+          profile_vibe?: string | null
           role?: string
           slug?: string | null
-          tolerance_level?: string | null
           updated_at?: string
         }
         Relationships: []

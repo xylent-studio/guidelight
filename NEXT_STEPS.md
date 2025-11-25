@@ -1,7 +1,7 @@
 # Guidelight: Post-MVP Enhancements
 
-**Last Updated:** 2025-11-19  
-**Status:** Planning for future iterations
+**Last Updated:** 2025-11-25  
+**Status:** Planning for future iterations (Edge Function invite flow completed)
 
 This document captures features and improvements to implement after MVP validation.
 
@@ -9,9 +9,9 @@ This document captures features and improvements to implement after MVP validati
 
 ## 🚀 High Priority (V1.1)
 
-### **1. Proper Invite Flow with Edge Function**
-**Current (MVP):** Two-step manual process (Dashboard → App)  
-**Improvement:** One-click invite from app
+### **1. Proper Invite Flow with Edge Function** ✅ COMPLETED
+**Status:** Implemented in v1.0.0  
+**Implementation:** `supabase/functions/invite-staff/` (v7)
 
 **Implementation:**
 ```typescript
@@ -241,7 +241,7 @@ Track staff engagement:
 ### **11. Advanced Search & Filtering**
 Search staff by:
 - Name, email, role
-- Archetype, ideal high
+- Expertise, vibe, tolerance (profile fields)
 - Date added, last active
 - Pick count, categories covered
 
@@ -371,6 +371,6 @@ When implementing these features:
 
 ---
 
-**Last Review:** 2025-11-19  
-**Next Review:** After MVP launch + 2 weeks
+**Last Review:** 2025-11-25  
+**Next Review:** After v1.1.0 deployment + 2 weeks
 

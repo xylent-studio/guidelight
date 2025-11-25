@@ -11,6 +11,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2025-11-25
+
+### Added - Profile Enhancement & Landing Screen Polish
+- **Budtender Profile Fields Renamed & Enhanced:**
+  - `archetype` → `profile_expertise` (What they're best at helping customers with)
+  - `ideal_high` → `profile_vibe` (Mini-bio mixing personal life + cannabis preferences)
+  - `tolerance_level` → `profile_tolerance` (Honest, relatable tolerance description)
+  - Database migration `rename_budtender_profile_fields` preserves all existing data
+- **Staff View "My Profile" Section:**
+  - Enhanced UX with helper text and example patterns
+  - "My vibe" textarea with collapsible example vibes
+  - "Expertise" field with clickable example buttons
+  - "Tolerance" with selectable band cards (Light rider, Steady flyer, Heavy hitter)
+- **EditStaffForm Enhanced UX:**
+  - Mirrors Staff View profile editing experience for managers
+  - Same helper text, examples, and tolerance cards
+- **Customer View Profile Display:**
+  - `profile_expertise` shown as subtitle in budtender selector
+  - `profile_vibe` displayed when budtender is selected
+  - `profile_tolerance` shown with optional high-tolerance hint
+- **Landing Screen Polish:**
+  - New header: "STATE OF MIND · INTERNAL APP" badge + "Staff Picks & Profiles" title
+  - Guidelight explanation: "A guidelight helps you find your way — this one's for SOM."
+  - Updated view toggle card descriptions
+  - New footer: "Guidelight v1 · Built by Xylent Studios for State of Mind"
+  - Easter egg: "If a guest is reading this, someone forgot to switch to Customer View. 😉"
+
+### Changed
+- **Database Schema:** Renamed columns via ALTER TABLE (no data loss)
+- **TypeScript Types:** Updated `database.ts` with new field names
+- **API Layer:** Updated all client-side and Edge Function references
+- **Edge Functions Redeployed:**
+  - `invite-staff` (v7) - Uses new profile field names
+  - `get-staff-with-status` (v2) - Uses new profile field names
+
+### Fixed
+- **Database Performance:**
+  - Added missing index on `picks.category_id` for better JOIN performance
+  - Optimized 12 RLS policies with `(SELECT auth.uid())` wrapper to prevent re-evaluation
+
+### Documentation
+- Updated `GUIDELIGHT_SPEC.md` with new field names and semantics
+- Updated `ARCHITECTURE_OVERVIEW.md` with profile field descriptions
+- Updated `README.md` with new profile terminology
+- Updated `GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md` with new field names
+
+---
+
 ## [1.0.0] - 2025-11-25 🎉
 
 ### Added - Authentication & Invite System

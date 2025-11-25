@@ -1,6 +1,6 @@
 # Guidelight Documentation Standards
 
-**Last Updated:** 2025-11-19
+**Last Updated:** 2025-11-25
 
 This document defines documentation standards for the Guidelight project to ensure consistency, maintainability, and discoverability.
 
@@ -297,6 +297,6 @@ If you're unsure about documentation standards:
 
 ---
 
-**Maintained by:** Justin (State of Mind)  
-**Last reviewed:** 2025-11-19
+**Maintained by:** Xylent Studios  
+**Last reviewed:** 2025-11-25
 

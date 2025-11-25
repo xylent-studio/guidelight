@@ -1,4 +1,4 @@
-# Deployment Checklist for Guidelight v1.0.0
+# Deployment Checklist for Guidelight v1.1.0
 
 ## Pre-Deployment (Complete These Before Deploying)
 
@@ -21,8 +21,8 @@
    - Keep: `http://localhost:5173/**` (for local dev)
 
 #### [x] Verify Edge Functions are Deployed
-- [x] `invite-staff` (v6) - ACTIVE ✅
-- [x] `get-staff-with-status` (v1) - ACTIVE ✅
+- [x] `invite-staff` (v7) - ACTIVE ✅
+- [x] `get-staff-with-status` (v2) - ACTIVE ✅
 - [x] `reset-staff-password` (v1) - ACTIVE ✅
 
 #### [ ] Check Email Configuration
@@ -30,8 +30,11 @@
 2. Verify sender: `xylent.studio@gmail.com`
 3. (Optional) Customize email templates if needed
 
-#### [x] Verify Database Migration
+#### [x] Verify Database Migrations
 - [x] `location` column exists in `budtenders` table
+- [x] `rename_budtender_profile_fields` - Renamed `archetype`, `ideal_high`, `tolerance_level` to `profile_expertise`, `profile_vibe`, `profile_tolerance`
+- [x] `add_picks_category_id_index` - Added index on `picks.category_id` for JOIN performance
+- [x] `optimize_rls_policies_select_wrapper` - Optimized 12 RLS policies with `(SELECT auth.uid())` wrapper
 
 ---
 

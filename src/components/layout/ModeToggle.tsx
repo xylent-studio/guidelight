@@ -11,12 +11,12 @@ const MODES: Array<{ id: AppMode; label: string; description: string }> = [
   {
     id: 'customer',
     label: 'Customer View',
-    description: 'POS-friendly display for sharing picks with guests',
+    description: 'Show your picks to guests.',
   },
   {
     id: 'staff',
     label: 'Staff View',
-    description: 'Internal tools for managing budtender profiles and picks',
+    description: 'Update your profile and picks.',
   },
 ];
 
@@ -43,4 +43,3 @@ export function ModeToggle({ mode, onChange }: ModeToggleProps) {
 }
 
 export default ModeToggle;
-

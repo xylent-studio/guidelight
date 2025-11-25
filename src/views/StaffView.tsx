@@ -7,9 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { getActiveBudtenders } from '@/lib/api/budtenders';
+import { getActiveBudtenders, updateBudtender } from '@/lib/api/budtenders';
 import { getCategories } from '@/lib/api/categories';
 import { getPicksForBudtender, createPick, updatePick } from '@/lib/api/picks';
+import { useAuth } from '@/contexts/AuthContext';
 import type { Database } from '@/types/database';
 
 type Budtender = Database['public']['Tables']['budtenders']['Row'];
@@ -19,7 +20,51 @@ type PickInsert = Database['public']['Tables']['picks']['Insert'];
 
 type FormMode = 'closed' | 'add' | 'edit';
 
+// Tolerance band definitions
+const TOLERANCE_BANDS = [
+  {
+    id: 'light',
+    label: 'Light rider',
+    description: 'You feel things easily and prefer gentle, controlled highs.',
+    example: 'Light rider — one hit or a low-dose gummy and I\'m feeling it.',
+  },
+  {
+    id: 'steady',
+    label: 'Steady flyer',
+    description: 'You use pretty often but don\'t always need the strongest stuff.',
+    example: 'Steady flyer — I use most days, but regular-strength products still work well for me.',
+  },
+  {
+    id: 'heavy',
+    label: 'Heavy hitter',
+    description: 'You go through a lot and need stronger options to feel it.',
+    example: 'Heavy hitter — I smoke every day and usually go for strong indicas or infused options.',
+  },
+] as const;
+
+// Example expertise phrases
+const EXPERTISE_EXAMPLES = [
+  'Edibles for sleep & anxiety',
+  'Budget pre-rolls that still hit',
+  'Live resin vapes & terp-heavy carts',
+  'Beginner-friendly flower and low-dose gummies',
+  'Heavy indicas and "knockout" night options',
+  'Social sativas and talkative highs',
+  'CBD/ratio products for pain and tension',
+  'Concentrates and dabs for experienced smokers',
+];
+
+// Example vibe phrases
+const VIBE_EXAMPLES = [
+  'Upstate hiker and home cook who loves bright, talkative sativas for daytime and cozy, heavy indicas for movie nights.',
+  'Albany born and raised, dog dad, and live-resin nerd. I chase loud terps, smooth highs, and good playlists.',
+  'Former barista turned budtender. I\'m all about balanced hybrids, chill social highs, and anything that pairs well with coffee and conversation.',
+  'Gamer, gym rat, and dab dragon. I like heavy hitters after long days and functional vapes when I still need to get things done.',
+];
+
 export function StaffView() {
+  const { profile: currentUserProfile, isManager } = useAuth();
+  
   const [budtenders, setBudtenders] = useState<Budtender[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [picks, setPicks] = useState<Pick[]>([]);
@@ -29,6 +74,19 @@ export function StaffView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<PickInsert>>({});
+
+  // Profile editing state
+  const [profileEditing, setProfileEditing] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileVibe, setProfileVibe] = useState('');
+  const [profileExpertise, setProfileExpertise] = useState('');
+  const [profileTolerance, setProfileTolerance] = useState('');
+  const [selectedToleranceBand, setSelectedToleranceBand] = useState<string | null>(null);
+  const [showVibeExamples, setShowVibeExamples] = useState(false);
+
+  // Check if viewing own profile
+  const isOwnProfile = currentUserProfile?.id === selectedBudtender;
+  const selectedBudtenderData = budtenders.find(b => b.id === selectedBudtender);
 
   // Load budtenders and categories on mount
   useEffect(() => {
@@ -43,8 +101,10 @@ export function StaffView() {
         setBudtenders(budtendersData);
         setCategories(categoriesData);
 
-        // Auto-select first budtender
-        if (budtendersData.length > 0) {
+        // Auto-select current user's profile
+        if (currentUserProfile && budtendersData.some(b => b.id === currentUserProfile.id)) {
+          setSelectedBudtender(currentUserProfile.id);
+        } else if (budtendersData.length > 0) {
           setSelectedBudtender(budtendersData[0].id);
         }
       } catch (err) {
@@ -56,7 +116,7 @@ export function StaffView() {
     }
 
     loadInitialData();
-  }, []);
+  }, [currentUserProfile]);
 
   // Load picks when budtender changes
   useEffect(() => {
@@ -77,6 +137,17 @@ export function StaffView() {
 
     loadPicks();
   }, [selectedBudtender]);
+
+  // Sync profile fields when selected budtender changes
+  useEffect(() => {
+    if (selectedBudtenderData) {
+      setProfileVibe(selectedBudtenderData.profile_vibe || '');
+      setProfileExpertise(selectedBudtenderData.profile_expertise || '');
+      setProfileTolerance(selectedBudtenderData.profile_tolerance || '');
+      setSelectedToleranceBand(null);
+      setProfileEditing(false);
+    }
+  }, [selectedBudtenderData]);
 
   const handleAddPick = (categoryId: string) => {
     setFormMode('add');
@@ -148,6 +219,59 @@ export function StaffView() {
     }
   };
 
+  const handleToleranceBandSelect = (bandId: string) => {
+    const band = TOLERANCE_BANDS.find(b => b.id === bandId);
+    if (band) {
+      setSelectedToleranceBand(bandId);
+      setProfileTolerance(band.example);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!selectedBudtender) return;
+    
+    setProfileSaving(true);
+    try {
+      await updateBudtender(selectedBudtender, {
+        profile_vibe: profileVibe.trim() || null,
+        profile_expertise: profileExpertise.trim() || null,
+        profile_tolerance: profileTolerance.trim() || null,
+      });
+
+      // Update local state
+      setBudtenders(prev => prev.map(b => 
+        b.id === selectedBudtender 
+          ? { 
+              ...b, 
+              profile_vibe: profileVibe.trim() || null,
+              profile_expertise: profileExpertise.trim() || null,
+              profile_tolerance: profileTolerance.trim() || null,
+            } 
+          : b
+      ));
+
+      setProfileEditing(false);
+      alert('Profile saved!');
+    } catch (err) {
+      console.error('Error saving profile:', err);
+      alert(err instanceof Error ? err.message : 'Failed to save profile');
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  const handleCancelProfileEdit = () => {
+    if (selectedBudtenderData) {
+      setProfileVibe(selectedBudtenderData.profile_vibe || '');
+      setProfileExpertise(selectedBudtenderData.profile_expertise || '');
+      setProfileTolerance(selectedBudtenderData.profile_tolerance || '');
+    }
+    setSelectedToleranceBand(null);
+    setProfileEditing(false);
+  };
+
+  // Check if user can edit the selected profile
+  const canEditProfile = isOwnProfile || isManager;
 
   if (loading) {
     return (
@@ -174,7 +298,7 @@ export function StaffView() {
       <Card className="bg-surface border-border">
         <CardHeader>
           <CardTitle className="text-xl text-text">Select Budtender</CardTitle>
-          <CardDescription>Choose which staff member's picks to manage</CardDescription>
+          <CardDescription>Choose which staff member's profile and picks to manage</CardDescription>
         </CardHeader>
         <CardContent>
           <Select value={selectedBudtender} onValueChange={setSelectedBudtender}>
@@ -184,13 +308,205 @@ export function StaffView() {
             <SelectContent>
               {budtenders.map((budtender) => (
                 <SelectItem key={budtender.id} value={budtender.id}>
-                  {budtender.name} ({budtender.role})
+                  {budtender.name} {budtender.id === currentUserProfile?.id && '(You)'} ({budtender.role})
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </CardContent>
       </Card>
+
+      {/* My Profile Section */}
+      {selectedBudtender && canEditProfile && (
+        <Card className="bg-surface border-border">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <div>
+              <CardTitle className="text-xl text-text">
+                {isOwnProfile ? 'My Profile' : `${selectedBudtenderData?.name}'s Profile`}
+              </CardTitle>
+              <CardDescription>
+                {isOwnProfile 
+                  ? 'Tell customers who you are and what you\'re best at'
+                  : 'Edit this staff member\'s profile information'
+                }
+              </CardDescription>
+            </div>
+            {!profileEditing ? (
+              <Button onClick={() => setProfileEditing(true)} variant="outline" size="sm">
+                Edit Profile
+              </Button>
+            ) : (
+              <div className="flex gap-2">
+                <Button onClick={handleCancelProfileEdit} variant="outline" size="sm" disabled={profileSaving}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveProfile} size="sm" disabled={profileSaving}>
+                  {profileSaving ? 'Saving...' : 'Save Profile'}
+                </Button>
+              </div>
+            )}
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {!profileEditing ? (
+              // Read-only view
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-text-muted mb-1">My vibe</p>
+                  <p className="text-text">
+                    {selectedBudtenderData?.profile_vibe || (
+                      <span className="text-text-muted italic">Not set yet</span>
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-text-muted mb-1">Expertise</p>
+                  <p className="text-text">
+                    {selectedBudtenderData?.profile_expertise || (
+                      <span className="text-text-muted italic">Not set yet</span>
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-text-muted mb-1">Tolerance</p>
+                  <p className="text-text">
+                    {selectedBudtenderData?.profile_tolerance || (
+                      <span className="text-text-muted italic">Not set yet</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              // Edit mode
+              <div className="space-y-6">
+                {/* My vibe (profile_vibe) */}
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="profileVibe">My vibe</Label>
+                    <p className="text-xs text-text-muted mt-1">
+                      A couple short lines about you and how you like to live &amp; light up. Mix real life (hometown, hobbies, pets) with how you sesh and the vibes you love.
+                    </p>
+                  </div>
+                  
+                  <div className="p-3 bg-bg-soft border border-border rounded-md text-xs text-text-muted space-y-2">
+                    <p className="font-medium text-text">Try one of these patterns (1–3 sentences is perfect):</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>"I'm a [hometown] [role/hobby] who loves [product type] for [kind of night]."</li>
+                      <li>"When I'm not at SOM, I'm usually [hobby], and my go-tos are [product] for [situation]."</li>
+                      <li>"I'm the friend who always brings [product type] for [vibe], especially when [detail]."</li>
+                    </ul>
+                  </div>
+
+                  <Textarea
+                    id="profileVibe"
+                    placeholder="Albany born and raised, dog dad, and live-resin nerd. I chase loud terps, smooth highs, and good playlists."
+                    value={profileVibe}
+                    onChange={(e) => setProfileVibe(e.target.value)}
+                    disabled={profileSaving}
+                    rows={3}
+                    className="resize-none bg-bg"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowVibeExamples(!showVibeExamples)}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    {showVibeExamples ? 'Hide example vibes' : 'Show example vibes'}
+                  </button>
+
+                  {showVibeExamples && (
+                    <div className="p-3 bg-primary-soft/30 border border-primary/20 rounded-md text-xs space-y-2">
+                      {VIBE_EXAMPLES.map((example, idx) => (
+                        <p key={idx} className="text-text-muted italic">"{example}"</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Expertise (profile_expertise) */}
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="profileExpertise">Expertise</Label>
+                    <p className="text-xs text-text-muted mt-1">
+                      What are you best at helping people with? Think product types, effects, or goals where you're the go-to person.
+                    </p>
+                  </div>
+
+                  <Input
+                    id="profileExpertise"
+                    type="text"
+                    placeholder="Edibles for sleep & anxiety"
+                    value={profileExpertise}
+                    onChange={(e) => setProfileExpertise(e.target.value)}
+                    disabled={profileSaving}
+                    className="bg-bg"
+                  />
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {EXPERTISE_EXAMPLES.map((example, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setProfileExpertise(example)}
+                        className="px-2 py-1 text-xs bg-bg-soft border border-border rounded hover:border-primary hover:bg-primary-soft/20 transition-colors"
+                        disabled={profileSaving}
+                      >
+                        {example}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Tolerance (profile_tolerance) */}
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="profileTolerance">Tolerance</Label>
+                    <p className="text-xs text-text-muted mt-1">
+                      How much you usually use and how strong you like things. Be honest — this helps customers understand how your picks compare to their level.
+                    </p>
+                  </div>
+
+                  {/* Tolerance band cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {TOLERANCE_BANDS.map((band) => (
+                      <button
+                        key={band.id}
+                        type="button"
+                        onClick={() => handleToleranceBandSelect(band.id)}
+                        disabled={profileSaving}
+                        className={`p-3 text-left border rounded-lg transition-all ${
+                          selectedToleranceBand === band.id
+                            ? 'border-primary bg-primary-soft/30 ring-1 ring-primary'
+                            : 'border-border hover:border-primary/50 hover:bg-bg-soft'
+                        }`}
+                      >
+                        <p className="font-medium text-sm text-text">{band.label}</p>
+                        <p className="text-xs text-text-muted mt-1">{band.description}</p>
+                      </button>
+                    ))}
+                  </div>
+
+                  <Input
+                    id="profileTolerance"
+                    type="text"
+                    placeholder="Steady flyer — I use most days, but regular-strength products still work well for me."
+                    value={profileTolerance}
+                    onChange={(e) => {
+                      setProfileTolerance(e.target.value);
+                      setSelectedToleranceBand(null);
+                    }}
+                    disabled={profileSaving}
+                    className="bg-bg"
+                  />
+                  <p className="text-xs text-text-muted">
+                    Select a band above to get started, then edit the text to make it your own.
+                  </p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Picks by Category */}
       <div className="space-y-6">
@@ -206,9 +522,11 @@ export function StaffView() {
                     {categoryPicks.length} pick{categoryPicks.length !== 1 ? 's' : ''}
                   </CardDescription>
                 </div>
-                <Button onClick={() => handleAddPick(category.id)} variant="default" size="sm">
-                  + Add Pick
-                </Button>
+                {(isOwnProfile || isManager) && (
+                  <Button onClick={() => handleAddPick(category.id)} variant="default" size="sm">
+                    + Add Pick
+                  </Button>
+                )}
               </CardHeader>
               <CardContent className="space-y-3">
                 {categoryPicks.length === 0 ? (
@@ -237,21 +555,23 @@ export function StaffView() {
                         </div>
                         {pick.brand && <p className="text-sm text-text-muted">{pick.brand}</p>}
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <Label htmlFor={`active-${pick.id}`} className="text-sm text-text-muted">
-                            Active
-                          </Label>
-                          <Switch
-                            id={`active-${pick.id}`}
-                            checked={pick.is_active}
-                            onCheckedChange={() => handleToggleActive(pick.id, pick.is_active)}
-                          />
+                      {(isOwnProfile || isManager) && (
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor={`active-${pick.id}`} className="text-sm text-text-muted">
+                              Active
+                            </Label>
+                            <Switch
+                              id={`active-${pick.id}`}
+                              checked={pick.is_active}
+                              onCheckedChange={() => handleToggleActive(pick.id, pick.is_active)}
+                            />
+                          </div>
+                          <Button onClick={() => handleEditPick(pick)} variant="outline" size="sm">
+                            Edit
+                          </Button>
                         </div>
-                        <Button onClick={() => handleEditPick(pick)} variant="outline" size="sm">
-                          Edit
-                        </Button>
-                      </div>
+                      )}
                     </div>
                   ))
                 )}

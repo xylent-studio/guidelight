@@ -6,7 +6,7 @@
 | Field | Value |
 |-------|-------|
 | **Status** | ✅ Active |
-| **Last Updated** | 2025-11-19 |
+| **Last Updated** | 2025-11-25 |
 | **Owner** | Justin (State of Mind) |
 | **Audience** | Engineering |
 | **Purpose** | Step-by-step MVP implementation guide (8 steps), execution-ready for Cursor Composer |
@@ -86,7 +86,7 @@
      - **Manager-only navigation:** "Staff Management" link in app header, only visible if `useAuth().isManager` is true.
      - **Route guard:** If non-manager navigates to `/staff-management`, show 403 message and redirect.
      - **Invite Staff:** 
-       - Form: name (required), email (required), role (dropdown), archetype (optional), ideal_high (optional), tolerance_level (optional).
+       - Form: name (required), email (required), role (dropdown), profile_expertise (optional).
        - On submit: Creates budtender profile with `is_active=true`.
        - **Email invite:** For MVP, display a message: "Profile created. Send invite link to: [email]" with copy button. Manager manually sends Supabase invite link via Dashboard or email.
        - Future: Integrate Supabase Admin API to auto-send invite emails.
@@ -94,7 +94,7 @@
        - Table/card list of all budtenders (active + inactive).
        - Filter toggles: Show All / Active Only / Inactive Only.
        - Click row to expand edit form inline or navigate to edit page.
-     - **Edit Profile:** Inline or modal form to update name, role, archetype, ideal_high, tolerance_level.
+     - **Edit Profile:** Inline or modal form to update name, role, profile_vibe, profile_expertise, profile_tolerance.
      - **Toggle Active:** Switch component updates `is_active` (soft deactivate/reactivate).
      - **Hard Delete:** 
        - Red "Delete" button.

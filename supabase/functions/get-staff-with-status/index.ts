@@ -15,9 +15,9 @@ interface StaffWithStatus {
   name: string;
   nickname: string | null;
   role: string;
-  archetype: string | null;
-  ideal_high: string | null;
-  tolerance_level: string | null;
+  profile_expertise: string | null;
+  profile_vibe: string | null;
+  profile_tolerance: string | null;
   location: string | null;
   is_active: boolean;
   created_at: string;

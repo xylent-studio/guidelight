@@ -1739,3 +1739,148 @@ if (error) {
 
 **Status: ✅ COMPLETE - Ready for Testing**
 
+---
+
+## 2025-11-25 · Profile Fields Enhancement & Landing Screen Polish
+
+### Summary
+Renamed and enhanced budtender profile fields to make them more human, fun, and relatable. Updated the landing screen to feel like a polished, custom internal app for State of Mind.
+
+### Database Changes
+
+**Migration: `rename_budtender_profile_fields`**
+- Renamed `archetype` → `profile_expertise` (preserves existing data)
+- Renamed `ideal_high` → `profile_vibe` (preserves existing data)
+- Renamed `tolerance_level` → `profile_tolerance` (preserves existing data)
+
+**Migration: `add_picks_category_id_index`**
+- Added missing index on `picks.category_id` for better JOIN performance
+
+**Migration: `optimize_rls_policies_select_wrapper`**
+- Optimized 12 RLS policies with `(SELECT auth.uid())` wrapper
+- Prevents re-evaluation of `auth.uid()` for each row
+- Affected policies: budtenders (5), categories (1), picks (6)
+
+### TypeScript Types Updated
+- `src/types/database.ts`: Updated `Row`, `Insert`, `Update` types with new field names
+
+### API Layer Updated
+- `src/lib/api/invite.ts`: `InviteStaffData` interface uses new field names
+- `src/lib/api/staff-management.ts`: `StaffWithStatus` interface uses new field names
+
+### Edge Functions Redeployed
+- `invite-staff` (v7): Uses `profile_vibe`, `profile_expertise`, `profile_tolerance`
+- `get-staff-with-status` (v2): Uses new profile field names
+
+### UI Components Updated
+
+**StaffView.tsx:**
+- Added cohesive "My Profile" section with enhanced UX
+- "My vibe" textarea with collapsible example vibes
+- "Expertise" field with clickable example buttons
+- "Tolerance" with selectable band cards (Light rider, Steady flyer, Heavy hitter)
+- Helper text and patterns throughout
+
+**EditStaffForm.tsx:**
+- Enhanced UX matching Staff View for managers
+- Same helper text, examples, and tolerance cards
+
+**InviteStaffForm.tsx:**
+- Added new profile fields as simple optional inputs
+- Lightweight scaffolding per Xylent Studios practice
+
+**CustomerView.tsx:**
+- `profile_expertise` displayed as subtitle in budtender selector
+- `profile_vibe` shown when budtender is selected
+- `profile_tolerance` shown with optional high-tolerance hint
+
+**AppLayout.tsx:**
+- New header: "STATE OF MIND · INTERNAL APP" badge
+- Title: "Staff Picks & Profiles"
+- Guidelight explanation text
+- New footer with Xylent Studios signature and easter egg
+
+**ModeToggle.tsx:**
+- Updated Customer View card description: "Show your picks to guests."
+- Updated Staff View card description: "Update your profile and picks."
+
+### Documentation Updated
+- `GUIDELIGHT_SPEC.md`: New field names and semantics
+- `ARCHITECTURE_OVERVIEW.md`: Profile field descriptions
+- `README.md`: New profile terminology
+- `GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md`: New field names
+- `CHANGELOG.md`: Added v1.1.0 release notes
+
+### Validation Completed
+- ✅ `npm run build` succeeds (590KB bundle)
+- ✅ `npm run lint` passes (pre-existing warnings only)
+- ✅ Browser testing of all views
+- ✅ No console errors
+- ✅ Performance advisors resolved (index + RLS optimization)
+
+### Files Modified
+1. `src/types/database.ts`
+2. `src/lib/api/invite.ts`
+3. `src/lib/api/staff-management.ts`
+4. `src/views/StaffView.tsx`
+5. `src/views/CustomerView.tsx`
+6. `src/components/staff-management/EditStaffForm.tsx`
+7. `src/components/staff-management/InviteStaffForm.tsx`
+8. `src/components/layout/AppLayout.tsx`
+9. `src/components/layout/ModeToggle.tsx`
+10. `supabase/functions/invite-staff/index.ts`
+11. `supabase/functions/get-staff-with-status/index.ts`
+12. `docs/GUIDELIGHT_SPEC.md`
+13. `docs/ARCHITECTURE_OVERVIEW.md`
+14. `README.md`
+15. `notes/GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md`
+16. `CHANGELOG.md`
+
+**Status: ✅ COMPLETE**
+
+---
+
+## 2025-11-25 · Environment Configuration Fix
+
+### Issue
+Intermittent "white page" / "connection timeout" issue where the app would display headers/footer but no Supabase data would load. The 10-second auth timeout would fire.
+
+### Root Cause Investigation
+Using browser tools to inspect console and network:
+- Auth session was cached in localStorage (SIGNED_IN event fired)
+- But no Supabase API calls (`*.supabase.co`) appeared in network tab
+- Profile loading hung indefinitely until timeout fired
+
+### Root Cause Identified
+The `.env.local` file had **TWO issues**:
+
+1. **Leading whitespace** on each line:
+   ```
+      VITE_SUPABASE_URL=...   (spaces before VITE_)
+   ```
+   Vite couldn't parse the env vars correctly due to leading spaces.
+
+2. **Truncated anon key**:
+   The JWT was cut off at 275 characters, missing the final 16 characters of the signature.
+
+### Fix Applied
+Rewrote `.env.local` with correct formatting:
+```bash
+VITE_SUPABASE_URL=https://nczhptgnaghunfrsriuz.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOi...full_key...zjbdskzNU
+```
+
+### Validation
+After fix, console shows successful auth flow:
+- `[Auth] Session response: [object Object]` - Session retrieved ✓
+- `[Auth] Profile fetched: [object Object]` - Profile loaded ✓
+- App loads with all data visible
+
+### Lessons Learned
+1. Always verify `.env.local` file formatting (no leading/trailing whitespace)
+2. Use raw byte inspection for debugging encoding issues
+3. Browser console messages are critical for auth debugging
+4. Vite auto-restarts when `.env.local` changes
+
+**Status: ✅ FIXED**
+

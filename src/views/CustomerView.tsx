@@ -12,6 +12,12 @@ type Budtender = Database['public']['Tables']['budtenders']['Row'];
 type Category = Database['public']['Tables']['categories']['Row'];
 type Pick = Database['public']['Tables']['picks']['Row'];
 
+// Truncate text with ellipsis
+function truncate(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength - 1).trim() + '…';
+}
+
 export function CustomerView() {
   const [budtenders, setBudtenders] = useState<Budtender[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -20,6 +26,9 @@ export function CustomerView() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Get the selected budtender's data
+  const selectedBudtenderData = budtenders.find(b => b.id === selectedBudtender);
 
   // Load budtenders and categories on mount
   useEffect(() => {
@@ -116,16 +125,59 @@ export function CustomerView() {
               variant={selectedBudtender === budtender.id ? 'default' : 'outline'}
               size="lg"
               onClick={() => setSelectedBudtender(budtender.id)}
-              className="flex flex-col items-start text-left h-auto py-4 px-5 gap-1"
+              className="flex flex-col items-start text-left h-auto py-4 px-5 gap-1 min-h-[72px]"
             >
               <span className="font-semibold text-base">{budtender.name}</span>
-              {budtender.archetype && (
-                <span className="text-sm font-normal opacity-90">{budtender.archetype}</span>
+              {budtender.profile_expertise && (
+                <span className="text-sm font-normal opacity-90 line-clamp-1">
+                  {truncate(budtender.profile_expertise, 40)}
+                </span>
               )}
             </Button>
           ))}
         </div>
       </section>
+
+      {/* Profile Info Section */}
+      {selectedBudtenderData && (selectedBudtenderData.profile_vibe || selectedBudtenderData.profile_tolerance) && (
+        <section className="bg-surface border border-border rounded-lg p-5">
+          <div className="flex items-start gap-4">
+            {/* Avatar placeholder - could be enhanced later */}
+            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-lg shrink-0">
+              {selectedBudtenderData.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0 space-y-2">
+              <h3 className="font-semibold text-text text-lg">{selectedBudtenderData.name}</h3>
+              
+              {/* My vibe */}
+              {selectedBudtenderData.profile_vibe && (
+                <p className="text-text-muted text-sm leading-relaxed">
+                  {selectedBudtenderData.profile_vibe}
+                </p>
+              )}
+              
+              {/* Tolerance */}
+              {selectedBudtenderData.profile_tolerance && (
+                <div className="pt-1">
+                  <p className="text-xs text-text-muted">
+                    <span className="font-medium">Tolerance:</span>{' '}
+                    {selectedBudtenderData.profile_tolerance}
+                  </p>
+                  {/* Hint for high tolerance */}
+                  {(selectedBudtenderData.profile_tolerance.toLowerCase().includes('heavy') ||
+                    selectedBudtenderData.profile_tolerance.toLowerCase().includes('high') ||
+                    selectedBudtenderData.profile_tolerance.toLowerCase().includes('dab') ||
+                    selectedBudtenderData.profile_tolerance.toLowerCase().includes('blunt')) && (
+                    <p className="text-xs text-text-muted/70 italic mt-1">
+                      If you're newer, start a bit lower than what they'd personally use.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Category Tabs */}
       <Tabs

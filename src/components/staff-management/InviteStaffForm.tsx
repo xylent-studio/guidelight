@@ -12,7 +12,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -45,18 +44,14 @@ export function InviteStaffForm({ open, onOpenChange, onSuccess }: InviteStaffFo
   const [name, setName] = useState('');
   const [role, setRole] = useState<BudtenderRole>('budtender');
   const [location, setLocation] = useState('');
-  const [archetype, setArchetype] = useState('');
-  const [idealHigh, setIdealHigh] = useState('');
-  const [toleranceLevel, setToleranceLevel] = useState('');
+  const [profileExpertise, setProfileExpertise] = useState('');
 
   function resetForm() {
     setEmail('');
     setName('');
     setRole('budtender');
     setLocation('');
-    setArchetype('');
-    setIdealHigh('');
-    setToleranceLevel('');
+    setProfileExpertise('');
     setError(null);
     setSuccess(false);
   }
@@ -98,9 +93,7 @@ export function InviteStaffForm({ open, onOpenChange, onSuccess }: InviteStaffFo
         name: name.trim(),
         role,
         location: location.trim() || null,
-        archetype: archetype.trim() || null,
-        ideal_high: idealHigh.trim() || null,
-        tolerance_level: toleranceLevel.trim() || null,
+        profile_expertise: profileExpertise.trim() || null,
       });
 
       setSuccess(true);
@@ -230,46 +223,20 @@ export function InviteStaffForm({ open, onOpenChange, onSuccess }: InviteStaffFo
               Managers can invite/manage staff and edit any picks.
             </p>
 
-            {/* Archetype (Optional) */}
+            {/* Expertise (Optional) */}
             <div className="space-y-2">
-              <Label htmlFor="archetype">Archetype (Optional)</Label>
+              <Label htmlFor="profileExpertise">Expertise (Optional)</Label>
               <Input
-                id="archetype"
+                id="profileExpertise"
                 type="text"
-                placeholder="The Explorer"
-                value={archetype}
-                onChange={(e) => setArchetype(e.target.value)}
+                placeholder="Edibles for sleep & anxiety"
+                value={profileExpertise}
+                onChange={(e) => setProfileExpertise(e.target.value)}
                 disabled={loading}
               />
               <p className="text-xs text-text-muted">
-                Examples: The Explorer, The Socialite, The Chill Master
+                What are they best at helping people with? They can fill out their full profile after accepting the invite.
               </p>
-            </div>
-
-            {/* Ideal High (Optional) */}
-            <div className="space-y-2">
-              <Label htmlFor="idealHigh">Ideal High (Optional)</Label>
-              <Textarea
-                id="idealHigh"
-                placeholder="Clear-headed creativity with balanced relaxation"
-                value={idealHigh}
-                onChange={(e) => setIdealHigh(e.target.value)}
-                disabled={loading}
-                rows={3}
-              />
-            </div>
-
-            {/* Tolerance Level (Optional) */}
-            <div className="space-y-2">
-              <Label htmlFor="toleranceLevel">Tolerance Level (Optional)</Label>
-              <Input
-                id="toleranceLevel"
-                type="text"
-                placeholder="Medium"
-                value={toleranceLevel}
-                onChange={(e) => setToleranceLevel(e.target.value)}
-                disabled={loading}
-              />
             </div>
 
             {/* Error Display */}

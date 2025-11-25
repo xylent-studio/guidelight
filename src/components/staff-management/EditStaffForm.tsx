@@ -38,16 +38,60 @@ const LOCATIONS = [
   // Add more locations as needed
 ];
 
+// Tolerance band definitions
+const TOLERANCE_BANDS = [
+  {
+    id: 'light',
+    label: 'Light rider',
+    description: 'You feel things easily and prefer gentle, controlled highs.',
+    example: 'Light rider — one hit or a low-dose gummy and I\'m feeling it.',
+  },
+  {
+    id: 'steady',
+    label: 'Steady flyer',
+    description: 'You use pretty often but don\'t always need the strongest stuff.',
+    example: 'Steady flyer — I use most days, but regular-strength products still work well for me.',
+  },
+  {
+    id: 'heavy',
+    label: 'Heavy hitter',
+    description: 'You go through a lot and need stronger options to feel it.',
+    example: 'Heavy hitter — I smoke every day and usually go for strong indicas or infused options.',
+  },
+] as const;
+
+// Example expertise phrases
+const EXPERTISE_EXAMPLES = [
+  'Edibles for sleep & anxiety',
+  'Budget pre-rolls that still hit',
+  'Live resin vapes & terp-heavy carts',
+  'Beginner-friendly flower and low-dose gummies',
+  'Heavy indicas and "knockout" night options',
+  'Social sativas and talkative highs',
+  'CBD/ratio products for pain and tension',
+  'Concentrates and dabs for experienced smokers',
+];
+
+// Example vibe phrases
+const VIBE_EXAMPLES = [
+  'Upstate hiker and home cook who loves bright, talkative sativas for daytime and cozy, heavy indicas for movie nights.',
+  'Albany born and raised, dog dad, and live-resin nerd. I chase loud terps, smooth highs, and good playlists.',
+  'Former barista turned budtender. I\'m all about balanced hybrids, chill social highs, and anything that pairs well with coffee and conversation.',
+  'Gamer, gym rat, and dab dragon. I like heavy hitters after long days and functional vapes when I still need to get things done.',
+];
+
 export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaffFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showVibeExamples, setShowVibeExamples] = useState(false);
 
   const [name, setName] = useState('');
   const [role, setRole] = useState<BudtenderRole>('budtender');
   const [location, setLocation] = useState('');
-  const [archetype, setArchetype] = useState('');
-  const [idealHigh, setIdealHigh] = useState('');
-  const [toleranceLevel, setToleranceLevel] = useState('');
+  const [profileVibe, setProfileVibe] = useState('');
+  const [profileExpertise, setProfileExpertise] = useState('');
+  const [profileTolerance, setProfileTolerance] = useState('');
+  const [selectedToleranceBand, setSelectedToleranceBand] = useState<string | null>(null);
 
   // Populate form when staff prop changes
   useEffect(() => {
@@ -55,9 +99,11 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
       setName(staff.name);
       setRole(staff.role as BudtenderRole);
       setLocation(staff.location || '');
-      setArchetype(staff.archetype || '');
-      setIdealHigh(staff.ideal_high || '');
-      setToleranceLevel(staff.tolerance_level || '');
+      setProfileVibe(staff.profile_vibe || '');
+      setProfileExpertise(staff.profile_expertise || '');
+      setProfileTolerance(staff.profile_tolerance || '');
+      setSelectedToleranceBand(null);
+      setShowVibeExamples(false);
       setError(null);
     }
   }, [staff]);
@@ -66,6 +112,14 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
     if (!loading) {
       setError(null);
       onOpenChange(false);
+    }
+  }
+
+  function handleToleranceBandSelect(bandId: string) {
+    const band = TOLERANCE_BANDS.find(b => b.id === bandId);
+    if (band) {
+      setSelectedToleranceBand(bandId);
+      setProfileTolerance(band.example);
     }
   }
 
@@ -90,9 +144,9 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
         name: name.trim(),
         role,
         location: location.trim() || null,
-        archetype: archetype.trim() || null,
-        ideal_high: idealHigh.trim() || null,
-        tolerance_level: toleranceLevel.trim() || null,
+        profile_vibe: profileVibe.trim() || null,
+        profile_expertise: profileExpertise.trim() || null,
+        profile_tolerance: profileTolerance.trim() || null,
       });
 
       onSuccess();
@@ -194,43 +248,132 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
             Changing roles affects permissions immediately.
           </p>
 
-          {/* Archetype */}
-          <div className="space-y-2">
-            <Label htmlFor="edit-archetype">Archetype (Optional)</Label>
-            <Input
-              id="edit-archetype"
-              type="text"
-              placeholder="The Explorer"
-              value={archetype}
-              onChange={(e) => setArchetype(e.target.value)}
-              disabled={loading}
-            />
+          {/* Divider */}
+          <div className="border-t border-border pt-4">
+            <h3 className="text-sm font-semibold text-text mb-4">Profile Details</h3>
           </div>
 
-          {/* Ideal High */}
-          <div className="space-y-2">
-            <Label htmlFor="edit-idealHigh">Ideal High (Optional)</Label>
+          {/* My vibe (profile_vibe) */}
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="edit-profileVibe">My vibe</Label>
+              <p className="text-xs text-text-muted mt-1">
+                A couple short lines about them and how they like to live &amp; light up. Mix real life (hometown, hobbies, pets) with how they sesh and the vibes they love.
+              </p>
+            </div>
+            
+            <div className="p-3 bg-bg-soft border border-border rounded-md text-xs text-text-muted space-y-2">
+              <p className="font-medium text-text">Try one of these patterns (1–3 sentences is perfect):</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>"I'm a [hometown] [role/hobby] who loves [product type] for [kind of night]."</li>
+                <li>"When I'm not at SOM, I'm usually [hobby], and my go-tos are [product] for [situation]."</li>
+                <li>"I'm the friend who always brings [product type] for [vibe], especially when [detail]."</li>
+              </ul>
+            </div>
+
             <Textarea
-              id="edit-idealHigh"
-              placeholder="Clear-headed creativity with balanced relaxation"
-              value={idealHigh}
-              onChange={(e) => setIdealHigh(e.target.value)}
+              id="edit-profileVibe"
+              placeholder="Albany born and raised, dog dad, and live-resin nerd. I chase loud terps, smooth highs, and good playlists."
+              value={profileVibe}
+              onChange={(e) => setProfileVibe(e.target.value)}
               disabled={loading}
               rows={3}
+              className="resize-none"
             />
+
+            <button
+              type="button"
+              onClick={() => setShowVibeExamples(!showVibeExamples)}
+              className="text-xs text-primary hover:underline"
+            >
+              {showVibeExamples ? 'Hide example vibes' : 'Show example vibes'}
+            </button>
+
+            {showVibeExamples && (
+              <div className="p-3 bg-primary-soft/30 border border-primary/20 rounded-md text-xs space-y-2">
+                {VIBE_EXAMPLES.map((example, idx) => (
+                  <p key={idx} className="text-text-muted italic">"{example}"</p>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Tolerance Level */}
-          <div className="space-y-2">
-            <Label htmlFor="edit-toleranceLevel">Tolerance Level (Optional)</Label>
+          {/* Expertise (profile_expertise) */}
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="edit-profileExpertise">Expertise</Label>
+              <p className="text-xs text-text-muted mt-1">
+                What are they best at helping people with? Think product types, effects, or goals where they're the go-to person.
+              </p>
+            </div>
+
             <Input
-              id="edit-toleranceLevel"
+              id="edit-profileExpertise"
               type="text"
-              placeholder="Medium"
-              value={toleranceLevel}
-              onChange={(e) => setToleranceLevel(e.target.value)}
+              placeholder="Edibles for sleep & anxiety"
+              value={profileExpertise}
+              onChange={(e) => setProfileExpertise(e.target.value)}
               disabled={loading}
             />
+
+            <div className="flex flex-wrap gap-1.5">
+              {EXPERTISE_EXAMPLES.map((example, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setProfileExpertise(example)}
+                  className="px-2 py-1 text-xs bg-bg-soft border border-border rounded hover:border-primary hover:bg-primary-soft/20 transition-colors"
+                  disabled={loading}
+                >
+                  {example}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tolerance (profile_tolerance) */}
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="edit-profileTolerance">Tolerance</Label>
+              <p className="text-xs text-text-muted mt-1">
+                How much they usually use and how strong they like things. Be honest — this helps customers understand how their picks compare to their level.
+              </p>
+            </div>
+
+            {/* Tolerance band cards */}
+            <div className="grid grid-cols-3 gap-2">
+              {TOLERANCE_BANDS.map((band) => (
+                <button
+                  key={band.id}
+                  type="button"
+                  onClick={() => handleToleranceBandSelect(band.id)}
+                  disabled={loading}
+                  className={`p-3 text-left border rounded-lg transition-all ${
+                    selectedToleranceBand === band.id
+                      ? 'border-primary bg-primary-soft/30 ring-1 ring-primary'
+                      : 'border-border hover:border-primary/50 hover:bg-bg-soft'
+                  }`}
+                >
+                  <p className="font-medium text-sm text-text">{band.label}</p>
+                  <p className="text-xs text-text-muted mt-1">{band.description}</p>
+                </button>
+              ))}
+            </div>
+
+            <Input
+              id="edit-profileTolerance"
+              type="text"
+              placeholder="Steady flyer — I use most days, but regular-strength products still work well for me."
+              value={profileTolerance}
+              onChange={(e) => {
+                setProfileTolerance(e.target.value);
+                setSelectedToleranceBand(null);
+              }}
+              disabled={loading}
+            />
+            <p className="text-xs text-text-muted">
+              Select a band above to get started, then edit the text to make it their own.
+            </p>
           </div>
 
           {/* Error Display */}

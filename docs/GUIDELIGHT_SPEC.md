@@ -115,7 +115,7 @@ Non-goals for MVP:
    - Name (required)
    - Email (required)
    - Role: budtender, vault_tech, or manager
-   - Optional: archetype, ideal_high, tolerance_level
+   - Optional: profile_expertise (what they're best at helping with)
 5. Clicks **"Send Invite"**.
 6. System creates budtender profile in database.
 7. **MVP:** App displays: "Profile created. Send invite link to [email]." Manager manually sends Supabase invite link via Dashboard.
@@ -279,9 +279,9 @@ create table public.budtenders (
   role text not null default 'budtender'
     check (role in ('budtender','vault_tech','manager')),
   location text,          -- e.g. "Main Store", "North Location" (v1.0.0)
-  archetype text,         -- e.g. "Terp Hunter", "Heavy Hitter"
-  ideal_high text,        -- free text
-  tolerance_level text,   -- e.g. "daily user", "lightweight"
+  profile_vibe text,      -- Mini-bio mixing personal life + cannabis preferences (1-3 sentences)
+  profile_expertise text, -- What they're best at helping customers with (short phrase)
+  profile_tolerance text, -- How much they use and how strong they like things (honest, friendly text)
   picks_note_override text,
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
@@ -421,7 +421,8 @@ Elements:
 - **Budtender selector**
   - Row of buttons or a dropdown of active budtenders.
   - Includes every `is_active` staff member (budtenders, vault techs, managers) and shows their name only for MVP—customers should not see role labels.
-  - Shows budtender’s archetype and a short tagline (ideal_high).
+  - Shows budtender's expertise as a subtitle (truncated gracefully if long).
+  - When selected, displays their "My vibe" (profile_vibe) and tolerance level.
 
 - **Category tabs or pills**
   - `Flower`, `Pre-rolls`, `Vapes`, `Edibles`, `Beverages`, `Concentrates`, `Wellness`, `Topicals`, `Deals`, `Personal`.

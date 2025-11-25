@@ -1,6 +1,6 @@
 # Guidelight MVP: Critical Decisions Log
 
-**Last Updated:** 2025-11-19
+**Last Updated:** 2025-11-25
 
 This document captures key architectural and implementation decisions made during MVP planning to ensure consistency across all team members and future development.
 
@@ -68,6 +68,58 @@ See `notes/RLS_MANAGER_POLICIES.sql` for SQL.
 - **Budtender deletion:** Cascades to picks automatically (FK constraint `on delete cascade`)
 - **Category deletion:** Not allowed in app (seed-only for MVP)
 - **Pick deletion:** Handled individually (no cascades)
+
+---
+
+## Profile Field Rename (v1.1.0)
+
+### Field Name Changes
+- `archetype` → `profile_expertise` (What they're best at helping customers with)
+- `ideal_high` → `profile_vibe` (Mini-bio mixing personal life + cannabis preferences)
+- `tolerance_level` → `profile_tolerance` (Honest, relatable tolerance description)
+
+### Rationale
+- Original names felt clinical and didn't match how SOM staff actually talk
+- New names encourage budtenders to write fun, relatable content
+- "My vibe" conveys personality; "Expertise" is actionable; "Tolerance" is honest
+- Database columns renamed in-place with `ALTER TABLE ... RENAME COLUMN` to preserve existing data
+
+### UX Enhancement
+- Staff View profile editing now includes:
+  - Helper text with writing prompts
+  - Example patterns for "My vibe"
+  - Clickable example buttons for "Expertise"
+  - Selectable tolerance band cards (Light rider, Steady flyer, Heavy hitter)
+- Goal: Reduce blank-page anxiety and encourage quality profile content
+
+### Migration Approach
+- No new columns added, existing columns renamed
+- All existing data preserved (ALTER TABLE RENAME vs DROP/CREATE)
+- TypeScript types, API helpers, and Edge Functions updated to match
+
+---
+
+## Landing Screen Polish (v1.1.0)
+
+### Header Changes
+- Badge: "STATE OF MIND · INTERNAL APP" (replaces Guidelight MVP branding)
+- Title: "Staff Picks & Profiles" (clear, actionable)
+- Guidelight explanation: "A guidelight helps you find your way — this one's for SOM."
+
+### View Toggle Cards
+- Customer View: "Show your picks to guests." (concise, action-focused)
+- Staff View: "Update your profile and picks." (matches profile_* field work)
+- Removed redundant guidance text to keep landing screen clean
+
+### Footer
+- "Guidelight v1 · Built by Xylent Studios for State of Mind"
+- Easter egg: "If a guest is reading this, someone forgot to switch to Customer View. 😉"
+- Removed dev-only footer text (spec alignment links)
+
+### Rationale
+- Make landing screen feel like a polished internal app, not a dev demo
+- Remove all marketing/tech-stack language
+- Keep copy warm and SOM-appropriate
 
 ---
 
