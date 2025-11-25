@@ -6,15 +6,20 @@
 
 ---
 
-Hey everyone — remember that budtender picks app I mentioned a little while back? It's done and ready to go.
+Hey everyone — remember that budtender picks app I was telling you about? It's done. Like actually done. And I'm not gonna lie, I'm pretty damn proud of it.
 
-It's called Guidelight. You can add your personal product recommendations, rate them, and write a quick note about why you love them. Customers see your picks organized by category — basically your own digital staff picks shelf.
+It's called Guidelight. You add your personal product recs, rate them, write a quick note about why you love them — and customers can see your picks organized by category. Basically your own digital staff picks shelf.
 
-If you want to get set up, talk to Justin R or catch me on shift and we'll send you an invite link. You click it, you're in — takes a couple minutes to set up your profile.
+I built this myself through my studio (Xylent Studios) and it honestly looks like a real product that came from an actual dev team. Go check it out:
 
-The app is at: guidelight.xylent.studio
+guidelight.xylent.studio
 
-Looking forward to seeing what everyone picks.
+If you want in, talk to Justin R or catch me on shift and we'll send you an invite. You click the link, you're in — takes like 2 minutes to set up your profile.
+
+And for any of our resident nerds who want to peek under the hood, here's the full codebase:
+github.com/xylent-studio/guidelight
+
+Looking forward to seeing what everyone picks. Let's go.
 
 ---
 
