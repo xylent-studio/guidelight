@@ -44,71 +44,80 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  
+  /* ========================================
+     LIGHT MODE - Maps shadcn vars to Guidelight tokens
+     Premium dispensary - warm cream + forest green
+     ======================================== */
+  --background: hsl(40 30% 97%);           /* gl-bg-app: Warm cream shell */
+  --foreground: hsl(35 15% 18%);           /* gl-text-default: Warm dark */
+  --card: hsl(40 20% 99%);                 /* gl-bg-surface: Cards - near white with warmth */
+  --card-foreground: hsl(35 15% 18%);      /* gl-text-default */
+  --popover: hsl(40 20% 99%);              /* gl-bg-surface */
+  --popover-foreground: hsl(35 15% 18%);   /* gl-text-default */
+  --primary: hsl(155 50% 32%);             /* gl-primary: Deep forest green */
+  --primary-foreground: hsl(40 20% 99%);   /* gl-btn-primary-text: Cream white on green */
+  --secondary: hsl(40 25% 94%);            /* gl-bg-elevated */
+  --secondary-foreground: hsl(35 15% 18%); /* gl-text-default */
+  --muted: hsl(40 25% 94%);                /* gl-bg-elevated */
+  --muted-foreground: hsl(35 10% 42%);     /* gl-text-muted */
+  --accent: hsl(155 35% 91%);              /* gl-primary-soft */
+  --accent-foreground: hsl(35 15% 18%);    /* gl-text-default */
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: hsl(40 15% 86%);               /* gl-border-subtle */
+  --input: hsl(40 15% 86%);                /* gl-border-subtle */
+  --ring: hsl(155 50% 32%);                /* gl-primary-outline */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: hsl(40 20% 99%);              /* gl-bg-surface */
+  --sidebar-foreground: hsl(35 15% 18%);   /* gl-text-default */
+  --sidebar-primary: hsl(155 50% 32%);     /* gl-primary */
+  --sidebar-primary-foreground: hsl(40 20% 99%);
+  --sidebar-accent: hsl(155 35% 91%);      /* gl-primary-soft */
+  --sidebar-accent-foreground: hsl(35 15% 18%);
+  --sidebar-border: hsl(40 15% 86%);       /* gl-border-subtle */
+  --sidebar-ring: hsl(155 50% 32%);        /* gl-primary */
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  /* ========================================
+     DARK MODE - Maps shadcn vars to Guidelight tokens
+     Spotify-inspired: Green-tinted blacks, vibrant forest accents
+     ======================================== */
+  --background: hsl(155 20% 7%);           /* gl-bg-app: Deep forest black */
+  --foreground: hsl(40 8% 96%);            /* gl-text-default: Cream white */
+  --card: hsl(155 15% 11%);                /* gl-bg-surface: Charcoal with green tint */
+  --card-foreground: hsl(40 8% 96%);       /* gl-text-default: Cream white */
+  --popover: hsl(155 15% 11%);             /* gl-bg-surface */
+  --popover-foreground: hsl(40 8% 96%);    /* gl-text-default */
+  --primary: hsl(155 55% 48%);             /* gl-primary: Vibrant forest */
+  --primary-foreground: hsl(155 20% 7%);   /* gl-btn-primary-text: Dark on bright green */
+  --secondary: hsl(155 12% 16%);           /* gl-bg-elevated */
+  --secondary-foreground: hsl(40 8% 96%);  /* gl-text-default */
+  --muted: hsl(155 12% 16%);               /* gl-bg-elevated */
+  --muted-foreground: hsl(40 5% 68%);      /* gl-text-muted: Warm gray */
+  --accent: hsl(155 40% 18%);              /* gl-primary-soft: Deep forest selection */
+  --accent-foreground: hsl(40 8% 96%);     /* gl-text-default */
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --border: hsl(155 12% 22%);              /* gl-border-subtle: Forest-tinted */
+  --input: hsl(155 12% 22%);               /* gl-border-subtle */
+  --ring: hsl(155 60% 55%);                /* gl-primary-outline: Brighter for focus */
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar: hsl(155 15% 11%);             /* gl-bg-surface */
+  --sidebar-foreground: hsl(40 8% 96%);    /* gl-text-default */
+  --sidebar-primary: hsl(155 55% 48%);     /* gl-primary */
+  --sidebar-primary-foreground: hsl(40 8% 96%);
+  --sidebar-accent: hsl(155 40% 18%);      /* gl-primary-soft */
+  --sidebar-accent-foreground: hsl(40 8% 96%);
+  --sidebar-border: hsl(155 12% 22%);      /* gl-border-subtle */
+  --sidebar-ring: hsl(155 60% 55%);        /* gl-primary-outline */
 }
 
 @layer base {
