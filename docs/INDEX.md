@@ -1,7 +1,7 @@
 # Guidelight Documentation Index
 
-**Last Updated:** 2025-11-19  
-**Maintainer:** Justin (State of Mind)
+**Last Updated:** 2025-11-25  
+**Maintainer:** Xylent Studios
 
 This is the central hub for all Guidelight project documentation. If you're new to the project, start with the **Getting Started** section below.
 
@@ -18,29 +18,37 @@ This is the central hub for all Guidelight project documentation. If you're new 
 ### **Product Documentation**
 | Document | Purpose | Audience | Status | Last Updated |
 |----------|---------|----------|--------|--------------|
-| [GUIDELIGHT_SPEC.md](./GUIDELIGHT_SPEC.md) | Complete product specification: features, flows, data model, permissions | Product, Engineering | ✅ Active | 2025-11-19 |
+| [GUIDELIGHT_SPEC.md](./GUIDELIGHT_SPEC.md) | Complete product specification: features, flows, data model, permissions | Product, Engineering | ✅ Active | 2025-11-25 |
 | [GUIDELIGHT_DESIGN_SYSTEM.md](./GUIDELIGHT_DESIGN_SYSTEM.md) | Design tokens, color palette, typography, component patterns | Design, Engineering | ✅ Active | 2025-11-19 |
 
 ### **Technical Documentation**
 | Document | Purpose | Audience | Status | Last Updated |
 |----------|---------|----------|--------|--------------|
-| [ARCHITECTURE_OVERVIEW.md](./ARCHITECTURE_OVERVIEW.md) | System architecture, data flow, API structure, security model | Engineering | ✅ Active | 2025-11-19 |
-| [AI_ASSISTANCE.md](./AI_ASSISTANCE.md) | Guide for using AI tools (Cursor, Supabase MCP) with Guidelight | Engineering | ✅ Active | 2025-11-19 |
-| [GUIDELIGHT_DEV_AGENT.md](./GUIDELIGHT_DEV_AGENT.md) | Instructions for Cursor agent when working on Guidelight | Engineering | ✅ Active | 2025-11-19 |
+| [ARCHITECTURE_OVERVIEW.md](./ARCHITECTURE_OVERVIEW.md) | System architecture, data flow, API structure, security model | Engineering | ✅ Active | 2025-11-25 |
+| [AI_ASSISTANCE.md](./AI_ASSISTANCE.md) | Guide for using AI tools (Cursor, Supabase MCP) with Guidelight | Engineering | ✅ Active | 2025-11-25 |
+| [GUIDELIGHT_DEV_AGENT.md](./GUIDELIGHT_DEV_AGENT.md) | Instructions for Cursor agent when working on Guidelight | Engineering | ✅ Active | 2025-11-25 |
 
 ### **Planning & Implementation**
 | Document | Purpose | Audience | Status | Last Updated |
 |----------|---------|----------|--------|--------------|
-| [notes/GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md](../notes/GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md) | Step-by-step MVP implementation guide (8 steps) | Engineering | ✅ Active | 2025-11-19 |
-| [notes/GUIDELIGHT_MVP_PROGRESS.md](../notes/GUIDELIGHT_MVP_PROGRESS.md) | Daily progress log tracking implementation status | Engineering, Product | ✅ Active | 2025-11-19 |
-| [notes/MVP_CRITICAL_DECISIONS.md](../notes/MVP_CRITICAL_DECISIONS.md) | Record of key architectural and product decisions | Engineering, Product | ✅ Active | 2025-11-19 |
+| [notes/GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md](../notes/GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md) | Step-by-step MVP implementation guide (8 steps) | Engineering | ✅ Complete | 2025-11-25 |
+| [notes/GUIDELIGHT_MVP_PROGRESS.md](../notes/GUIDELIGHT_MVP_PROGRESS.md) | Complete progress log of v1.0.0 implementation | Engineering, Product | ✅ Complete | 2025-11-25 |
+| [notes/MVP_CRITICAL_DECISIONS.md](../notes/MVP_CRITICAL_DECISIONS.md) | Record of key architectural and product decisions | Engineering, Product | ✅ Active | 2025-11-25 |
 | [notes/DEV_QUICK_REFERENCE.md](../notes/DEV_QUICK_REFERENCE.md) | Copy-paste code patterns, common errors, commands | Engineering | ✅ Active | 2025-11-19 |
 | [notes/DOCUMENTATION_STANDARDS.md](../notes/DOCUMENTATION_STANDARDS.md) | Documentation guidelines, conventions, and best practices | All | ✅ Active | 2025-11-19 |
+
+### **Deployment & Operations**
+| Document | Purpose | Audience | Status | Last Updated |
+|----------|---------|----------|--------|--------------|
+| [DEPLOYMENT.md](../DEPLOYMENT.md) | Complete guide for deploying to Netlify with Supabase | Engineering, Operations | ✅ Active | 2025-11-25 |
+| [DEPLOYMENT_CHECKLIST.md](../DEPLOYMENT_CHECKLIST.md) | Step-by-step deployment and testing checklist | Engineering, Operations | ✅ Active | 2025-11-25 |
+| [QUICK_START.md](../QUICK_START.md) | Quick reference for deployment and local development | Engineering | ✅ Active | 2025-11-25 |
+| [CHANGELOG.md](../CHANGELOG.md) | Version history and release notes | All | ✅ Active | 2025-11-25 |
 
 ### **Future Features (Post-MVP)**
 | Document | Purpose | Audience | Status | Last Updated |
 |----------|---------|----------|--------|--------------|
-| [NEXT_STEPS.md](../NEXT_STEPS.md) | Post-MVP roadmap: 20 prioritized enhancements with effort estimates | Engineering, Product | ✅ Active | 2025-11-19 |
+| [NEXT_STEPS.md](../NEXT_STEPS.md) | Post-v1.0.0 roadmap: 20 prioritized enhancements | Engineering, Product | ✅ Active | 2025-11-19 |
 | [BUDTENDER_PICKS_BOARD_SPEC.md](./BUDTENDER_PICKS_BOARD_SPEC.md) | Product spec for customer-facing board feature | Product, Design | 📋 Future | Pre-MVP |
 | [BUDTENDER_PICKS_BOARD_TECH_DESIGN.md](./BUDTENDER_PICKS_BOARD_TECH_DESIGN.md) | Technical design for board feature implementation | Engineering | 📋 Future | Pre-MVP |
 
@@ -81,8 +89,13 @@ This is the central hub for all Guidelight project documentation. If you're new 
 ```
 guidelight/
 ├── README.md                              # Project overview & setup
+├── CHANGELOG.md                           # Version history (v1.0.0 released)
 ├── CONTRIBUTING.md                        # Contribution guidelines
-├── CHANGELOG.md                           # Version history (to be created)
+├── DEPLOYMENT.md                          # Complete deployment guide
+├── DEPLOYMENT_CHECKLIST.md                # Deployment testing checklist
+├── QUICK_START.md                         # Quick deployment reference
+├── NEXT_STEPS.md                          # Post-v1.0.0 roadmap
+├── netlify.toml                           # Netlify configuration
 │
 ├── docs/                                  # Core documentation
 │   ├── INDEX.md                           # ← You are here
@@ -94,13 +107,19 @@ guidelight/
 │   ├── BUDTENDER_PICKS_BOARD_SPEC.md      # Future feature spec
 │   └── BUDTENDER_PICKS_BOARD_TECH_DESIGN.md  # Future feature tech design
 │
-└── notes/                                 # Planning, decisions, logs
-    ├── GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md  # Current implementation plan
-    ├── GUIDELIGHT_MVP_PROGRESS.md         # Daily progress log
-    ├── MVP_CRITICAL_DECISIONS.md          # Decision log
-    ├── DEV_QUICK_REFERENCE.md             # Code patterns
-    ├── RLS_MANAGER_POLICIES.sql           # SQL migration (to be applied)
-    └── GUIDELIGHT_MVP_SPRINT_PLAN.md      # (Archived) Original sprint plan
+├── notes/                                 # Planning, decisions, logs
+│   ├── GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md  # MVP plan (completed)
+│   ├── GUIDELIGHT_MVP_PROGRESS.md         # Complete v1.0.0 progress log
+│   ├── MVP_CRITICAL_DECISIONS.md          # Decision log
+│   ├── DEV_QUICK_REFERENCE.md             # Code patterns
+│   ├── RLS_MANAGER_POLICIES.sql           # SQL migrations (applied)
+│   ├── STEP_7_STAFF_MANAGEMENT_PLAN.md    # Staff management spec
+│   └── GUIDELIGHT_MVP_SPRINT_PLAN.md      # (Archived) Original sprint plan
+│
+└── supabase/functions/                   # Edge Functions (deployed)
+    ├── invite-staff/                      # v6 - One-click staff invitation
+    ├── get-staff-with-status/             # v1 - Staff dashboard data
+    └── reset-staff-password/              # v1 - Manager password reset
 ```
 
 ---
@@ -145,5 +164,5 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for general contribution guidelines.
 
 ---
 
-**This index is maintained manually. Last reviewed: 2025-11-19**
+**This index is maintained manually. Last reviewed: 2025-11-25 (v1.0.0 Release)**
 

@@ -6,10 +6,11 @@
 | Field | Value |
 |-------|-------|
 | **Status** | ✅ Active |
-| **Last Updated** | 2025-11-19 |
-| **Owner** | Justin (State of Mind) |
+| **Last Updated** | 2025-11-25 |
+| **Owner** | Xylent Studios |
 | **Audience** | Engineering (Cursor agent configuration) |
 | **Purpose** | System prompt for custom Cursor agent working on Guidelight |
+| **Version** | v1.0.0 |
 
 ---
 

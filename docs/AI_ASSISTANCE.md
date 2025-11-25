@@ -6,10 +6,11 @@
 | Field | Value |
 |-------|-------|
 | **Status** | ✅ Active |
-| **Last Updated** | 2025-11-19 |
-| **Owner** | Justin (State of Mind) |
+| **Last Updated** | 2025-11-25 |
+| **Owner** | Xylent Studios |
 | **Audience** | Engineering |
 | **Purpose** | Guidelines for AI assistant behavior and MCP tool usage in Guidelight |
+| **Version** | v1.0.0 |
 
 ---
 
@@ -89,12 +90,19 @@ use MCP tools to *verify* assumptions rather than inventing new patterns.
     - Modify any staff member's picks
 - **Security:** The Supabase anon key is required by the client SDK for authenticated sessions, but all data access is gated by Auth + RLS—never rely on hiding the anon key for security.
 
-### Current implementation status
+### Current implementation status (v1.0.0 - MVP Complete)
 
-- ✅ Database schema + RLS policies deployed (see `notes/RLS_MANAGER_POLICIES.sql` for pending manager INSERT/DELETE policies)
+- ✅ Database schema + RLS policies deployed (including manager INSERT/DELETE policies)
 - ✅ UI foundation complete (Tailwind + shadcn/ui + Radix Colors)
-- ✅ API helpers implemented (budtenders, categories, picks)
+- ✅ API helpers implemented (budtenders, categories, picks, staff-management, invite)
 - ✅ Customer View + Staff View wired to live data
-- 🚧 **Next:** Auth & Session Guard (Step 6), Staff Management (Step 7), QA (Step 8)
+- ✅ Authentication & Session Guard (email/password, password reset, change password)
+- ✅ Staff Management View (invite, edit, activate/deactivate, delete with confirmations)
+- ✅ Edge Functions deployed (invite-staff v6, get-staff-with-status v1, reset-staff-password v1)
+- ✅ Invite system (one-click manager flow with magic link emails)
+- ✅ Defense-in-depth security (UI + RLS for critical operations)
+- ✅ Ready for Netlify deployment
 
-See `notes/GUIDELIGHT_MVP_PROGRESS.md` for detailed progress log.
+**Next:** See `NEXT_STEPS.md` for post-MVP enhancements (20 prioritized features).
+
+See `CHANGELOG.md` for v1.0.0 release notes and `notes/GUIDELIGHT_MVP_PROGRESS.md` for detailed implementation history.

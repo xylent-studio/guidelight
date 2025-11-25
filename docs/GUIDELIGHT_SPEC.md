@@ -7,10 +7,11 @@
 | Field | Value |
 |-------|-------|
 | **Status** | ✅ Active |
-| **Last Updated** | 2025-11-19 |
-| **Owner** | Justin (State of Mind) |
+| **Last Updated** | 2025-11-25 |
+| **Owner** | Xylent Studios |
 | **Audience** | Product, Engineering, State of Mind Staff |
 | **Purpose** | Complete product specification: features, user flows, data model, permissions, UX guidelines |
+| **Version** | v1.0.0 (MVP Complete) |
 
 ---
 
@@ -277,6 +278,7 @@ create table public.budtenders (
   slug text unique,
   role text not null default 'budtender'
     check (role in ('budtender','vault_tech','manager')),
+  location text,          -- e.g. "Main Store", "North Location" (v1.0.0)
   archetype text,         -- e.g. "Terp Hunter", "Heavy Hitter"
   ideal_high text,        -- free text
   tolerance_level text,   -- e.g. "daily user", "lightweight"

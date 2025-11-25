@@ -7,10 +7,11 @@
 | Field | Value |
 |-------|-------|
 | **Status** | ✅ Active |
-| **Last Updated** | 2025-11-19 |
-| **Owner** | Justin (State of Mind) |
+| **Last Updated** | 2025-11-25 |
+| **Owner** | Xylent Studios |
 | **Audience** | Engineering |
 | **Purpose** | Technical architecture, data flow, API structure, security model, deployment |
+| **Version** | v1.0.0 |
 
 ---
 
@@ -25,10 +26,11 @@ Guidelight is a **client-side React app** that reads and writes data directly to
   - Tables: `budtenders`, `categories`, `picks`
   - Optional later: `packs`, `sessions`, etc.
   - `budtenders` rows map 1:1 with Supabase `auth.users` via a unique `auth_user_id`, include optional `slug` + `picks_note_override` fields, and `picks` enforce one active `special_role` per staff member with a partial unique index plus optional `category_line` + `doodle_key` metadata for the Budtender Board layout.
-- **Runtime:** Node.js ≥ 20.19.0 (see `.nvmrc` / README prerequisites).
+- **Runtime:** Node.js ≥ 20.19.0 or 22.12+ (see README prerequisites).
 - **Hosting:**
-  - Static frontend hosted on Netlify/Vercel (TBD)
-  - Supabase hosted in the cloud
+  - Static frontend hosted on **Netlify** (production: `guidelight.xylent.studio`)
+  - Supabase hosted in the cloud (project: `xylent.studio`)
+  - Edge Functions deployed on Supabase
 
 The app runs:
 
@@ -276,8 +278,8 @@ Roles: `budtender`, `vault_tech`, `manager`. Vault techs are back-of-house inven
 
 **Managers:**
 - All budtender/vault tech permissions, plus:
-- **Invite Staff:** Create budtender profile (name, email, role) → Supabase Admin API sends invite email with magic link → New staff sets password.
-- **Manage Staff:** View all staff (active + inactive), edit any profile, toggle `is_active`, hard delete with double confirmation.
+- **Invite Staff:** One-click invite flow via Edge Function → Creates auth user + budtender profile → Sends magic link email → New staff sets password.
+- **Manage Staff:** View all staff with invite status (Active/Pending/Not Invited), edit any profile, toggle `is_active`, resend invites, reset passwords, hard delete with double confirmation.
 - Edit any staff member's picks.
 
 **View Modes:**
@@ -287,13 +289,46 @@ Roles: `budtender`, `vault_tech`, `manager`. Vault techs are back-of-house inven
 
 ### 7.3 RLS Policies
 
-- **`budtenders`**: everyone can `SELECT`; staff may `UPDATE` only their own row; managers can `UPDATE` any row; managers can `INSERT` new budtenders (for invite flow); managers can `DELETE` (hard delete with cascades).
+- **`budtenders`**: everyone can `SELECT`; staff may `UPDATE` only their own row; managers can `UPDATE` any row; managers can `INSERT` new budtenders (for invite flow); managers can `DELETE` (hard delete with cascades, with UI + RLS self-deletion protection).
 - **`categories`**: everyone can `SELECT`; mutations are seed/admin-only for MVP.
 - **`picks`**: everyone can `SELECT`; staff can `INSERT`/`UPDATE`/`DELETE` picks tied to their own `budtender_id`; managers can modify picks for any staff member. A partial unique index ensures only one active `special_role` per staff member, while `rank` stays a soft client-side sort key.
 
 Future:
 
 - Refine auth and RLS for multi-store / multi-tenant deployments, add more granular permissions, and introduce store-level separation plus audit logs as Guidelight scales.
+
+### 7.4 Edge Functions (Deployed)
+
+Three Supabase Edge Functions handle manager-only operations that require Admin API access:
+
+**`invite-staff` (v6):**
+- **Purpose:** One-click staff invitation flow
+- **Input:** Email, name, role, location, optional profile fields
+- **Process:**
+  1. Verify caller is a manager (RLS + auth check)
+  2. Create auth user via Admin API with `inviteUser()`
+  3. Create linked budtender profile in `public.budtenders`
+  4. Send magic link email for password setup
+- **Security:** Service role key used securely on server, never exposed to client
+
+**`get-staff-with-status` (v1):**
+- **Purpose:** Fetch all staff with invite status for Staff Management dashboard
+- **Process:**
+  1. Verify caller is a manager
+  2. Query `auth.users` and `public.budtenders` via Admin API
+  3. Derive status: "Active" (email confirmed), "Invite Pending" (no email confirmation), "Not Invited" (no auth user)
+- **Returns:** Enriched staff list with status badges for UI
+
+**`reset-staff-password` (v1):**
+- **Purpose:** Manager-initiated password reset for staff
+- **Input:** Target user's `auth_user_id`
+- **Process:**
+  1. Verify caller is a manager
+  2. Generate password recovery link via Admin API
+  3. Send recovery email to staff member
+- **Use cases:** Resend invite, reset password for active users
+
+All Edge Functions enforce manager-only access, use CORS headers for client requests, and return structured JSON responses with success/error states.
 
 ---
 
