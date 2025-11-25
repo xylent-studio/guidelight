@@ -38,6 +38,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
     // Subscribe to auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('[Auth] Auth state changed:', event);
+        
         if (event === 'SIGNED_IN' && session?.user) {
           setUser(session.user);
           await loadProfile();
@@ -46,8 +48,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
           setProfile(null);
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           setUser(session.user);
-          // Profile should still be valid, but reload to be safe
-          await loadProfile();
         } else if (event === 'USER_UPDATED' && session?.user) {
           setUser(session.user);
         }
@@ -58,13 +58,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
       clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function checkSession() {
     console.log('[Auth] Starting session check...');
     try {
       setLoading(true);
-      console.log('[Auth] Calling supabase.auth.getSession()...');
       const { data: { session }, error } = await supabase.auth.getSession();
       console.log('[Auth] Session response:', { hasSession: !!session, error });
       
@@ -80,7 +80,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
         console.log('[Auth] User found, loading profile...');
         setUser(session.user);
         await loadProfile();
-        console.log('[Auth] Profile loaded successfully');
       } else {
         console.log('[Auth] No session found, showing login');
         setUser(null);
@@ -170,4 +169,3 @@ export function useAuth(): AuthContextValue {
   }
   return context;
 }
-

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { updateBudtender } from '@/lib/api/budtenders';
+import type { StaffWithStatus } from '@/lib/api/staff-management';
 import type { Database } from '@/types';
 import {
   Dialog,
@@ -21,15 +22,21 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-type Budtender = Database['public']['Tables']['budtenders']['Row'];
-type BudtenderRole = Budtender['role'];
+type BudtenderRole = Database['public']['Tables']['budtenders']['Row']['role'];
 
 interface EditStaffFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
-  staff: Budtender | null;
+  staff: StaffWithStatus | null;
 }
+
+// Predefined locations for State of Mind stores
+const LOCATIONS = [
+  'Latham',
+  'Albany',
+  // Add more locations as needed
+];
 
 export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaffFormProps) {
   const [loading, setLoading] = useState(false);
@@ -37,6 +44,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
 
   const [name, setName] = useState('');
   const [role, setRole] = useState<BudtenderRole>('budtender');
+  const [location, setLocation] = useState('');
   const [archetype, setArchetype] = useState('');
   const [idealHigh, setIdealHigh] = useState('');
   const [toleranceLevel, setToleranceLevel] = useState('');
@@ -45,7 +53,8 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
   useEffect(() => {
     if (staff) {
       setName(staff.name);
-      setRole(staff.role);
+      setRole(staff.role as BudtenderRole);
+      setLocation(staff.location || '');
       setArchetype(staff.archetype || '');
       setIdealHigh(staff.ideal_high || '');
       setToleranceLevel(staff.tolerance_level || '');
@@ -80,17 +89,17 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
       await updateBudtender(staff.id, {
         name: name.trim(),
         role,
+        location: location.trim() || null,
         archetype: archetype.trim() || null,
         ideal_high: idealHigh.trim() || null,
         tolerance_level: toleranceLevel.trim() || null,
       });
 
-      alert(`Success! ${name}'s profile has been updated.`);
       onSuccess();
       onOpenChange(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to update budtender:', err);
-      setError(err.message || 'Failed to update profile. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -111,6 +120,22 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Email (read-only) */}
+          {staff.email && (
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={staff.email}
+                disabled
+                className="bg-muted"
+              />
+              <p className="text-xs text-text-muted">
+                Email cannot be changed after invite is sent.
+              </p>
+            </div>
+          )}
+
           {/* Name */}
           <div className="space-y-2">
             <Label htmlFor="edit-name">
@@ -127,25 +152,47 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
             />
           </div>
 
-          {/* Role */}
-          <div className="space-y-2">
-            <Label htmlFor="edit-role">
-              Role <span className="text-red-600">*</span>
-            </Label>
-            <Select value={role} onValueChange={(v) => setRole(v as BudtenderRole)} disabled={loading}>
-              <SelectTrigger id="edit-role">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="budtender">Budtender</SelectItem>
-                <SelectItem value="vault_tech">Vault Tech</SelectItem>
-                <SelectItem value="manager">Manager</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-text-muted">
-              Changing roles affects permissions immediately.
-            </p>
+          {/* Role and Location - side by side */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Role */}
+            <div className="space-y-2">
+              <Label htmlFor="edit-role">
+                Role <span className="text-red-600">*</span>
+              </Label>
+              <Select value={role} onValueChange={(v) => setRole(v as BudtenderRole)} disabled={loading}>
+                <SelectTrigger id="edit-role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="budtender">Budtender</SelectItem>
+                  <SelectItem value="vault_tech">Vault Tech</SelectItem>
+                  <SelectItem value="manager">Manager</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Location */}
+            <div className="space-y-2">
+              <Label htmlFor="edit-location">Location</Label>
+              <Select value={location} onValueChange={setLocation} disabled={loading}>
+                <SelectTrigger id="edit-location">
+                  <SelectValue placeholder="Select location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No location</SelectItem>
+                  {LOCATIONS.map((loc) => (
+                    <SelectItem key={loc} value={loc}>
+                      {loc}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
+          <p className="text-xs text-text-muted -mt-4">
+            Changing roles affects permissions immediately.
+          </p>
 
           {/* Archetype */}
           <div className="space-y-2">
@@ -207,4 +254,3 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
     </Dialog>
   );
 }
-

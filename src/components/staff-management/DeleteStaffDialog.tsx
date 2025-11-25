@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { deleteBudtender, getBudtenderPickCount } from '@/lib/api/budtenders';
-import type { Database } from '@/types';
+import type { StaffWithStatus } from '@/lib/api/staff-management';
 import {
   Dialog,
   DialogContent,
@@ -11,13 +11,11 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
-type Budtender = Database['public']['Tables']['budtenders']['Row'];
-
 interface DeleteStaffDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
-  staff: Budtender | null;
+  staff: StaffWithStatus | null;
 }
 
 export function DeleteStaffDialog({ open, onOpenChange, onSuccess, staff }: DeleteStaffDialogProps) {

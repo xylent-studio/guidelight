@@ -262,12 +262,38 @@ guidelight/
 
 ## Status
 
-MVP goals:
+✅ **Version 1.0.0 - Ready for Production**
 
-- [ ] Supabase schema created (`budtenders`, `categories`, `picks`).  
-- [ ] Simple Customer View: select budtender → see favorites by category.  
-- [ ] Simple Staff View: edit picks for a budtender.  
-- [ ] Deployed to a test URL for use on SOM POS.
+MVP Complete:
+
+- [x] Supabase schema created (`budtenders`, `categories`, `picks`)
+- [x] Complete authentication & invite system
+- [x] Customer View: select budtender → see favorites by category
+- [x] Staff View: full CRUD for budtender picks
+- [x] Staff Management View: invite, edit, delete staff (manager-only)
+- [x] Edge Functions deployed (invite, status, password reset)
+- [x] RLS policies for role-based access control
+- [x] Ready for Netlify deployment
+
+**Production URL:** `https://guidelight.xylent.studio`
 
 Owner: **Xylent Studios**  
 Internal client: **State of Mind dispensary**
+
+---
+
+## Deployment
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for complete deployment instructions.
+
+**Quick Deploy to Netlify:**
+
+1. Push to GitHub: `git push origin main`
+2. Connect repository in Netlify
+3. Set environment variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
+4. Deploy!
+
+**Post-Deployment:**
+- Update Supabase redirect URLs to `https://guidelight.xylent.studio`
+- Test authentication flows
+- Verify Edge Functions are working

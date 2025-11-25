@@ -3,6 +3,7 @@ import { ModeToggle } from './ModeToggle';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm';
 import type { PropsWithChildren } from 'react';
 import type { AppMode } from './ModeToggle';
 
@@ -22,6 +23,7 @@ export function AppLayout({
 }: AppLayoutProps) {
   const { profile, signOut } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   async function handleLogout() {
     if (!confirm('Are you sure you want to log out?')) {
@@ -43,6 +45,12 @@ export function AppLayout({
 
   return (
     <div className="min-h-screen bg-bg px-4 py-10 sm:px-8 lg:px-16 flex flex-col gap-8">
+      {/* Change Password Modal */}
+      <ChangePasswordForm
+        open={showChangePassword}
+        onOpenChange={setShowChangePassword}
+      />
+
       <header className="flex flex-col gap-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
@@ -60,16 +68,28 @@ export function AppLayout({
           <div className="flex flex-col items-end gap-2">
             <div className="text-right">
               <p className="text-sm font-semibold text-text">{profile?.name}</p>
-              <p className="text-xs text-text-muted capitalize">{profile?.role}</p>
+              <p className="text-xs text-text-muted capitalize">
+                {profile?.role?.replace('_', ' ')}
+                {profile?.location && ` · ${profile.location}`}
+              </p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              disabled={loggingOut}
-            >
-              {loggingOut ? 'Logging out...' : 'Logout'}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowChangePassword(true)}
+              >
+                Change Password
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                disabled={loggingOut}
+              >
+                {loggingOut ? 'Logging out...' : 'Logout'}
+              </Button>
+            </div>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row items-start gap-4">
@@ -106,4 +126,3 @@ export function AppLayout({
 }
 
 export default AppLayout;
-

@@ -13,6 +13,7 @@ interface InviteStaffRequest {
   email: string;
   name: string;
   role: 'budtender' | 'vault_tech' | 'manager';
+  location?: string | null;
   archetype?: string | null;
   ideal_high?: string | null;
   tolerance_level?: string | null;
@@ -92,7 +93,7 @@ serve(async (req) => {
 
     // Parse request body
     const body: InviteStaffRequest = await req.json()
-    const { email, name, role, archetype, ideal_high, tolerance_level } = body
+    const { email, name, role, location, archetype, ideal_high, tolerance_level } = body
 
     // Validate required fields
     if (!email || !name || !role) {
@@ -152,6 +153,7 @@ serve(async (req) => {
         auth_user_id: authData.user.id,
         name,
         role,
+        location: location || null,
         archetype: archetype || null,
         ideal_high: ideal_high || null,
         tolerance_level: tolerance_level || null,

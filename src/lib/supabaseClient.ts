@@ -21,3 +21,19 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 
 export type SupabaseClient = typeof supabase;
 
+/**
+ * Helper to create a fetch with timeout
+ * Use this for critical operations that shouldn't hang
+ */
+export function fetchWithTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number = 10000
+): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Request timed out after ${timeoutMs}ms`)), timeoutMs)
+    ),
+  ]);
+}
+

@@ -3,9 +3,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export function LoginPage() {
+interface LoginPageProps {
+  onForgotPassword?: () => void;
+}
+
+export function LoginPage({ onForgotPassword }: LoginPageProps) {
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,8 +38,9 @@ export function LoginPage() {
       // AuthContext will handle redirect after successful login
     } catch (err) {
       console.error('Login error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to sign in';
-      setError(errorMessage);
+      // Generic error message to prevent user enumeration
+      // Don't reveal whether the email exists or if the password is wrong
+      setError('Invalid email or password');
     } finally {
       setLoading(false);
     }
@@ -74,9 +80,8 @@ export function LoginPage() {
               <Label htmlFor="password" className="text-text">
                 Password
               </Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -103,7 +108,16 @@ export function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-3">
+            {onForgotPassword && (
+              <button
+                type="button"
+                onClick={onForgotPassword}
+                className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors"
+              >
+                Forgot your password?
+              </button>
+            )}
             <p className="text-xs text-text-muted">
               Need help? Contact your manager or IT support.
             </p>
@@ -113,4 +127,3 @@ export function LoginPage() {
     </div>
   );
 }
-

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LoginPage } from './components/auth/LoginPage';
-import { SetPasswordModal } from './components/auth/SetPasswordModal';
+import { ForgotPasswordPage } from './components/auth/ForgotPasswordPage';
+import { ResetPasswordPage } from './components/auth/ResetPasswordPage';
+import { AcceptInvitePage } from './components/auth/AcceptInvitePage';
 import AppLayout from './components/layout/AppLayout';
 import type { AppMode } from './components/layout/ModeToggle';
 import CustomerView from './views/CustomerView';
@@ -9,34 +11,60 @@ import StaffView from './views/StaffView';
 import StaffManagementView from './views/StaffManagementView';
 
 export type AppView = 'customer' | 'staff' | 'staff-management';
+type AuthPage = 'login' | 'forgot-password' | 'reset-password' | 'accept-invite';
+
+/**
+ * Parse URL hash for auth flow detection
+ * Supabase redirects with hash params like:
+ * - #type=invite&access_token=...
+ * - #type=recovery&access_token=...
+ * - #type=signup&access_token=...
+ */
+function parseAuthHash(): { type: string | null; accessToken: string | null } {
+  const hash = window.location.hash.substring(1);
+  if (!hash) return { type: null, accessToken: null };
+  
+  const params = new URLSearchParams(hash);
+  return {
+    type: params.get('type'),
+    accessToken: params.get('access_token'),
+  };
+}
 
 function AppContent() {
   const { user, loading, isManager } = useAuth();
   const [view, setView] = useState<AppView>('customer');
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [authPage, setAuthPage] = useState<AuthPage>('login');
+  const [needsPasswordSetup, setNeedsPasswordSetup] = useState(false);
 
   // Determine mode for the toggle (customer/staff only)
   const mode: AppMode = view === 'customer' ? 'customer' : 'staff';
 
-  // Check if user needs to set password (first login from invite)
+  // Check URL hash for auth flow on mount and user changes
   useEffect(() => {
-    if (user) {
-      // Check if this is a new user who hasn't set a password yet
-      // Supabase invite users have a specific user metadata flag
+    const { type } = parseAuthHash();
+    
+    if (type === 'recovery') {
+      // Password reset flow
+      setAuthPage('reset-password');
+    } else if (type === 'invite' && user) {
+      // Invite flow - check if user needs to set password
       const hasSetPassword = localStorage.getItem(`password_set_${user.id}`);
-      
-      // If user came from invite link and hasn't set password yet
-      if (!hasSetPassword && user.app_metadata?.provider === 'email') {
-        // Check if they have a recovery token (means they came from invite)
-        const urlParams = new URLSearchParams(window.location.hash.substring(1));
-        const hasInviteToken = urlParams.get('type') === 'invite' || urlParams.get('type') === 'recovery';
-        
-        if (hasInviteToken) {
-          setShowPasswordModal(true);
-        }
+      if (!hasSetPassword) {
+        setNeedsPasswordSetup(true);
+      } else {
+        // Clear hash and proceed to app
+        window.location.hash = '';
       }
     }
   }, [user]);
+
+  // Clear hash after handling
+  function clearHashAndProceed() {
+    window.location.hash = '';
+    setAuthPage('login');
+    setNeedsPasswordSetup(false);
+  }
 
   // Show loading spinner while checking session
   if (loading) {
@@ -50,17 +78,52 @@ function AppContent() {
     );
   }
 
-  // Show login page if not authenticated
-  if (!user) {
-    return <LoginPage />;
+  // Handle password reset flow (can happen when not logged in)
+  if (authPage === 'reset-password') {
+    return (
+      <ResetPasswordPage
+        onSuccess={() => {
+          clearHashAndProceed();
+        }}
+        onBackToLogin={() => {
+          clearHashAndProceed();
+        }}
+      />
+    );
   }
 
-  // Handle password modal close (mark as set)
-  function handlePasswordSet() {
-    if (user) {
-      localStorage.setItem(`password_set_${user.id}`, 'true');
-      setShowPasswordModal(false);
+  // Show invite acceptance page for new users who need to set password
+  if (user && needsPasswordSetup) {
+    return (
+      <AcceptInvitePage
+        onComplete={() => {
+          if (user) {
+            localStorage.setItem(`password_set_${user.id}`, 'true');
+          }
+          clearHashAndProceed();
+        }}
+        onBackToLogin={() => {
+          clearHashAndProceed();
+        }}
+      />
+    );
+  }
+
+  // Show login or forgot password page if not authenticated
+  if (!user) {
+    if (authPage === 'forgot-password') {
+      return (
+        <ForgotPasswordPage
+          onBackToLogin={() => setAuthPage('login')}
+        />
+      );
     }
+    
+    return (
+      <LoginPage
+        onForgotPassword={() => setAuthPage('forgot-password')}
+      />
+    );
   }
 
   // Handler for mode toggle (customer/staff only)
@@ -75,27 +138,16 @@ function AppContent() {
 
   // Show main app if authenticated
   return (
-    <>
-      {/* Password setup modal for new users */}
-      {showPasswordModal && user?.email && (
-        <SetPasswordModal 
-          open={showPasswordModal} 
-          userEmail={user.email}
-          onPasswordSet={handlePasswordSet}
-        />
-      )}
-
-      <AppLayout
-        mode={mode}
-        onModeChange={handleModeChange}
-        onStaffManagementClick={isManager ? handleStaffManagementClick : undefined}
-        isStaffManagementActive={view === 'staff-management'}
-      >
-        {view === 'customer' && <CustomerView />}
-        {view === 'staff' && <StaffView />}
-        {view === 'staff-management' && <StaffManagementView />}
-      </AppLayout>
-    </>
+    <AppLayout
+      mode={mode}
+      onModeChange={handleModeChange}
+      onStaffManagementClick={isManager ? handleStaffManagementClick : undefined}
+      isStaffManagementActive={view === 'staff-management'}
+    >
+      {view === 'customer' && <CustomerView />}
+      {view === 'staff' && <StaffView />}
+      {view === 'staff-management' && <StaffManagementView />}
+    </AppLayout>
   );
 }
 

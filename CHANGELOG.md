@@ -9,14 +9,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned (MVP Scope)
-- Email/password authentication with Supabase Auth
-- Session management (12-hour support with auto-refresh)
-- Customer View (read-only product picks display)
-- Staff View (budtender CRUD for picks)
-- Staff Management View (manager-only, invite/edit/delete staff)
-- RLS policies for role-based access control
-- Responsive layout (POS-optimized + mobile-friendly)
+---
+
+## [1.0.0] - 2025-11-25 🎉
+
+### Added - Authentication & Invite System
+- **Complete Auth Flow:** Email/password login with Supabase Auth
+  - Password visibility toggle on all password fields
+  - Generic error messages to prevent user enumeration
+  - "Forgot your password?" flow with email link
+  - Password reset page with validation
+  - Change password while logged in (requires re-authentication)
+  - Accept invite page for new users with welcome message
+- **Staff Management Dashboard:**
+  - Invite status badges (Not Invited, Invite Pending, Active)
+  - Last sign-in timestamps for active users
+  - Invite sent timestamps for pending invites
+  - Status-specific actions (Send Invite, Resend Invite, Reset Password)
+  - Manager-initiated password reset for staff members
+  - Location field for staff (Latham, Albany)
+- **Edge Functions (Deployed & Active):**
+  - `invite-staff` (v6) - One-click invite with automatic email
+  - `get-staff-with-status` (v1) - Returns staff with auth status
+  - `reset-staff-password` (v1) - Manager-initiated password reset
+- **Reusable Components:**
+  - `PasswordInput` - Accessible password field with show/hide toggle
+  - `AcceptInvitePage` - Polished onboarding for invited users
+  - `ForgotPasswordPage` - Email-based password recovery
+  - `ResetPasswordPage` - New password setup from recovery link
+  - `ChangePasswordForm` - In-app password change modal
+- **Database Schema:**
+  - Added `location` column to `budtenders` table
+  - Updated TypeScript types for location field
+
+### Changed
+- **App Routing:** Enhanced to handle multiple auth flows via URL hash params
+  - `#type=recovery` for password reset
+  - `#type=invite` for accept invite
+- **AppLayout:** Added "Change Password" button in header, displays user location
+- **LoginPage:** Updated with PasswordInput component and forgot password link
+- **InviteStaffForm:** Added location dropdown with predefined options
+- **EditStaffForm:** Added location field, shows read-only email
+- **StaffManagementView:** Complete redesign with status-aware interface
+  - 4 stat cards (Total, Active, Pending, Inactive)
+  - Status-based filtering tabs
+  - Enhanced staff cards with email and timestamps
+
+### Removed
+- `SetPasswordModal` - Replaced by more polished `AcceptInvitePage`
+
+### Fixed
+- React hooks order error in StaffManagementView (moved useEffect before conditional returns)
+- Infinite re-render loop in AuthContext (removed loading from dependency array)
+- TypeScript unused variable warning in App.tsx
+
+### Security
+- Manager role verification in all Edge Functions
+- Self-deletion protection (UI + RLS)
+- Generic login error messages
+- Password reset emails sent regardless of email existence
+- Re-authentication required for password changes
+
+### Documentation
+- Added `DEPLOYMENT.md` - Complete deployment guide for Netlify
+- Added `netlify.toml` - Netlify configuration
+- Updated `package.json` to v1.0.0
 
 ---
 

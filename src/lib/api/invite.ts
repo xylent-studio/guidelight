@@ -7,6 +7,7 @@ export interface InviteStaffData {
   email: string;
   name: string;
   role: BudtenderRole;
+  location?: string | null;
   archetype?: string | null;
   ideal_high?: string | null;
   tolerance_level?: string | null;

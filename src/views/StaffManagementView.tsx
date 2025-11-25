@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getBudtenders, updateBudtender } from '@/lib/api/budtenders';
-import type { Database } from '@/types';
+import { updateBudtender } from '@/lib/api/budtenders';
+import { 
+  getStaffWithStatus, 
+  resetStaffPassword, 
+  getStatusDisplay, 
+  formatInviteDate,
+  type StaffWithStatus 
+} from '@/lib/api/staff-management';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,25 +18,49 @@ import { InviteStaffForm } from '@/components/staff-management/InviteStaffForm';
 import { EditStaffForm } from '@/components/staff-management/EditStaffForm';
 import { DeleteStaffDialog } from '@/components/staff-management/DeleteStaffDialog';
 
-type Budtender = Database['public']['Tables']['budtenders']['Row'];
-type FilterMode = 'all' | 'active' | 'inactive';
+type FilterMode = 'all' | 'active' | 'inactive' | 'pending';
 
 export function StaffManagementView() {
   const { isManager, profile } = useAuth();
-  const [staff, setStaff] = useState<Budtender[]>([]);
+  const [staff, setStaff] = useState<StaffWithStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterMode>('all');
   
   const [showInviteForm, setShowInviteForm] = useState(false);
-  const [editingStaff, setEditingStaff] = useState<Budtender | null>(null);
-  const [deletingStaff, setDeletingStaff] = useState<Budtender | null>(null);
+  const [editingStaff, setEditingStaff] = useState<StaffWithStatus | null>(null);
+  const [deletingStaff, setDeletingStaff] = useState<StaffWithStatus | null>(null);
+  const [resettingPassword, setResettingPassword] = useState<string | null>(null);
+
+  // Load staff on mount - must be before any conditional returns!
+  useEffect(() => {
+    // Only load if user is a manager
+    if (isManager) {
+      loadStaff();
+    }
+  }, [isManager]);
+
+  async function loadStaff() {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const allStaff = await getStaffWithStatus();
+      setStaff(allStaff);
+    } catch (err: unknown) {
+      console.error('Failed to load staff:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load staff. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   // Redirect if not a manager (defense in depth - route guard should handle this)
+  // This MUST come AFTER all hooks!
   if (!isManager) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <p className="text-text text-lg">⚠️ Manager access required</p>
+        <p className="text-text text-lg">Manager access required</p>
         <p className="text-text-muted text-sm">
           Only managers can access Staff Management. Please contact your manager if you need access.
         </p>
@@ -38,26 +68,7 @@ export function StaffManagementView() {
     );
   }
 
-  useEffect(() => {
-    loadStaff();
-  }, []);
-
-  async function loadStaff() {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const allStaff = await getBudtenders();
-      setStaff(allStaff);
-    } catch (err: any) {
-      console.error('Failed to load staff:', err);
-      setError(err.message || 'Failed to load staff. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleToggleActive(member: Budtender) {
+  async function handleToggleActive(member: StaffWithStatus) {
     try {
       await updateBudtender(member.id, {
         is_active: !member.is_active,
@@ -69,24 +80,48 @@ export function StaffManagementView() {
           s.id === member.id ? { ...s, is_active: !s.is_active } : s
         )
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to toggle active status:', err);
-      alert(`Failed to update ${member.name}: ${err.message}`);
+      alert(`Failed to update ${member.name}: ${err instanceof Error ? err.message : 'Unknown error'}`);
       // Reload to get correct state
       loadStaff();
     }
   }
 
+  async function handleResetPassword(member: StaffWithStatus) {
+    if (resettingPassword) return; // Prevent double-clicks
+    
+    setResettingPassword(member.id);
+    
+    try {
+      const result = await resetStaffPassword(member.id);
+      alert(result.message || `Password reset link sent to ${member.email}`);
+    } catch (err: unknown) {
+      console.error('Failed to reset password:', err);
+      alert(`Failed to send reset link: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setResettingPassword(null);
+    }
+  }
+
+  async function handleResendInvite(member: StaffWithStatus) {
+    // For now, resending invite is handled by editing and re-inviting
+    // In the future, we could add a dedicated resend endpoint
+    setEditingStaff(member);
+  }
+
   // Filter staff based on current filter mode
   const filteredStaff = staff.filter((s) => {
-    if (filter === 'active') return s.is_active;
+    if (filter === 'active') return s.is_active && s.invite_status === 'active';
     if (filter === 'inactive') return !s.is_active;
+    if (filter === 'pending') return s.invite_status === 'pending';
     return true; // 'all'
   });
 
   // Count stats
-  const activeCount = staff.filter((s) => s.is_active).length;
+  const activeCount = staff.filter((s) => s.is_active && s.invite_status === 'active').length;
   const inactiveCount = staff.filter((s) => !s.is_active).length;
+  const pendingCount = staff.filter((s) => s.invite_status === 'pending').length;
 
   if (loading) {
     return (
@@ -100,7 +135,7 @@ export function StaffManagementView() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <p className="text-red-600 text-lg">⚠️ {error}</p>
+        <p className="text-red-600 text-lg">{error}</p>
         <Button onClick={loadStaff}>Try Again</Button>
       </div>
     );
@@ -143,8 +178,8 @@ export function StaffManagementView() {
       />
 
       {/* Stats */}
-      <div className="flex gap-4">
-        <Card className="flex-1">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-text-muted">Total Staff</CardTitle>
           </CardHeader>
@@ -152,7 +187,7 @@ export function StaffManagementView() {
             <div className="text-3xl font-bold text-text">{staff.length}</div>
           </CardContent>
         </Card>
-        <Card className="flex-1">
+        <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-text-muted">Active</CardTitle>
           </CardHeader>
@@ -160,7 +195,15 @@ export function StaffManagementView() {
             <div className="text-3xl font-bold text-primary">{activeCount}</div>
           </CardContent>
         </Card>
-        <Card className="flex-1">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-text-muted">Invite Pending</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-amber-500">{pendingCount}</div>
+          </CardContent>
+        </Card>
+        <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-text-muted">Inactive</CardTitle>
           </CardHeader>
@@ -175,6 +218,7 @@ export function StaffManagementView() {
         <TabsList>
           <TabsTrigger value="all">All ({staff.length})</TabsTrigger>
           <TabsTrigger value="active">Active ({activeCount})</TabsTrigger>
+          <TabsTrigger value="pending">Pending ({pendingCount})</TabsTrigger>
           <TabsTrigger value="inactive">Inactive ({inactiveCount})</TabsTrigger>
         </TabsList>
       </Tabs>
@@ -186,95 +230,127 @@ export function StaffManagementView() {
             <p className="text-text-muted">
               {filter === 'active' && 'No active staff members.'}
               {filter === 'inactive' && 'No inactive staff members.'}
+              {filter === 'pending' && 'No pending invites.'}
               {filter === 'all' && 'No staff members yet. Invite your first team member!'}
             </p>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredStaff.map((member) => (
-            <Card
-              key={member.id}
-              className={`relative ${!member.is_active ? 'opacity-60' : ''}`}
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg mb-1 flex items-center gap-2">
-                      {member.name}
-                      {member.id === profile?.id && (
-                        <Badge variant="outline" className="text-xs">
-                          You
-                        </Badge>
-                      )}
-                    </CardTitle>
-                    <CardDescription className="capitalize text-sm">
-                      {member.role.replace('_', ' ')}
-                    </CardDescription>
-                  </div>
-                  <Badge variant={member.is_active ? 'default' : 'secondary'}>
-                    {member.is_active ? 'Active' : 'Inactive'}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {/* Active Toggle */}
-                <div className="flex items-center justify-between py-2 border-b border-border">
-                  <Label htmlFor={`active-${member.id}`} className="text-sm cursor-pointer">
-                    Active Status
-                  </Label>
-                  <Switch
-                    id={`active-${member.id}`}
-                    checked={member.is_active}
-                    onCheckedChange={() => handleToggleActive(member)}
-                  />
-                </div>
-
-                {member.archetype && (
-                  <div>
-                    <p className="text-xs text-text-muted mb-1">Archetype</p>
-                    <p className="text-sm text-text">{member.archetype}</p>
-                  </div>
-                )}
-                {member.ideal_high && (
-                  <div>
-                    <p className="text-xs text-text-muted mb-1">Ideal High</p>
-                    <p className="text-sm text-text line-clamp-2">{member.ideal_high}</p>
-                  </div>
-                )}
-                <div className="flex gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => setEditingStaff(member)}
-                  >
-                    Edit
-                  </Button>
-                  {member.id !== profile?.id ? (
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => setDeletingStaff(member)}
+          {filteredStaff.map((member) => {
+            const statusDisplay = getStatusDisplay(member.invite_status);
+            const isCurrentUser = member.id === profile?.id;
+            
+            return (
+              <Card
+                key={member.id}
+                className={`relative ${!member.is_active ? 'opacity-60' : ''}`}
+              >
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-lg mb-1 flex items-center gap-2 flex-wrap">
+                        <span className="truncate">{member.name}</span>
+                        {isCurrentUser && (
+                          <Badge variant="outline" className="text-xs shrink-0">
+                            You
+                          </Badge>
+                        )}
+                      </CardTitle>
+                      <CardDescription className="capitalize text-sm">
+                        {member.role.replace('_', ' ')}
+                        {member.location && ` · ${member.location}`}
+                      </CardDescription>
+                    </div>
+                    <Badge 
+                      variant={statusDisplay.variant}
+                      className={member.invite_status === 'pending' ? 'bg-amber-100 text-amber-800 hover:bg-amber-100' : ''}
                     >
-                      Delete
-                    </Button>
-                  ) : (
+                      {statusDisplay.label}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {/* Email */}
+                  {member.email && (
+                    <div>
+                      <p className="text-xs text-text-muted mb-1">Email</p>
+                      <p className="text-sm text-text truncate">{member.email}</p>
+                    </div>
+                  )}
+
+                  {/* Invite sent timestamp for pending */}
+                  {member.invite_status === 'pending' && member.invited_at && (
+                    <div className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
+                      Invite sent {formatInviteDate(member.invited_at)}
+                    </div>
+                  )}
+
+                  {/* Last sign in for active users */}
+                  {member.invite_status === 'active' && member.last_sign_in_at && (
+                    <div className="text-xs text-text-muted">
+                      Last sign in: {formatInviteDate(member.last_sign_in_at)}
+                    </div>
+                  )}
+
+                  {/* Active Toggle */}
+                  <div className="flex items-center justify-between py-2 border-t border-border">
+                    <Label htmlFor={`active-${member.id}`} className="text-sm cursor-pointer">
+                      Active Status
+                    </Label>
+                    <Switch
+                      id={`active-${member.id}`}
+                      checked={member.is_active}
+                      onCheckedChange={() => handleToggleActive(member)}
+                    />
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap gap-2 pt-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1"
-                      disabled
-                      title="You cannot delete yourself"
+                      onClick={() => setEditingStaff(member)}
                     >
-                      Delete (Self)
+                      Edit
                     </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                    {/* Status-specific actions */}
+                    {member.invite_status === 'pending' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleResendInvite(member)}
+                      >
+                        Resend Invite
+                      </Button>
+                    )}
+
+                    {member.invite_status === 'active' && !isCurrentUser && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleResetPassword(member)}
+                        disabled={resettingPassword === member.id}
+                      >
+                        {resettingPassword === member.id ? 'Sending...' : 'Reset Password'}
+                      </Button>
+                    )}
+
+                    {!isCurrentUser && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setDeletingStaff(member)}
+                      >
+                        Delete
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
@@ -282,4 +358,3 @@ export function StaffManagementView() {
 }
 
 export default StaffManagementView;
-
