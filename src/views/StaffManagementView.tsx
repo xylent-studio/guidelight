@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { UserPlus, Pencil, Trash2, RotateCcw, Send, Users } from 'lucide-react';
 import { InviteStaffForm } from '@/components/staff-management/InviteStaffForm';
 import { EditStaffForm } from '@/components/staff-management/EditStaffForm';
 import { DeleteStaffDialog } from '@/components/staff-management/DeleteStaffDialog';
@@ -148,11 +149,12 @@ export function StaffManagementView() {
         <div>
           <h2 className="text-2xl font-bold text-text mb-2">Staff Management</h2>
           <p className="text-text-muted">
-            Manage staff profiles, invite new team members, and control access.
+            Your team at a glance. Invite new people, tweak profiles, or adjust access.
           </p>
         </div>
         <Button size="lg" className="shrink-0" onClick={() => setShowInviteForm(true)}>
-          + Invite Staff
+          <UserPlus size={18} className="mr-2" />
+          Invite Staff
         </Button>
       </div>
 
@@ -227,11 +229,12 @@ export function StaffManagementView() {
       {filteredStaff.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
+            <Users size={40} className="mx-auto mb-4 text-text-muted/40" />
             <p className="text-text-muted">
-              {filter === 'active' && 'No active staff members.'}
-              {filter === 'inactive' && 'No inactive staff members.'}
-              {filter === 'pending' && 'No pending invites.'}
-              {filter === 'all' && 'No staff members yet. Invite your first team member!'}
+              {filter === 'active' && 'No active staff members yet.'}
+              {filter === 'inactive' && 'No one\'s on the bench — everyone\'s active!'}
+              {filter === 'pending' && 'No pending invites. Everyone\'s signed in.'}
+              {filter === 'all' && 'No staff members yet. Invite your first team member to get started!'}
             </p>
           </CardContent>
         </Card>
@@ -312,6 +315,7 @@ export function StaffManagementView() {
                       size="sm"
                       onClick={() => setEditingStaff(member)}
                     >
+                      <Pencil size={14} className="mr-1" />
                       Edit
                     </Button>
 
@@ -322,7 +326,8 @@ export function StaffManagementView() {
                         size="sm"
                         onClick={() => handleResendInvite(member)}
                       >
-                        Resend Invite
+                        <Send size={14} className="mr-1" />
+                        Resend
                       </Button>
                     )}
 
@@ -333,7 +338,8 @@ export function StaffManagementView() {
                         onClick={() => handleResetPassword(member)}
                         disabled={resettingPassword === member.id}
                       >
-                        {resettingPassword === member.id ? 'Sending...' : 'Reset Password'}
+                        <RotateCcw size={14} className={`mr-1 ${resettingPassword === member.id ? 'animate-spin' : ''}`} />
+                        {resettingPassword === member.id ? 'Sending...' : 'Reset PW'}
                       </Button>
                     )}
 
@@ -343,6 +349,7 @@ export function StaffManagementView() {
                         size="sm"
                         onClick={() => setDeletingStaff(member)}
                       >
+                        <Trash2 size={14} className="mr-1" />
                         Delete
                       </Button>
                     )}

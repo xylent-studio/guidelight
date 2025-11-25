@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Key, Check, Info } from 'lucide-react';
 
 interface ChangePasswordFormProps {
   open: boolean;
@@ -98,9 +99,10 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
 
         {success ? (
           <div className="py-6">
-            <div className="bg-primary/10 border border-primary/20 rounded-md p-4 text-center">
+            <div className="bg-primary/10 border border-primary/20 rounded-md p-4 flex items-center justify-center gap-2">
+              <Check size={18} className="text-primary" />
               <p className="text-sm text-text font-medium">
-                ✓ Password updated successfully!
+                Password updated! You're all set.
               </p>
             </div>
           </div>
@@ -127,7 +129,7 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
               </Label>
               <PasswordInput
                 id="confirmNewPassword"
-                placeholder="Re-enter your new password"
+                placeholder="Type it again to make sure"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={loading}
@@ -142,8 +144,9 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
               </div>
             )}
 
-            <div className="p-3 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-md">
-              💡 Password must be at least 6 characters long
+            <div className="p-3 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-md flex items-start gap-2">
+              <Info size={16} className="shrink-0 mt-0.5" />
+              <span>Password must be at least 6 characters. Make it something you'll remember!</span>
             </div>
 
             <DialogFooter>
@@ -151,7 +154,14 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Updating...' : 'Update password'}
+                {loading ? (
+                  'Updating...'
+                ) : (
+                  <>
+                    <Key size={16} className="mr-1.5" />
+                    Update password
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </form>

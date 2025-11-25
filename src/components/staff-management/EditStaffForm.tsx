@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Check, Key, ChevronDown, ChevronUp } from 'lucide-react';
 
 type BudtenderRole = Database['public']['Tables']['budtenders']['Row']['role'];
 
@@ -234,7 +235,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
         <DialogHeader>
           <DialogTitle>Edit Staff Profile</DialogTitle>
           <DialogDescription>
-            Update {staff.name}'s profile information.
+            Tweak {staff.name}'s profile — their vibe, expertise, and account details.
           </DialogDescription>
         </DialogHeader>
 
@@ -449,14 +450,15 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
                 onClick={() => setShowPasswordSection(!showPasswordSection)}
                 className="flex items-center gap-2 text-sm font-semibold text-text hover:text-primary"
               >
-                <span>{showPasswordSection ? '▼' : '▶'}</span>
+                {showPasswordSection ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                <Key size={14} />
                 Set New Password
               </button>
 
               {showPasswordSection && (
                 <div className="space-y-4 pl-4 border-l-2 border-border">
                   <p className="text-xs text-text-muted">
-                    Directly set a new password for {staff.name}. They will not receive an email notification.
+                    Directly set a new password for {staff.name}. They won't get an email — the new password just works.
                   </p>
 
                   <div className="space-y-2">
@@ -501,6 +503,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
                     onClick={handleSetPassword}
                     disabled={passwordLoading || !newPassword || !confirmPassword}
                   >
+                    <Key size={14} className="mr-1.5" />
                     {passwordLoading ? 'Setting password...' : 'Set Password'}
                   </Button>
                 </div>
@@ -521,7 +524,12 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save Changes'}
+              {loading ? 'Saving...' : (
+                <>
+                  <Check size={16} className="mr-1" />
+                  Save Changes
+                </>
+              )}
             </Button>
           </DialogFooter>
         </form>

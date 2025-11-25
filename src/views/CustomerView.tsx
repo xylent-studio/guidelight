@@ -87,7 +87,7 @@ export function CustomerView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-text-muted">Loading...</p>
+        <p className="text-text-muted">Loading the good stuff...</p>
       </div>
     );
   }
@@ -95,7 +95,7 @@ export function CustomerView() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <p className="text-destructive">Error: {error}</p>
+        <p className="text-destructive">Something went wrong. Let's try that again.</p>
         <Button onClick={() => window.location.reload()} variant="outline">
           Retry
         </Button>
@@ -106,7 +106,7 @@ export function CustomerView() {
   if (budtenders.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-text-muted">No active budtenders found. Add staff members to get started.</p>
+        <p className="text-text-muted">No budtenders on the floor yet. Check back in a bit!</p>
       </div>
     );
   }
@@ -203,7 +203,7 @@ export function CustomerView() {
             {filteredPicks.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-text-muted">
-                  No picks yet for {category.name}. Check back soon!
+                  {selectedBudtenderData?.name}'s {category.name.toLowerCase()} picks are coming soon. Ask them what they're into!
                 </p>
               </div>
             ) : (
@@ -252,14 +252,12 @@ export function CustomerView() {
               </div>
             )}
 
-            {/* Desktop POS Note */}
-            <div className="mt-6 p-4 bg-bg-soft border border-border rounded-lg">
-              <p className="text-xs text-text-muted">
-                <strong>POS Mode:</strong> On desktop displays (1920×1080), this layout shows up
-                to 6 cards per category. On tablets and phones, the layout is fully responsive and
-                scrollable.
+            {/* Scroll hint on mobile */}
+            {filteredPicks.length > 3 && (
+              <p className="mt-6 text-center text-xs text-text-muted/60 sm:hidden">
+                ↓ Scroll for more picks
               </p>
-            </div>
+            )}
           </TabsContent>
         ))}
       </Tabs>

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, RefreshCw, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface ProfileErrorScreenProps {
@@ -46,8 +46,8 @@ export function ProfileErrorScreen({ message }: ProfileErrorScreenProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-zinc-500 text-center">
-            If you believe this is an error, try refreshing or contact your manager
-            to ensure your staff profile has been created.
+            If you think this is a mistake, try refreshing. Still stuck? 
+            Ask your manager to check your staff profile.
           </p>
           
           <div className="flex flex-col gap-2">
@@ -56,6 +56,7 @@ export function ProfileErrorScreen({ message }: ProfileErrorScreenProps) {
               variant="outline"
               className="w-full border-zinc-700 hover:bg-zinc-800"
             >
+              <RefreshCw size={16} className="mr-1.5" />
               Try Again
             </Button>
             <Button
@@ -63,6 +64,7 @@ export function ProfileErrorScreen({ message }: ProfileErrorScreenProps) {
               variant="ghost"
               className="w-full text-zinc-400 hover:text-zinc-100"
             >
+              <LogOut size={16} className="mr-1.5" />
               Sign Out
             </Button>
           </div>

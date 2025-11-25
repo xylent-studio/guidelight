@@ -201,6 +201,116 @@ All UI components are built with **shadcn/ui** (Radix primitives + Tailwind styl
 
 ---
 
+### 7. Icons
+
+Guidelight uses **Lucide React** icons — the same library that powers shadcn/ui. These icons are clean, recognizable, and feel at home in premium apps.
+
+#### Icon Library
+
+```tsx
+import { Plus, Pencil, Trash2, Check, X, LogOut, LogIn, User, Settings, ChevronDown } from 'lucide-react';
+```
+
+#### Standard Icon Mapping
+
+| Action | Icon | Usage Pattern | Context |
+|--------|------|---------------|---------|
+| Add/Create | `Plus` | `<Plus size={16} /> Add` | Primary creation actions |
+| Edit | `Pencil` | Icon-only or with label | Inline edit buttons |
+| Delete | `Trash2` | Icon-only with confirmation | Destructive actions (use sparingly) |
+| Save/Confirm | `Check` | `<Check size={16} /> Save` | Form submissions, confirmations |
+| Cancel/Close | `X` | Icon-only or `Cancel` | Dismiss actions, modal close |
+| Logout | `LogOut` | `<LogOut size={16} /> Logout` | Session end |
+| Login | `LogIn` | `<LogIn size={16} /> Sign in` | Session start |
+| Profile/User | `User` | Icon-only or with name | Profile sections, avatars |
+| Settings | `Settings` | Icon-only or with label | Configuration, management |
+| Expand/Dropdown | `ChevronDown` | Icon-only | Dropdowns, accordions |
+
+#### Size Conventions
+
+| Context | Size | Usage |
+|---------|------|-------|
+| Inline with text | `size={16}` | Buttons, labels, badges |
+| Standalone small | `size={20}` | Icon-only buttons, cards |
+| Standalone large | `size={24}` | Feature cards, empty states |
+
+#### Icon Button Patterns
+
+**Icon + Label (Primary Actions):**
+```tsx
+<Button>
+  <Plus size={16} className="mr-1.5" />
+  Add Pick
+</Button>
+```
+
+**Icon-Only (Secondary/Inline):**
+```tsx
+<Button variant="ghost" size="sm" aria-label="Edit pick">
+  <Pencil size={16} />
+</Button>
+```
+
+#### Accessibility
+
+- Icon-only buttons **must** have `aria-label` describing the action
+- Icons inherit `currentColor` — no separate icon color tokens needed
+- Ensure sufficient contrast when icons appear on colored backgrounds
+
+---
+
+### 8. Voice & Tone
+
+Guidelight isn't just functional — it's **friendly, helpful, and a little playful**. We're building for budtenders and their guests, so our voice should feel like a knowledgeable coworker who's happy to help.
+
+#### Core Principles
+
+1. **Helpful, not bossy** — Guide users, don't command them
+2. **Warm, not corporate** — Sound like a person, not a policy document
+3. **Confident, not arrogant** — We know our stuff but stay humble
+4. **Playful, not silly** — A light touch, appropriate for a cannabis dispensary
+
+#### Microcopy Patterns
+
+**Form Field Helper Text:**
+Instead of: "Enter product name"
+Write: "What's the product called? Include the strain name if it's flower."
+
+**Empty States:**
+Instead of: "No picks found"
+Write: "No picks yet. Add one to get started."
+
+**Success Messages:**
+Instead of: "Profile updated successfully"
+Write: "Profile saved! Looking good."
+
+**Error Messages:**
+Instead of: "Error: Invalid input"
+Write: "Something's not quite right. Check the highlighted fields?"
+
+#### Examples from the App
+
+**Profile Editing (My vibe field):**
+> "A couple short lines about you and how you like to live & light up. Mix real life (where you're from, hobbies, pets) with how you sesh and the vibes you love."
+
+**Tolerance Cards:**
+> "Heavy hitter — You go through a lot and need stronger options to feel it."
+
+**Footer Easter Egg:**
+> "If a guest is reading this, someone forgot to switch to Customer View. 😉"
+
+#### When to Use Personality
+
+- ✅ Helper text and descriptions
+- ✅ Empty states and onboarding
+- ✅ Success messages and confirmations
+- ✅ Easter eggs in non-critical places
+- ❌ Error messages that block work (keep clear and actionable)
+- ❌ Legal or compliance text
+- ❌ Data labels and form field names (keep scannable)
+
+---
+
 ## Implementation Notes
 
 1. **Theme Adjustments:**

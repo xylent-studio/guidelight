@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { AlertTriangle, Trash2 } from 'lucide-react';
 
 interface DeleteStaffDialogProps {
   open: boolean;
@@ -111,15 +112,18 @@ export function DeleteStaffDialog({ open, onOpenChange, onSuccess, staff }: Dele
             </DialogHeader>
 
             <div className="space-y-4 py-4">
-              <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-900">
-                  <strong>⚠️ Warning:</strong> This will permanently delete:
-                </p>
-                <ul className="list-disc list-inside mt-2 space-y-1 text-sm text-red-800">
-                  <li>{staff.name}'s profile</li>
-                  <li>All {pickCount} of their pick{pickCount !== 1 ? 's' : ''}</li>
-                  <li>All associated data</li>
-                </ul>
+              <div className="p-4 bg-red-50 border border-red-200 rounded-md flex gap-3">
+                <AlertTriangle size={20} className="text-red-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-red-900 mb-2">
+                    This will permanently delete:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-red-800">
+                    <li>{staff.name}'s profile</li>
+                    <li>All {pickCount} of their pick{pickCount !== 1 ? 's' : ''}</li>
+                    <li>All associated data</li>
+                  </ul>
+                </div>
               </div>
 
               <p className="text-sm text-text-muted">
@@ -175,7 +179,14 @@ export function DeleteStaffDialog({ open, onOpenChange, onSuccess, staff }: Dele
                 No, Go Back
               </Button>
               <Button variant="destructive" onClick={handleFinalConfirm} disabled={loading}>
-                {loading ? 'Deleting...' : 'Yes, Delete Permanently'}
+                {loading ? (
+                  'Deleting...'
+                ) : (
+                  <>
+                    <Trash2 size={14} className="mr-1" />
+                    Yes, Delete Permanently
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </>

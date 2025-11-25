@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getRememberMe, setRememberMe } from '@/lib/supabaseClient';
+import { LogIn } from 'lucide-react';
 
 interface LoginPageProps {
   onForgotPassword?: () => void;
@@ -134,7 +135,14 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
               size="lg"
               disabled={loading}
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? (
+                'Signing in...'
+              ) : (
+                <>
+                  <LogIn size={18} className="mr-2" />
+                  Sign in
+                </>
+              )}
             </Button>
           </form>
 
@@ -149,7 +157,7 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
               </button>
             )}
             <p className="text-xs text-text-muted">
-              Need help? Contact your manager or IT support.
+              Need help? Ask your manager or ping the team.
             </p>
           </div>
         </CardContent>

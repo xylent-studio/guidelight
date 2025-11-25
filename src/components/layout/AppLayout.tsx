@@ -3,6 +3,7 @@ import { ModeToggle } from './ModeToggle';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { LogOut, Settings, User } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import type { AppMode } from './ModeToggle';
 
@@ -60,7 +61,10 @@ export function AppLayout({
             </p>
           </div>
           <div className="flex flex-col items-end gap-1">
-            <p className="text-lg font-semibold text-text">{profile?.name}</p>
+            <div className="flex items-center gap-2">
+              <User size={16} className="text-text-muted" />
+              <p className="text-lg font-semibold text-text">{profile?.name}</p>
+            </div>
             <p className="text-xs text-text-muted capitalize">
               {profile?.role?.replace('_', ' ')}
               {profile?.location && ` · ${profile.location}`}
@@ -71,6 +75,7 @@ export function AppLayout({
               onClick={handleLogout}
               disabled={loggingOut}
             >
+              <LogOut size={14} className="mr-1.5" />
               {loggingOut ? 'Logging out...' : 'Logout'}
             </Button>
           </div>
@@ -87,6 +92,7 @@ export function AppLayout({
               className="shrink-0 h-auto py-4 px-5"
             >
               <span className="flex items-center gap-2">
+                <Settings size={16} />
                 Staff Management
                 <Badge variant="secondary" className="text-xs">
                   Manager

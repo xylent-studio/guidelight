@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Send, UserPlus } from 'lucide-react';
 
 type BudtenderRole = Database['public']['Tables']['budtenders']['Row']['role'];
 
@@ -116,21 +117,24 @@ export function InviteStaffForm({ open, onOpenChange, onSuccess }: InviteStaffFo
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Invite Staff Member</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <UserPlus size={20} />
+            Invite a New Teammate
+          </DialogTitle>
           <DialogDescription>
-            Add a new team member. They'll receive an email with a link to set up their account.
+            Add someone to the team! They'll get an email with everything they need to get started.
           </DialogDescription>
         </DialogHeader>
 
         {success ? (
           <div className="py-8">
             <div className="bg-primary/10 border border-primary/20 rounded-md p-6 text-center">
-              <div className="text-4xl mb-3">✓</div>
+              <div className="text-4xl mb-3">🎉</div>
               <p className="text-lg font-medium text-text mb-2">
                 Invite sent to {name}!
               </p>
               <p className="text-sm text-text-muted">
-                They'll receive an email at {email} with instructions to set up their account.
+                They'll get an email at {email} with a magic link to jump in.
               </p>
             </div>
           </div>
@@ -252,7 +256,14 @@ export function InviteStaffForm({ open, onOpenChange, onSuccess }: InviteStaffFo
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Sending Invite...' : 'Send Invite'}
+                {loading ? (
+                  'Sending Invite...'
+                ) : (
+                  <>
+                    <Send size={16} className="mr-1.5" />
+                    Send Invite
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </form>

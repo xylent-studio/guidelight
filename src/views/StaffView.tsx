@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { ChangePasswordForm } from '@/components/auth/ChangePasswordForm';
 import { PickFormModal } from '@/components/picks';
+import { Plus, Pencil, Check, X } from 'lucide-react';
 import { getActiveBudtenders, updateBudtender } from '@/lib/api/budtenders';
 import { getCategories } from '@/lib/api/categories';
 import { getPicksForBudtender, updatePick } from '@/lib/api/picks';
@@ -75,6 +76,7 @@ export function StaffView() {
   const [editingPick, setEditingPick] = useState<Pick | null>(null);
   const [formCategoryId, setFormCategoryId] = useState<string>('');
   const [formCategoryName, setFormCategoryName] = useState<string>('');
+  const [showCategorySelector, setShowCategorySelector] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -153,10 +155,21 @@ export function StaffView() {
     }
   }, [selectedBudtenderData]);
 
+  // General add pick (no category pre-selected, shows category selector)
+  const handleAddPickGeneral = () => {
+    setFormCategoryId('');
+    setFormCategoryName('');
+    setShowCategorySelector(true);
+    setFormMode('add');
+    setEditingPick(null);
+  };
+
+  // Category-specific add pick (category pre-selected, no selector)
   const handleAddPick = (categoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
     setFormCategoryId(categoryId);
     setFormCategoryName(category?.name || 'Unknown Category');
+    setShowCategorySelector(false);
     setFormMode('add');
     setEditingPick(null);
   };
@@ -165,6 +178,7 @@ export function StaffView() {
     const category = categories.find(c => c.id === pick.category_id);
     setFormCategoryId(pick.category_id);
     setFormCategoryName(category?.name || 'Unknown Category');
+    setShowCategorySelector(false); // Edit mode shows selector automatically in modal
     setFormMode('edit');
     setEditingPick(pick);
   };
@@ -323,16 +337,23 @@ export function StaffView() {
             </div>
             {!profileEditing ? (
               <Button onClick={() => setProfileEditing(true)} variant="outline" size="sm">
-                Edit Profile
+                <Pencil size={16} className="mr-1.5" />
+                Edit
               </Button>
             ) : (
               <div className="flex flex-col items-end gap-2">
                 <div className="flex gap-2">
                   <Button onClick={handleCancelProfileEdit} variant="outline" size="sm" disabled={profileSaving}>
+                    <X size={16} className="mr-1" />
                     Cancel
                   </Button>
                   <Button onClick={handleSaveProfile} size="sm" disabled={profileSaving}>
-                    {profileSaving ? 'Saving...' : 'Save Profile'}
+                    {profileSaving ? 'Saving...' : (
+                      <>
+                        <Check size={16} className="mr-1" />
+                        Save
+                      </>
+                    )}
                   </Button>
                 </div>
                 {isOwnProfile && (
@@ -509,6 +530,28 @@ export function StaffView() {
         </Card>
       )}
 
+      {/* Quick Add Pick Card */}
+      {selectedBudtender && (isOwnProfile || isManager) && (
+        <Card 
+          className="bg-surface border-border border-dashed hover:border-primary cursor-pointer transition-colors group"
+          onClick={handleAddPickGeneral}
+        >
+          <CardContent className="flex items-center gap-4 py-5">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+              <Plus size={20} className="text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-text group-hover:text-primary transition-colors">
+                Add Pick
+              </h3>
+              <p className="text-sm text-text-muted">
+                Quick-add a recommendation to any category. Perfect for when inspiration strikes.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Picks by Category */}
       <div className="space-y-6">
         {categories.map((category) => {
@@ -525,14 +568,15 @@ export function StaffView() {
                 </div>
                 {(isOwnProfile || isManager) && (
                   <Button onClick={() => handleAddPick(category.id)} variant="default" size="sm">
-                    + Add Pick
+                    <Plus size={16} className="mr-1" />
+                    Add
                   </Button>
                 )}
               </CardHeader>
               <CardContent className="space-y-3">
                 {categoryPicks.length === 0 ? (
                   <p className="text-sm text-text-muted italic">
-                    No picks yet. Add one to get started.
+                    No {category.name.toLowerCase()} picks yet. Got a favorite? Add it above!
                   </p>
                 ) : (
                   categoryPicks.map((pick) => (
@@ -568,8 +612,8 @@ export function StaffView() {
                               onCheckedChange={() => handleToggleActive(pick.id, pick.is_active)}
                             />
                           </div>
-                          <Button onClick={() => handleEditPick(pick)} variant="outline" size="sm">
-                            Edit
+                          <Button onClick={() => handleEditPick(pick)} variant="ghost" size="sm" aria-label="Edit pick">
+                            <Pencil size={16} />
                           </Button>
                         </div>
                       )}
@@ -588,9 +632,11 @@ export function StaffView() {
         onOpenChange={(open) => !open && handlePickFormClose()}
         onSuccess={handlePickFormSuccess}
         mode={formMode === 'closed' ? 'add' : formMode}
+        budtenderId={selectedBudtender}
         categoryId={formCategoryId}
         categoryName={formCategoryName}
-        budtenderId={selectedBudtender}
+        showCategorySelector={showCategorySelector}
+        categories={categories}
         editingPick={editingPick}
       />
     </div>
