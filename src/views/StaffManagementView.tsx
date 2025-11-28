@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, UserPlus, Pencil, Trash2, RotateCcw, Send, Users, MessageCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { updateBudtender } from '@/lib/api/budtenders';
 import { 
@@ -15,11 +17,11 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { UserPlus, Pencil, Trash2, RotateCcw, Send, Users, MessageCircle } from 'lucide-react';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { InviteStaffForm } from '@/components/staff-management/InviteStaffForm';
 import { EditStaffForm } from '@/components/staff-management/EditStaffForm';
 import { DeleteStaffDialog } from '@/components/staff-management/DeleteStaffDialog';
-import { FeedbackList } from '@/components/feedback';
+import { FeedbackList, FeedbackButton } from '@/components/feedback';
 import { staffManagement, errors, feedback as feedbackCopy } from '@/lib/copy';
 
 type FilterMode = 'all' | 'active' | 'inactive' | 'pending';
@@ -77,8 +79,8 @@ export function StaffManagementView() {
   if (!isManager) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <p className="text-text-default text-lg">Manager access required</p>
-        <p className="text-text-muted text-sm">
+        <p className="text-foreground text-lg">Manager access required</p>
+        <p className="text-muted-foreground text-sm">
           Only managers can access Staff Management. Please contact your manager if you need access.
         </p>
       </div>
@@ -171,7 +173,7 @@ export function StaffManagementView() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-        <p className="text-text-muted">Loading staff...</p>
+        <p className="text-muted-foreground">Loading staff...</p>
       </div>
     );
   }
@@ -179,8 +181,8 @@ export function StaffManagementView() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <h3 className="text-lg font-semibold text-text-default">{errors.networkInline.heading}</h3>
-        <p className="text-text-muted text-center max-w-md">{errors.networkInline.body}</p>
+        <h3 className="text-lg font-semibold text-foreground">{errors.networkInline.heading}</h3>
+        <p className="text-muted-foreground text-center max-w-md">{errors.networkInline.body}</p>
         <Button onClick={loadStaff} variant="outline">
           {errors.networkInline.retry}
         </Button>
@@ -189,7 +191,21 @@ export function StaffManagementView() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-background">
+      {/* Header with Back Navigation */}
+      <header className="sticky top-0 z-50 bg-card border-b border-border">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <Link to="/">
+            <Button variant="ghost" size="icon" className="shrink-0">
+              <ArrowLeft className="h-5 w-5" />
+              <span className="sr-only">Back to My picks</span>
+            </Button>
+          </Link>
+          <h1 className="text-lg font-semibold text-foreground">Team</h1>
+        </div>
+      </header>
+
+      <div className="px-4 py-6 max-w-7xl mx-auto space-y-6">
       {/* Top-level Management Tabs */}
       <Tabs value={managementTab} onValueChange={(v) => setManagementTab(v as ManagementTab)}>
         <TabsList className="mb-6">
@@ -213,8 +229,8 @@ export function StaffManagementView() {
           {/* Header */}
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-text-default mb-2">{staffManagement.heading}</h2>
-              <p className="text-text-muted">
+              <h2 className="text-2xl font-bold text-foreground mb-2">{staffManagement.heading}</h2>
+              <p className="text-muted-foreground">
                 {staffManagement.subtext}
               </p>
             </div>
@@ -249,15 +265,15 @@ export function StaffManagementView() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-text-muted">{staffManagement.stats.totalStaff}</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{staffManagement.stats.totalStaff}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-text-default">{staff.length}</div>
+            <div className="text-3xl font-bold text-foreground">{staff.length}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-text-muted">{staffManagement.stats.active}</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{staffManagement.stats.active}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-primary">{activeCount}</div>
@@ -265,7 +281,7 @@ export function StaffManagementView() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-text-muted">{staffManagement.stats.invitesPending}</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{staffManagement.stats.invitesPending}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-amber-500">{pendingCount}</div>
@@ -273,10 +289,10 @@ export function StaffManagementView() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-text-muted">{staffManagement.stats.inactive}</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{staffManagement.stats.inactive}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-text-muted">{inactiveCount}</div>
+            <div className="text-3xl font-bold text-muted-foreground">{inactiveCount}</div>
           </CardContent>
         </Card>
       </div>
@@ -295,8 +311,8 @@ export function StaffManagementView() {
       {filteredStaff.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <Users size={40} className="mx-auto mb-4 text-text-muted/40" />
-            <p className="text-text-muted">
+            <Users size={40} className="mx-auto mb-4 text-muted-foreground/40" />
+            <p className="text-muted-foreground">
               {filter === 'active' && staffManagement.empty.active}
               {filter === 'inactive' && staffManagement.empty.inactive}
               {filter === 'pending' && staffManagement.empty.pending}
@@ -343,8 +359,8 @@ export function StaffManagementView() {
                   {/* Email */}
                   {member.email && (
                     <div>
-                      <p className="text-xs text-text-muted mb-1">Email</p>
-                      <p className="text-sm text-text-default truncate">{member.email}</p>
+                      <p className="text-xs text-muted-foreground mb-1">Email</p>
+                      <p className="text-sm text-foreground truncate">{member.email}</p>
                     </div>
                   )}
 
@@ -357,13 +373,13 @@ export function StaffManagementView() {
 
                   {/* Last sign in for active users */}
                   {member.invite_status === 'active' && member.last_sign_in_at && (
-                    <div className="text-xs text-text-muted">
+                    <div className="text-xs text-muted-foreground">
                       Last sign in: {formatInviteDate(member.last_sign_in_at)}
                     </div>
                   )}
 
                   {/* Active Toggle */}
-                  <div className="flex items-center justify-between py-2 border-t border-border-subtle">
+                  <div className="flex items-center justify-between py-2 border-t border-border">
                     <Label htmlFor={`active-${member.id}`} className="text-sm cursor-pointer">
                       {staffManagement.card.canSignInLabel}
                     </Label>
@@ -375,12 +391,12 @@ export function StaffManagementView() {
                   </div>
 
                   {/* Show in Customer View Toggle */}
-                  <div className="flex items-center justify-between py-2 border-t border-border-subtle">
+                  <div className="flex items-center justify-between py-2 border-t border-border">
                     <div>
                       <Label htmlFor={`customer-view-${member.id}`} className="text-sm cursor-pointer">
                         Show in Customer View
                       </Label>
-                      <p className="text-xs text-text-muted">Hidden staff can still login and manage picks</p>
+                      <p className="text-xs text-muted-foreground">Hidden staff can still login and manage picks</p>
                     </div>
                     <Switch
                       id={`customer-view-${member.id}`}
@@ -449,6 +465,15 @@ export function StaffManagementView() {
           <FeedbackList />
         </TabsContent>
       </Tabs>
+      </div>
+
+      {/* Floating feedback button */}
+      <FeedbackButton pageContext="staff" />
+
+      {/* Theme toggle */}
+      <div className="fixed bottom-20 left-4 z-40">
+        <ThemeToggle />
+      </div>
     </div>
   );
 }

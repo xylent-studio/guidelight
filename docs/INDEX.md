@@ -1,6 +1,6 @@
 # Guidelight Documentation Index
 
-**Last Updated:** 2025-11-25  
+**Last Updated:** 2025-11-28  
 **Maintainer:** Xylent Studios
 
 This is the central hub for all Guidelight project documentation. If you're new to the project, start with the **Getting Started** section below.
@@ -31,16 +31,23 @@ This is the central hub for all Guidelight project documentation. If you're new 
 ### **Technical Documentation**
 | Document | Purpose | Audience | Status | Last Updated |
 |----------|---------|----------|--------|--------------|
-| [ARCHITECTURE_OVERVIEW.md](./ARCHITECTURE_OVERVIEW.md) | System architecture, data flow, API structure, security model | Engineering | ✅ Active | 2025-11-25 |
+| [ARCHITECTURE_OVERVIEW.md](./ARCHITECTURE_OVERVIEW.md) | System architecture, data flow, API structure, security model | Engineering | ✅ Active | 2025-11-28 |
+| [UI_STACK.md](./UI_STACK.md) | Component library, shadcn/ui usage, styling patterns | Engineering, Design | ✅ Active | 2025-11-28 |
 | [AI_ASSISTANCE.md](./AI_ASSISTANCE.md) | Guide for using AI tools (Cursor, Supabase MCP) with Guidelight | Engineering | ✅ Active | 2025-11-25 |
 | [GUIDELIGHT_DEV_AGENT.md](./GUIDELIGHT_DEV_AGENT.md) | Instructions for Cursor agent when working on Guidelight | Engineering | ✅ Active | 2025-11-25 |
+
+### **UX Overhaul v2.x (November 2025)**
+| Document | Purpose | Audience | Status | Last Updated |
+|----------|---------|----------|--------|--------------|
+| [notes/251128_guidelight_ux_overhual/ai-dev/](../notes/251128_guidelight_ux_overhual/ai-dev/) | Complete UX overhaul specifications (16 docs) | Engineering, Product | ✅ Active | 2025-11-28 |
+| [06_PICKS_AND_LAB_INFO_MODEL.md](../notes/251128_guidelight_ux_overhual/ai-dev/06_PICKS_AND_LAB_INFO_MODEL.md) | Pick data model, categories, effect tags | Engineering | ✅ Active | 2025-11-28 |
 
 ### **Planning & Implementation**
 | Document | Purpose | Audience | Status | Last Updated |
 |----------|---------|----------|--------|--------------|
 | [notes/GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md](../notes/GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md) | Step-by-step MVP implementation guide (8 steps) | Engineering | ✅ Complete | 2025-11-25 |
-| [notes/GUIDELIGHT_MVP_PROGRESS.md](../notes/GUIDELIGHT_MVP_PROGRESS.md) | Progress log of v1.0.0 and v1.1.0 implementation | Engineering, Product | ✅ Active | 2025-11-25 |
-| [notes/MVP_CRITICAL_DECISIONS.md](../notes/MVP_CRITICAL_DECISIONS.md) | Record of key architectural and product decisions | Engineering, Product | ✅ Active | 2025-11-25 |
+| [notes/GUIDELIGHT_MVP_PROGRESS.md](../notes/GUIDELIGHT_MVP_PROGRESS.md) | Progress log of v1.0.0, v1.1.0, v2.0.0, v2.1.0 implementation | Engineering, Product | ✅ Active | 2025-11-28 |
+| [notes/MVP_CRITICAL_DECISIONS.md](../notes/MVP_CRITICAL_DECISIONS.md) | Record of key architectural and product decisions | Engineering, Product | ✅ Active | 2025-11-28 |
 | [notes/DEV_QUICK_REFERENCE.md](../notes/DEV_QUICK_REFERENCE.md) | Copy-paste code patterns, common errors, commands | Engineering | ✅ Active | 2025-11-25 |
 | [notes/DOCUMENTATION_STANDARDS.md](../notes/DOCUMENTATION_STANDARDS.md) | Documentation guidelines, conventions, and best practices | All | ✅ Active | 2025-11-25 |
 
@@ -83,7 +90,7 @@ This is the central hub for all Guidelight project documentation. If you're new 
 ### "I need to implement..."
 - **Feature X** → [GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md](../notes/GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md)
 - **Auth flow** → [ARCHITECTURE_OVERVIEW.md § 2.2](./ARCHITECTURE_OVERVIEW.md) + [DEV_QUICK_REFERENCE.md § Auth Patterns](../notes/DEV_QUICK_REFERENCE.md)
-- **UI component** → [GUIDELIGHT_DESIGN_SYSTEM.md](./GUIDELIGHT_DESIGN_SYSTEM.md)
+- **UI component** → [UI_STACK.md](./UI_STACK.md) (component catalog) + [GUIDELIGHT_DESIGN_SYSTEM.md](./GUIDELIGHT_DESIGN_SYSTEM.md) (colors)
 
 ### "I'm stuck with..."
 - **Code pattern** → [DEV_QUICK_REFERENCE.md](../notes/DEV_QUICK_REFERENCE.md)
@@ -118,6 +125,7 @@ guidelight/
 │   ├── GUIDELIGHT_SPEC.md                 # Product specification
 │   ├── ARCHITECTURE_OVERVIEW.md           # Technical architecture
 │   ├── GUIDELIGHT_DESIGN_SYSTEM.md        # Design system
+│   ├── UI_STACK.md                        # ✨ Component library reference
 │   ├── AI_ASSISTANCE.md                   # AI tooling guide
 │   ├── GUIDELIGHT_DEV_AGENT.md            # Cursor agent instructions
 │   ├── BUDTENDER_PICKS_BOARD_SPEC.md      # Future feature spec
@@ -183,5 +191,5 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for general contribution guidelines.
 
 ---
 
-**This index is maintained manually. Last reviewed: 2025-11-25 (v1.4.0 - User Guides + Screenshots)**
+**This index is maintained manually. Last reviewed: 2025-11-28 (v2.1.0 - Category System Overhaul)**
 

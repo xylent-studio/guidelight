@@ -1,12 +1,13 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import type { PropsWithChildren } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase, fetchWithTimeout } from '@/lib/supabaseClient';
 import type { Budtender } from '@/lib/api/auth';
 
 // Retry configuration for network failures
 const MAX_PROFILE_RETRIES = 3;
 const RETRY_DELAY_MS = 1000; // 1 second between retries
+const PROFILE_FETCH_TIMEOUT_MS = 15000; // 15 second timeout for profile fetch (Issue 10 fix)
 
 interface AuthContextValue {
   user: Session['user'] | null;
@@ -32,6 +33,25 @@ export function AuthProvider({ children }: PropsWithChildren) {
   // Derived state
   const user = session?.user ?? null;
   const isManager = profile?.role === 'manager';
+
+  // Track retry attempts
+  const retryCountRef = useRef(0);
+  
+  // Track mounted state and pending timers for cleanup (Issue 1 fix)
+  const isMountedRef = useRef(true);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup effect - clear pending timers on unmount
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
+    };
+  }, []);
 
   // Effect 1: Session management (official Supabase pattern)
   // - Fetch session once on mount
@@ -80,13 +100,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setProfileError(null);
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadProfile is intentionally omitted; it's not memoized and we only want to run when session changes
   }, [session]);
-
-  // Track retry attempts
-  const retryCountRef = useRef(0);
 
   // Load profile by user ID with retry logic for network failures
   async function loadProfile(userId: string, isRetry = false) {
+    // Guard: don't proceed if unmounted
+    if (!isMountedRef.current) return;
+    
     if (!isRetry) {
       retryCountRef.current = 0;
     }
@@ -96,11 +117,18 @@ export function AuthProvider({ children }: PropsWithChildren) {
     setProfileError(null);
     
     try {
-      const { data: budtenderProfile, error } = await supabase
-        .from('budtenders')
-        .select('*')
-        .eq('auth_user_id', userId)
-        .single();
+      // Wrap with timeout to prevent hanging requests (Issue 10 fix)
+      const { data: budtenderProfile, error } = await fetchWithTimeout(
+        supabase
+          .from('budtenders')
+          .select('*')
+          .eq('auth_user_id', userId)
+          .single(),
+        PROFILE_FETCH_TIMEOUT_MS
+      );
+
+      // Guard: check if still mounted after async operation
+      if (!isMountedRef.current) return;
 
       if (error) {
         // Check if this is a network/connection error (retryable)
@@ -111,7 +139,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
         if (isNetworkError && retryCountRef.current < MAX_PROFILE_RETRIES) {
           retryCountRef.current++;
           console.log(`[Auth] Network error, retrying in ${RETRY_DELAY_MS}ms...`);
-          setTimeout(() => loadProfile(userId, true), RETRY_DELAY_MS);
+          // Store timer ID for cleanup on unmount
+          retryTimerRef.current = setTimeout(() => loadProfile(userId, true), RETRY_DELAY_MS);
           return; // Don't set error yet, we're retrying
         }
         
@@ -123,19 +152,28 @@ export function AuthProvider({ children }: PropsWithChildren) {
         }
         
         console.error('[Auth] Profile fetch error:', error);
-        setProfileError('Unable to load your profile. Please try refreshing the page.');
-        setProfile(null);
+        if (isMountedRef.current) {
+          setProfileError('Unable to load your profile. Please try refreshing the page.');
+          setProfile(null);
+        }
       } else if (!budtenderProfile) {
         // User exists but no budtender profile - this is a data issue, not retryable
-        setProfileError('Your account is not fully set up. Please contact an administrator.');
-        setProfile(null);
+        if (isMountedRef.current) {
+          setProfileError('Your account is not fully set up. Please contact an administrator.');
+          setProfile(null);
+        }
       } else {
         console.log('[Auth] Profile loaded:', budtenderProfile.name);
-        setProfile(budtenderProfile);
-        setProfileError(null);
+        if (isMountedRef.current) {
+          setProfile(budtenderProfile);
+          setProfileError(null);
+        }
         retryCountRef.current = 0; // Reset on success
       }
     } catch (error) {
+      // Guard: check if still mounted after async operation
+      if (!isMountedRef.current) return;
+      
       // Catch network errors that throw exceptions
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const isNetworkError = errorMessage.includes('fetch') || 
@@ -145,7 +183,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
       if (isNetworkError && retryCountRef.current < MAX_PROFILE_RETRIES) {
         retryCountRef.current++;
         console.log(`[Auth] Network exception, retrying in ${RETRY_DELAY_MS}ms...`);
-        setTimeout(() => loadProfile(userId, true), RETRY_DELAY_MS);
+        // Store timer ID for cleanup on unmount
+        retryTimerRef.current = setTimeout(() => loadProfile(userId, true), RETRY_DELAY_MS);
         return;
       }
       
@@ -154,16 +193,20 @@ export function AuthProvider({ children }: PropsWithChildren) {
       // After all retries exhausted, if still network error, sign out
       if (isNetworkError && retryCountRef.current >= MAX_PROFILE_RETRIES) {
         console.error('[Auth] Max retries reached, signing out...');
-        setProfileError('Connection lost. Please sign in again.');
+        if (isMountedRef.current) {
+          setProfileError('Connection lost. Please sign in again.');
+        }
         await supabase.auth.signOut();
         return;
       }
       
-      setProfileError('An unexpected error occurred. Please try again.');
-      setProfile(null);
+      if (isMountedRef.current) {
+        setProfileError('An unexpected error occurred. Please try again.');
+        setProfile(null);
+      }
     } finally {
-      // Only set loading false if we're not retrying
-      if (retryCountRef.current === 0 || retryCountRef.current >= MAX_PROFILE_RETRIES) {
+      // Only set loading false if we're not retrying and still mounted
+      if (isMountedRef.current && (retryCountRef.current === 0 || retryCountRef.current >= MAX_PROFILE_RETRIES)) {
         setProfileLoading(false);
         setLoading(false);
       }
@@ -175,6 +218,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     if (session?.user) {
       await loadProfile(session.user.id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadProfile is intentionally omitted; it's stable and we only want to update when session changes
   }, [session]);
 
   async function signIn(email: string, password: string) {

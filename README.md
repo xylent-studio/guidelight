@@ -122,7 +122,7 @@ All staff authenticate via Supabase Auth (email + password):
 - **UI / Styling:**
   - **Tailwind CSS** – utility-first CSS framework for rapid, consistent styling.
   - **shadcn/ui** – accessible, composable React components built on Radix UI primitives (components live in `src/components/ui`).
-  - **Radix Colors** – semantic color palette (slate neutrals, jade primary) providing a shared design system optimized for both POS displays and mobile devices.
+  - **HSL-based semantic color system** – custom palette with forest green primary and warm cream neutrals, supporting light and dark themes. See [UI Stack](./docs/UI_STACK.md) for component reference.
 
 - **Backend / Data:**
   - Supabase (Postgres + `@supabase/supabase-js`)

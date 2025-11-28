@@ -11,6 +11,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] - 2025-11-28
+
+### Added - Category System Overhaul
+
+#### Database Changes
+- **New categories:** Deals, Tinctures, Accessories
+- **Removed category:** Wellness (picks migrated to Tinctures)
+- **New pick fields:**
+  - `strain_type` - indica/sativa/hybrid/cbd-dominant/balanced/n-a
+  - `intensity` - light/moderate/strong/heavy
+  - `format` - category-specific format (indoor, cart, gummy, etc.)
+  - `one_liner` - short headline for display
+  - `custom_tags` - freeform tags (text array)
+  - `package_size`, `potency_summary`, `top_terpenes`, `is_infused`
+  - Deal-specific: `deal_title`, `deal_type`, `deal_value`, `deal_applies_to`, `deal_days`, `deal_fine_print`
+
+#### UX Improvements
+- **Category tabs in MyPicksView:** Filter picks by category with horizontal scrollable chips
+- **Category context for Add Pick:** Clicking "Add pick" from a category tab pre-selects that category
+- **Single draft state:** Switching categories in PickFormModal no longer clears form data
+- **Effect tags (AIQ/Dispense style):** 17 curated tags with max 3 selection + unlimited custom tags
+- **Category-specific fields:** Fields show/hide based on selected category
+- **Deals support:** Full deal entry with type, value, applies to, days, fine print
+
+### Changed
+- **PickFormModal:** Complete rewrite with single draft state pattern
+- **Effect tags:** Moved from suggested list to curated AIQ/Dispense-style tags with 3-tag limit
+- **`product_type`:** Hidden from UI (kept in DB for backward compatibility)
+
+### Files Added
+- `src/lib/constants/effectTags.ts` - Curated effect tags and category field mappings
+- `src/types/pickDraft.ts` - PickDraft type for form state management
+
+### Documentation
+- Updated `06_PICKS_AND_LAB_INFO_MODEL.md` to v9.2
+- Added Category System decisions to `MVP_CRITICAL_DECISIONS.md`
+- Updated `docs/INDEX.md` with UX Overhaul section
+- Bumped version to 2.1.0
+
+---
+
+## [2.0.0] - 2025-11-28
+
+### Added - UX Overhaul v2.0
+- **React Router:** Proper URL-based navigation with route guards
+- **New routes:** `/`, `/display`, `/team`, auth flows
+- **Display Mode:** Public house list for POS/kiosk
+- **Show to Customer:** Full-screen overlay for staff
+- **Component library:** MyPickCard, GuestPickCard, CategoryChipsRow, HeaderBar
+
+### Changed
+- **Views:** Replaced StaffView/CustomerView with MyPicksView/DisplayModeView
+- **Navigation:** Mode toggle replaced with React Router navigation
+- **PickFormModal:** Split into Quick Info + Optional Details sections
+
+### Removed
+- `src/views/CustomerView.tsx` (replaced by DisplayModeView)
+- `src/views/StaffView.tsx` (replaced by MyPicksView)
+- `src/components/layout/AppLayout.tsx` (each view handles own layout)
+- `src/components/layout/ModeToggle.tsx` (replaced by routing)
+
+---
+
 ## [1.4.0] - 2025-11-25
 
 ### Added - Premium Color System & Theme Toggle

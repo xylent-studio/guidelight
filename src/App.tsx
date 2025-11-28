@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { LoginPage } from './components/auth/LoginPage';
@@ -6,14 +8,11 @@ import { ForgotPasswordPage } from './components/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './components/auth/ResetPasswordPage';
 import { AcceptInvitePage } from './components/auth/AcceptInvitePage';
 import { ProfileErrorScreen } from './components/auth/ProfileErrorScreen';
-import AppLayout from './components/layout/AppLayout';
-import type { AppMode } from './components/layout/ModeToggle';
-import CustomerView from './views/CustomerView';
-import StaffView from './views/StaffView';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { ManagerRoute } from './components/auth/ManagerRoute';
+import MyPicksView from './views/MyPicksView';
 import StaffManagementView from './views/StaffManagementView';
-
-export type AppView = 'customer' | 'staff' | 'staff-management';
-type AuthPage = 'login' | 'forgot-password' | 'reset-password' | 'accept-invite';
+import DisplayModeView from './views/DisplayModeView';
 
 /**
  * Parse URL hash for auth flow detection
@@ -33,20 +32,15 @@ function parseAuthHash(): { type: string | null; accessToken: string | null } {
   };
 }
 
-function AppContent() {
-  const { user, loading, isManager, profileError } = useAuth();
-  const [view, setView] = useState<AppView>('customer');
-  const [authPage, setAuthPage] = useState<AuthPage>('login');
-  const [needsPasswordSetup, setNeedsPasswordSetup] = useState(false);
+/**
+ * Handles Supabase auth redirects (invite, recovery)
+ * Must be inside BrowserRouter to use navigation
+ */
+function AuthRedirectHandler() {
+  const navigate = useNavigate();
   const hasProcessedHash = useRef(false);
 
-  // Determine mode for the toggle (customer/staff only)
-  const mode: AppMode = view === 'customer' ? 'customer' : 'staff';
-
-  // Handle auth flow from URL hash on mount
-  // This runs BEFORE user state is available to handle invite/recovery links
   useEffect(() => {
-    // Only process once per page load
     if (hasProcessedHash.current) return;
     
     const { type, accessToken } = parseAuthHash();
@@ -57,137 +51,207 @@ function AppContent() {
     console.log('[App] Auth flow detected:', type);
     
     if (type === 'recovery') {
-      // Password reset flow - show reset page
-      setAuthPage('reset-password');
+      navigate('/reset-password', { replace: true });
     } else if (type === 'invite') {
-      // Invite flow - Supabase has already exchanged the token for a session
-      // The new invited user is now logged in (replacing any previous session)
-      // Show password setup page
-      setNeedsPasswordSetup(true);
+      navigate('/accept-invite', { replace: true });
     }
-  }, []);
+  }, [navigate]);
 
-  // Also check when user changes (for invite flow after session is established)
-  useEffect(() => {
-    const { type } = parseAuthHash();
-    
-    if (type === 'invite' && user) {
-      // User is logged in from invite - check if they need to set password
-      const hasSetPassword = localStorage.getItem(`password_set_${user.id}`);
-      if (!hasSetPassword) {
-        setNeedsPasswordSetup(true);
-      } else {
-        // Already set password, clear hash and proceed
-        window.location.hash = '';
-      }
-    }
-  }, [user]);
+  return null;
+}
 
-  // Clear hash after handling
-  function clearHashAndProceed() {
-    window.location.hash = '';
-    setAuthPage('login');
-    setNeedsPasswordSetup(false);
-    hasProcessedHash.current = false;
-  }
+/**
+ * Login page wrapper - redirects to home if already authenticated
+ */
+function LoginPageWrapper() {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // Show loading spinner while checking session
   if (loading) {
     return (
-      <div className="min-h-screen bg-bg-app flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-          <p className="text-text-muted">Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // Show profile error screen if user is logged in but profile couldn't load
+  // Redirect to intended destination or home if already logged in
+  if (user) {
+    const from = location.state?.from?.pathname || '/';
+    return <Navigate to={from} replace />;
+  }
+
+  return <LoginPage onForgotPassword={() => navigate('/forgot-password')} />;
+}
+
+/**
+ * Forgot password page wrapper
+ */
+function ForgotPasswordPageWrapper() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <ForgotPasswordPage onBackToLogin={() => navigate('/login')} />;
+}
+
+/**
+ * Reset password page wrapper
+ */
+function ResetPasswordPageWrapper() {
+  const navigate = useNavigate();
+
+  function handleSuccess() {
+    window.location.hash = '';
+    navigate('/login', { replace: true });
+  }
+
+  function handleBackToLogin() {
+    window.location.hash = '';
+    navigate('/login', { replace: true });
+  }
+
+  return (
+    <ResetPasswordPage
+      onSuccess={handleSuccess}
+      onBackToLogin={handleBackToLogin}
+    />
+  );
+}
+
+/**
+ * Accept invite page wrapper
+ */
+function AcceptInvitePageWrapper() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  function handleComplete() {
+    if (user) {
+      localStorage.setItem(`password_set_${user.id}`, 'true');
+    }
+    window.location.hash = '';
+    navigate('/', { replace: true });
+  }
+
+  function handleBackToLogin() {
+    window.location.hash = '';
+    navigate('/login', { replace: true });
+  }
+
+  return (
+    <AcceptInvitePage
+      onComplete={handleComplete}
+      onBackToLogin={handleBackToLogin}
+    />
+  );
+}
+
+/**
+ * My picks (staff home) - protected route
+ */
+function MyPicksPage() {
+  const { profileError, user } = useAuth();
+
   if (user && profileError) {
     return <ProfileErrorScreen message={profileError} />;
   }
 
-  // Handle password reset flow (can happen when not logged in)
-  if (authPage === 'reset-password') {
-    return (
-      <ResetPasswordPage
-        onSuccess={() => {
-          clearHashAndProceed();
-        }}
-        onBackToLogin={() => {
-          clearHashAndProceed();
-        }}
-      />
-    );
+  return <MyPicksView />;
+}
+
+/**
+ * Team management - protected + manager only
+ */
+function TeamPage() {
+  const { profileError, user } = useAuth();
+
+  if (user && profileError) {
+    return <ProfileErrorScreen message={profileError} />;
   }
 
-  // Show invite acceptance page for new users who need to set password
-  if (user && needsPasswordSetup) {
-    return (
-      <AcceptInvitePage
-        onComplete={() => {
-          if (user) {
-            localStorage.setItem(`password_set_${user.id}`, 'true');
-          }
-          clearHashAndProceed();
-        }}
-        onBackToLogin={() => {
-          clearHashAndProceed();
-        }}
-      />
-    );
-  }
+  return <StaffManagementView />;
+}
 
-  // Show login or forgot password page if not authenticated
-  if (!user) {
-    if (authPage === 'forgot-password') {
-      return (
-        <ForgotPasswordPage
-          onBackToLogin={() => setAuthPage('login')}
-        />
-      );
-    }
-    
-    return (
-      <LoginPage
-        onForgotPassword={() => setAuthPage('forgot-password')}
-      />
-    );
-  }
-
-  // Handler for mode toggle (customer/staff only)
-  function handleModeChange(newMode: AppMode) {
-    setView(newMode);
-  }
-
-  // Handler for Staff Management navigation
-  function handleStaffManagementClick() {
-    setView('staff-management');
-  }
-
-  // Show main app if authenticated
+/**
+ * Main app routes
+ */
+function AppRoutes() {
   return (
-    <AppLayout
-      mode={mode}
-      onModeChange={handleModeChange}
-      onStaffManagementClick={isManager ? handleStaffManagementClick : undefined}
-      isStaffManagementActive={view === 'staff-management'}
-    >
-      {view === 'customer' && <CustomerView />}
-      {view === 'staff' && <StaffView />}
-      {view === 'staff-management' && <StaffManagementView />}
-    </AppLayout>
+    <>
+      <AuthRedirectHandler />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<LoginPageWrapper />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPageWrapper />} />
+        <Route path="/reset-password" element={<ResetPasswordPageWrapper />} />
+        <Route path="/accept-invite" element={<AcceptInvitePageWrapper />} />
+        
+        {/* Display mode - public, no auth required */}
+        <Route path="/display" element={<DisplayModeView />} />
+        
+        {/* Protected routes */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <MyPicksPage />
+            </ProtectedRoute>
+          }
+        />
+        
+        {/* Manager-only routes */}
+        <Route
+          path="/team"
+          element={
+            <ProtectedRoute>
+              <ManagerRoute>
+                <TeamPage />
+              </ManagerRoute>
+            </ProtectedRoute>
+          }
+        />
+        
+        {/* Catch-all redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }
 
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppRoutes />
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              className: 'bg-card border-border text-foreground',
+            }}
+          />
+        </AuthProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 }
 

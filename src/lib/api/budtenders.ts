@@ -1,7 +1,10 @@
-import { supabase } from '../supabaseClient';
+import { supabase, fetchWithTimeout } from '../supabaseClient';
 import type { Database } from '../../types/database';
 
 type Budtender = Database['public']['Tables']['budtenders']['Row'];
+
+// Timeout for API calls (Issue 10 fix)
+const API_TIMEOUT_MS = 15000;
 
 /**
  * Fetch all budtenders
@@ -24,11 +27,15 @@ export async function getBudtenders(): Promise<Budtender[]> {
  * Fetch only active budtenders (is_active = true)
  */
 export async function getActiveBudtenders(): Promise<Budtender[]> {
-  const { data, error } = await supabase
-    .from('budtenders')
-    .select('*')
-    .eq('is_active', true)
-    .order('name', { ascending: true });
+  // Wrap with timeout to prevent hanging requests (Issue 10 fix)
+  const { data, error } = await fetchWithTimeout(
+    supabase
+      .from('budtenders')
+      .select('*')
+      .eq('is_active', true)
+      .order('name', { ascending: true }),
+    API_TIMEOUT_MS
+  );
 
   if (error) {
     console.error('Error fetching active budtenders:', error);

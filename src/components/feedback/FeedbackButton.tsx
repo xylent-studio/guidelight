@@ -34,7 +34,7 @@ export function FeedbackButton({ pageContext }: FeedbackButtonProps) {
         </Button>
         
         {/* Tooltip on hover - visible on larger screens */}
-        <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-bg-surface border border-border-subtle rounded-md px-3 py-1.5 text-sm text-text-default whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none hidden sm:block shadow-md">
+        <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-card border border-border rounded-md px-3 py-1.5 text-sm text-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none hidden sm:block shadow-md">
           {feedbackCopy.button.tooltip}
         </span>
       </div>

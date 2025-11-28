@@ -36,6 +36,7 @@ export function DeleteStaffDialog({ open, onOpenChange, onSuccess, staff }: Dele
       setError(null);
       setPickCount(0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadPickCount is intentionally omitted; we only want to run when open/staff changes
   }, [open, staff]);
 
   async function loadPickCount() {
@@ -87,9 +88,9 @@ export function DeleteStaffDialog({ open, onOpenChange, onSuccess, staff }: Dele
       alert(deleteStaffCopy.success(staff.name));
       onSuccess();
       onOpenChange(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to delete budtender:', err);
-      setError(err.message || errors.failedToSave);
+      setError(err instanceof Error ? err.message : errors.failedToSave);
     } finally {
       setLoading(false);
     }
@@ -127,7 +128,7 @@ export function DeleteStaffDialog({ open, onOpenChange, onSuccess, staff }: Dele
                 </div>
               </div>
 
-              <p className="text-sm text-text-muted">
+              <p className="text-sm text-muted-foreground">
                 Are you sure you want to continue?
               </p>
             </div>
@@ -170,7 +171,7 @@ export function DeleteStaffDialog({ open, onOpenChange, onSuccess, staff }: Dele
                 </div>
               )}
 
-              <p className="text-sm text-text font-semibold">
+              <p className="text-sm text-foreground font-semibold">
                 Are you absolutely sure?
               </p>
             </div>

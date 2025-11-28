@@ -84,6 +84,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
   // Apply theme on initial mount (before paint to avoid flash)
   useEffect(() => {
     applyTheme(resolvedTheme);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally run only on mount; resolvedTheme changes are handled by the other effect
   }, []);
 
   const setMode = useCallback((newMode: ThemeMode) => {

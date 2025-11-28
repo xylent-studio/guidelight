@@ -99,7 +99,7 @@ export function FeedbackModal({ open, onOpenChange, pageContext }: FeedbackModal
           // Success state
           <div className="py-8 text-center">
             <div className="text-4xl mb-4">🎉</div>
-            <p className="text-lg font-semibold text-text-default mb-2">
+            <p className="text-lg font-semibold text-foreground mb-2">
               {feedbackCopy.success}
             </p>
           </div>
@@ -132,7 +132,7 @@ export function FeedbackModal({ open, onOpenChange, pageContext }: FeedbackModal
                       ([key, { label, description }]) => (
                         <SelectItem key={key} value={key}>
                           <span className="font-medium">{label}</span>
-                          <span className="text-text-muted ml-2">— {description}</span>
+                          <span className="text-muted-foreground ml-2">— {description}</span>
                         </SelectItem>
                       )
                     )}
@@ -154,7 +154,7 @@ export function FeedbackModal({ open, onOpenChange, pageContext }: FeedbackModal
                   disabled={submitting}
                   className="resize-none"
                 />
-                <p className="text-xs text-text-muted">
+                <p className="text-xs text-muted-foreground">
                   {copy.descriptionHelper}
                 </p>
               </div>
@@ -175,7 +175,7 @@ export function FeedbackModal({ open, onOpenChange, pageContext }: FeedbackModal
                       ([key, { label, description }]) => (
                         <SelectItem key={key} value={key}>
                           <span className="font-medium">{label}</span>
-                          <span className="text-text-muted ml-2">— {description}</span>
+                          <span className="text-muted-foreground ml-2">— {description}</span>
                         </SelectItem>
                       )
                     )}
@@ -195,7 +195,7 @@ export function FeedbackModal({ open, onOpenChange, pageContext }: FeedbackModal
                   <Label htmlFor="include-name" className="text-sm cursor-pointer">
                     {copy.anonymousLabel}
                   </Label>
-                  <p className="text-xs text-text-muted mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {copy.anonymousHelper}
                   </p>
                 </div>
@@ -209,11 +209,11 @@ export function FeedbackModal({ open, onOpenChange, pageContext }: FeedbackModal
               )}
 
               {/* Contact info */}
-              <div className="pt-2 border-t border-border-subtle">
-                <p className="text-sm font-medium text-text-default mb-2">
+              <div className="pt-2 border-t border-border">
+                <p className="text-sm font-medium text-foreground mb-2">
                   {feedbackCopy.contact.heading}
                 </p>
-                <div className="flex flex-col gap-1 text-sm text-text-muted">
+                <div className="flex flex-col gap-1 text-sm text-muted-foreground">
                   <p className="flex items-center gap-2">
                     <Phone size={14} />
                     {feedbackCopy.contact.phone}

@@ -105,20 +105,20 @@ export function AcceptInvitePage({ onComplete, onBackToLogin }: AcceptInvitePage
 
   if (success) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center px-4">
-        <Card className="w-full max-w-md bg-surface border-border">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <Card className="w-full max-w-md bg-card border-border">
           <CardHeader className="space-y-1 text-center">
             <div className="text-5xl mb-4">🎉</div>
-            <CardTitle className="text-2xl font-bold text-text">
+            <CardTitle className="text-2xl font-bold text-foreground">
               Welcome to Guidelight!
             </CardTitle>
-            <CardDescription className="text-text-muted">
+            <CardDescription className="text-muted-foreground">
               Your account is all set up.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="bg-primary/10 border border-primary/20 rounded-md p-4 mb-4 text-center">
-              <p className="text-sm text-text">
+              <p className="text-sm text-foreground">
                 Redirecting you to the app...
               </p>
             </div>
@@ -136,13 +136,13 @@ export function AcceptInvitePage({ onComplete, onBackToLogin }: AcceptInvitePage
   }
 
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center px-4">
-      <Card className="w-full max-w-md bg-surface border-border">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <Card className="w-full max-w-md bg-card border-border">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-text">
+          <CardTitle className="text-2xl font-bold text-foreground">
             Welcome to Guidelight!
           </CardTitle>
-          <CardDescription className="text-text-muted">
+          <CardDescription className="text-muted-foreground">
             You've been invited to join the team. Set up your password to get started.
           </CardDescription>
         </CardHeader>
@@ -150,13 +150,13 @@ export function AcceptInvitePage({ onComplete, onBackToLogin }: AcceptInvitePage
           {/* User Info Card */}
           {userProfile && (
             <div className="bg-primary/5 border border-primary/20 rounded-md p-4 mb-6">
-              <p className="text-lg font-semibold text-text mb-1">
+              <p className="text-lg font-semibold text-foreground mb-1">
                 {userProfile.name}
               </p>
-              <p className="text-sm text-text-muted capitalize">
+              <p className="text-sm text-muted-foreground capitalize">
                 {roleDisplay}{locationDisplay}
               </p>
-              <p className="text-xs text-text-muted mt-2">
+              <p className="text-xs text-muted-foreground mt-2">
                 State of Mind Staff Portal
               </p>
             </div>
@@ -164,7 +164,7 @@ export function AcceptInvitePage({ onComplete, onBackToLogin }: AcceptInvitePage
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-text">
+              <Label htmlFor="password" className="text-foreground">
                 Create a password
               </Label>
               <PasswordInput
@@ -173,7 +173,7 @@ export function AcceptInvitePage({ onComplete, onBackToLogin }: AcceptInvitePage
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
-                className="bg-bg border-border"
+                className="bg-background border-border"
                 autoComplete="new-password"
                 autoFocus
                 required
@@ -181,7 +181,7 @@ export function AcceptInvitePage({ onComplete, onBackToLogin }: AcceptInvitePage
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-text">
+              <Label htmlFor="confirmPassword" className="text-foreground">
                 Confirm password
               </Label>
               <PasswordInput
@@ -190,7 +190,7 @@ export function AcceptInvitePage({ onComplete, onBackToLogin }: AcceptInvitePage
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={loading}
-                className="bg-bg border-border"
+                className="bg-background border-border"
                 autoComplete="new-password"
                 required
               />
@@ -222,7 +222,7 @@ export function AcceptInvitePage({ onComplete, onBackToLogin }: AcceptInvitePage
             <button
               type="button"
               onClick={onBackToLogin}
-              className="text-sm text-text-muted hover:text-text transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Already have an account? Sign in
             </button>

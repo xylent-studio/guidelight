@@ -166,7 +166,7 @@ export function FeedbackList() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-        <p className="text-text-muted">Loading feedback...</p>
+        <p className="text-muted-foreground">Loading feedback...</p>
       </div>
     );
   }
@@ -186,8 +186,8 @@ export function FeedbackList() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-text mb-2">{copy.title}</h2>
-        <p className="text-text-muted">{copy.subtitle}</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">{copy.title}</h2>
+        <p className="text-muted-foreground">{copy.subtitle}</p>
       </div>
 
       {/* Filter Tabs */}
@@ -213,8 +213,8 @@ export function FeedbackList() {
       {filteredFeedback.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <MessageCircle size={40} className="mx-auto mb-4 text-text-muted/40" />
-            <p className="text-text-muted">{copy.empty}</p>
+            <MessageCircle size={40} className="mx-auto mb-4 text-muted-foreground/40" />
+            <p className="text-muted-foreground">{copy.empty}</p>
           </CardContent>
         </Card>
       ) : (
@@ -250,7 +250,7 @@ export function FeedbackList() {
                         </div>
                         
                         {/* Submitter & Time */}
-                        <div className="flex items-center gap-2 text-xs text-text-muted">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span className={item.is_anonymous ? 'italic' : 'font-medium'}>
                             {item.is_anonymous ? copy.anonymous : item.submitter_name}
                           </span>
@@ -261,7 +261,7 @@ export function FeedbackList() {
                           {item.page_context && (
                             <>
                               <span>·</span>
-                              <span className="text-text-muted/70">on {item.page_context}</span>
+                              <span className="text-muted-foreground/70">on {item.page_context}</span>
                             </>
                           )}
                         </div>
@@ -293,14 +293,14 @@ export function FeedbackList() {
                 <CardContent className="pt-0 space-y-3">
                   {/* Description - truncated or full */}
                   <div>
-                    <p className={`text-sm text-text whitespace-pre-wrap ${!isExpanded && item.description.length > 200 ? 'line-clamp-3' : ''}`}>
+                    <p className={`text-sm text-foreground whitespace-pre-wrap ${!isExpanded && item.description.length > 200 ? 'line-clamp-3' : ''}`}>
                       {item.description}
                     </p>
                     {item.description.length > 200 && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="mt-1 h-auto p-1 text-xs text-text-muted"
+                        className="mt-1 h-auto p-1 text-xs text-muted-foreground"
                         onClick={() => toggleExpanded(item.id)}
                       >
                         {isExpanded ? (
@@ -357,13 +357,13 @@ export function FeedbackList() {
                       </div>
                     ) : (
                       <div
-                        className="text-sm text-text-muted cursor-pointer hover:bg-surface/50 p-2 rounded -m-2"
+                        className="text-sm text-muted-foreground cursor-pointer hover:bg-card/50 p-2 rounded -m-2"
                         onClick={() => startEditingNotes(item)}
                       >
                         {item.notes ? (
                           <p className="whitespace-pre-wrap">{item.notes}</p>
                         ) : (
-                          <p className="italic text-text-muted/60">{copy.notesPlaceholder}</p>
+                          <p className="italic text-muted-foreground/60">{copy.notesPlaceholder}</p>
                         )}
                       </div>
                     )}

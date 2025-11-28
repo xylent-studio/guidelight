@@ -1,9 +1,12 @@
-import { supabase } from '../supabaseClient';
+import { supabase, fetchWithTimeout } from '../supabaseClient';
 import type { Database } from '../../types/database';
 
 type Pick = Database['public']['Tables']['picks']['Row'];
 type PickInsert = Database['public']['Tables']['picks']['Insert'];
 type PickUpdate = Database['public']['Tables']['picks']['Update'];
+
+// Timeout for API calls (Issue 10 fix)
+const API_TIMEOUT_MS = 15000;
 
 /**
  * Sort picks according to the rating-based ordering system:
@@ -52,10 +55,14 @@ function sortActivePicks(picks: Pick[]): Pick[] {
  * Returns picks sorted by: active first, then rating, then recency
  */
 export async function getPicksForBudtender(budtenderId: string): Promise<Pick[]> {
-  const { data, error } = await supabase
-    .from('picks')
-    .select('*')
-    .eq('budtender_id', budtenderId);
+  // Wrap with timeout to prevent hanging requests (Issue 10 fix)
+  const { data, error } = await fetchWithTimeout(
+    supabase
+      .from('picks')
+      .select('*')
+      .eq('budtender_id', budtenderId),
+    API_TIMEOUT_MS
+  );
 
   if (error) {
     console.error('Error fetching picks for budtender:', error);
@@ -92,11 +99,15 @@ export async function getPicksForBudtenderAndCategory(
  * Returns picks sorted by rating (high to low), then updated_at
  */
 export async function getActivePicksForBudtender(budtenderId: string): Promise<Pick[]> {
-  const { data, error } = await supabase
-    .from('picks')
-    .select('*')
-    .eq('budtender_id', budtenderId)
-    .eq('is_active', true);
+  // Wrap with timeout to prevent hanging requests (Issue 10 fix)
+  const { data, error } = await fetchWithTimeout(
+    supabase
+      .from('picks')
+      .select('*')
+      .eq('budtender_id', budtenderId)
+      .eq('is_active', true),
+    API_TIMEOUT_MS
+  );
 
   if (error) {
     console.error('Error fetching active picks:', error);

@@ -88,46 +88,46 @@ export type Database = {
       }
       feedback: {
         Row: {
-          id: string
-          type: string
+          created_at: string
           description: string
-          urgency: string | null
+          id: string
           is_anonymous: boolean
+          notes: string | null
+          page_context: string | null
+          reviewed_at: string | null
+          status: string
           submitter_id: string | null
           submitter_name: string | null
-          page_context: string | null
-          created_at: string
-          status: string
-          reviewed_at: string | null
-          notes: string | null
+          type: string
+          urgency: string | null
         }
         Insert: {
-          id?: string
-          type: string
+          created_at?: string
           description: string
-          urgency?: string | null
+          id?: string
           is_anonymous?: boolean
+          notes?: string | null
+          page_context?: string | null
+          reviewed_at?: string | null
+          status?: string
           submitter_id?: string | null
           submitter_name?: string | null
-          page_context?: string | null
-          created_at?: string
-          status?: string
-          reviewed_at?: string | null
-          notes?: string | null
+          type: string
+          urgency?: string | null
         }
         Update: {
-          id?: string
-          type?: string
+          created_at?: string
           description?: string
-          urgency?: string | null
+          id?: string
           is_anonymous?: boolean
+          notes?: string | null
+          page_context?: string | null
+          reviewed_at?: string | null
+          status?: string
           submitter_id?: string | null
           submitter_name?: string | null
-          page_context?: string | null
-          created_at?: string
-          status?: string
-          reviewed_at?: string | null
-          notes?: string | null
+          type?: string
+          urgency?: string | null
         }
         Relationships: [
           {
@@ -136,7 +136,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "budtenders"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       picks: {
@@ -147,19 +147,34 @@ export type Database = {
           category_id: string
           category_line: string | null
           created_at: string
+          custom_tags: string[] | null
+          deal_applies_to: string | null
+          deal_days: string[] | null
+          deal_fine_print: string | null
+          deal_title: string | null
+          deal_type: string | null
+          deal_value: string | null
           doodle_key: string | null
           effect_tags: string[] | null
           experience_level: string | null
+          format: string | null
           id: string
+          intensity: string | null
           is_active: boolean
+          is_infused: boolean | null
           last_active_at: string | null
+          one_liner: string | null
+          package_size: string | null
+          potency_summary: string | null
           pre_roll_subtype: string | null
           product_name: string
           product_type: string
           rank: number
           rating: number | null
           special_role: string | null
+          strain_type: string | null
           time_of_day: string
+          top_terpenes: string | null
           updated_at: string
           why_i_love_it: string | null
         }
@@ -170,19 +185,34 @@ export type Database = {
           category_id: string
           category_line?: string | null
           created_at?: string
+          custom_tags?: string[] | null
+          deal_applies_to?: string | null
+          deal_days?: string[] | null
+          deal_fine_print?: string | null
+          deal_title?: string | null
+          deal_type?: string | null
+          deal_value?: string | null
           doodle_key?: string | null
           effect_tags?: string[] | null
           experience_level?: string | null
+          format?: string | null
           id?: string
+          intensity?: string | null
           is_active?: boolean
+          is_infused?: boolean | null
           last_active_at?: string | null
+          one_liner?: string | null
+          package_size?: string | null
+          potency_summary?: string | null
           pre_roll_subtype?: string | null
           product_name: string
           product_type: string
           rank?: number
           rating?: number | null
           special_role?: string | null
+          strain_type?: string | null
           time_of_day?: string
+          top_terpenes?: string | null
           updated_at?: string
           why_i_love_it?: string | null
         }
@@ -193,19 +223,34 @@ export type Database = {
           category_id?: string
           category_line?: string | null
           created_at?: string
+          custom_tags?: string[] | null
+          deal_applies_to?: string | null
+          deal_days?: string[] | null
+          deal_fine_print?: string | null
+          deal_title?: string | null
+          deal_type?: string | null
+          deal_value?: string | null
           doodle_key?: string | null
           effect_tags?: string[] | null
           experience_level?: string | null
+          format?: string | null
           id?: string
+          intensity?: string | null
           is_active?: boolean
+          is_infused?: boolean | null
           last_active_at?: string | null
+          one_liner?: string | null
+          package_size?: string | null
+          potency_summary?: string | null
           pre_roll_subtype?: string | null
           product_name?: string
           product_type?: string
           rank?: number
           rating?: number | null
           special_role?: string | null
+          strain_type?: string | null
           time_of_day?: string
+          top_terpenes?: string | null
           updated_at?: string
           why_i_love_it?: string | null
         }
@@ -231,7 +276,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_budtender_id: { Args: Record<string, never>; Returns: string }
+      is_current_user_manager: { Args: Record<string, never>; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

@@ -131,10 +131,10 @@ export function InviteStaffForm({ open, onOpenChange, onSuccess }: InviteStaffFo
           <div className="py-8">
             <div className="bg-primary/10 border border-primary/20 rounded-md p-6 text-center">
               <div className="text-4xl mb-3">🎉</div>
-              <p className="text-lg font-medium text-text mb-2">
+              <p className="text-lg font-medium text-foreground mb-2">
                 Invite sent to {name}!
               </p>
-              <p className="text-sm text-text-muted">
+              <p className="text-sm text-muted-foreground">
                 They'll get an email at {email} with a magic link to jump in.
               </p>
             </div>
@@ -166,7 +166,7 @@ export function InviteStaffForm({ open, onOpenChange, onSuccess }: InviteStaffFo
                 disabled={loading}
                 required
               />
-              <p className="text-xs text-text-muted">
+              <p className="text-xs text-muted-foreground">
                 They'll receive an invite email at this address.
               </p>
             </div>
@@ -224,7 +224,7 @@ export function InviteStaffForm({ open, onOpenChange, onSuccess }: InviteStaffFo
               </div>
             </div>
 
-            <p className="text-xs text-text-muted -mt-4">
+            <p className="text-xs text-muted-foreground -mt-4">
               Managers can invite/manage staff and edit any picks.
             </p>
 
@@ -239,7 +239,7 @@ export function InviteStaffForm({ open, onOpenChange, onSuccess }: InviteStaffFo
                 onChange={(e) => setProfileExpertise(e.target.value)}
                 disabled={loading}
               />
-              <p className="text-xs text-text-muted">
+              <p className="text-xs text-muted-foreground">
                 What are they best at helping people with? They can fill out their full profile after accepting the invite.
               </p>
             </div>

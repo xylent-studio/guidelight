@@ -23,7 +23,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
     <div
       className={cn(
         'inline-flex items-center gap-0.5 rounded-full p-0.5',
-        'bg-bg-elevated border border-border-subtle',
+        'bg-muted border border-border',
         className
       )}
       role="radiogroup"
@@ -42,10 +42,10 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
             onClick={() => setMode(value)}
             className={cn(
               'p-1.5 rounded-full transition-all duration-200',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-outline',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               isSelected
-                ? 'bg-primary-soft text-text-default'
-                : 'text-text-muted hover:text-text-default hover:bg-bg-surface'
+                ? 'bg-accent text-foreground'
+                : 'text-muted-foreground hover:text-foreground hover:bg-card'
             )}
           >
             <Icon className="w-3.5 h-3.5" />

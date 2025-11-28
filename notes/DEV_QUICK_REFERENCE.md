@@ -210,39 +210,129 @@ if (!profile) return <Navigate to="/login" />;
 
 ---
 
-## 📁 File Structure Reference
+## 🏷️ Effect Tags and Categories (v2.1)
+
+### Using curated effect tags
+```tsx
+import { CURATED_EFFECT_TAGS, MAX_EFFECT_TAGS } from '@/lib/constants/effectTags';
+
+// Limit to 3 selections
+const canAddTag = selectedTags.length < MAX_EFFECT_TAGS;
+
+// Show curated tags
+{CURATED_EFFECT_TAGS.map(tag => (
+  <button
+    onClick={() => handleToggleTag(tag)}
+    disabled={!canAddTag && !selectedTags.includes(tag)}
+  >
+    {tag}
+  </button>
+))}
+```
+
+### Category-conditional fields
+```tsx
+import { shouldShowField, isStrainTypeRelevant, isDealsCategory } from '@/lib/constants/effectTags';
+
+// Show strain type only for relevant categories
+{isStrainTypeRelevant(categoryName) && (
+  <StrainTypeSelect value={draft.strain_type} onChange={...} />
+)}
+
+// Show deal fields only for Deals category
+{isDealsCategory(categoryName) && (
+  <DealFields draft={draft} onChange={updateDraft} />
+)}
+```
+
+### PickDraft state pattern
+```tsx
+import type { PickDraft } from '@/types/pickDraft';
+
+// Single state object for form
+const [draft, setDraft] = useState<PickDraft>(createEmptyDraft(categoryId));
+
+// Update without losing other fields
+function updateDraft(updates: Partial<PickDraft>) {
+  setDraft(prev => ({ ...prev, ...updates }));
+}
+
+// Category change preserves all data
+function handleCategoryChange(newCategoryId: string) {
+  updateDraft({ category_id: newCategoryId }); // Only changes category!
+}
+```
+
+---
+
+## 🛣️ Routing (v2.0+)
+
+### Route structure
+```tsx
+// App.tsx
+<Routes>
+  <Route path="/login" element={<LoginPage />} />
+  <Route path="/display" element={<DisplayModeView />} />  {/* Public */}
+  <Route path="/" element={<ProtectedRoute><MyPicksView /></ProtectedRoute>} />
+  <Route path="/team" element={<ManagerRoute><StaffManagementView /></ManagerRoute>} />
+</Routes>
+```
+
+### Navigation
+```tsx
+import { useNavigate, Link } from 'react-router-dom';
+
+// Programmatic
+const navigate = useNavigate();
+navigate('/team');
+
+// Declarative
+<Link to="/display">View Picks</Link>
+```
+
+---
+
+## 📁 File Structure Reference (v2.1)
 
 ```
 src/
 ├── components/
-│   ├── layout/
-│   │   ├── AppLayout.tsx       # Main shell with header/footer
-│   │   └── ModeToggle.tsx      # Customer/Staff mode toggle
 │   ├── auth/
-│   │   └── LoginPage.tsx       # Email + password form
-│   ├── budtenders/
-│   │   └── (budtender-specific components)
+│   │   ├── LoginPage.tsx        # Login form
+│   │   ├── ProtectedRoute.tsx   # Auth guard
+│   │   └── ManagerRoute.tsx     # Manager guard
 │   ├── picks/
-│   │   └── (pick-specific components)
-│   └── ui/                     # shadcn components (Button, Card, etc.)
+│   │   ├── PickFormModal.tsx    # Add/edit with draft state
+│   │   ├── MyPickCard.tsx       # Staff-facing card
+│   │   ├── GuestPickCard.tsx    # Customer-facing card
+│   │   └── ShowToCustomerOverlay.tsx
+│   ├── ui/
+│   │   ├── CategoryChipsRow.tsx # Horizontal category filter
+│   │   ├── HeaderBar.tsx        # Flexible header
+│   │   └── (shadcn components)
+│   ├── feedback/
+│   └── staff-management/
 ├── contexts/
-│   └── AuthContext.tsx         # Centralized auth state
+│   └── AuthContext.tsx
 ├── lib/
-│   ├── supabaseClient.ts       # Supabase client singleton
+│   ├── supabaseClient.ts
+│   ├── copy.ts                  # UI copy/microcopy
+│   ├── constants/
+│   │   └── effectTags.ts        # Categories, tags, field mappings
 │   └── api/
-│       ├── auth.ts             # getCurrentUserProfile()
-│       ├── budtenders.ts       # Budtender CRUD
-│       ├── categories.ts       # Category queries
-│       └── picks.ts            # Pick CRUD
+│       ├── picks.ts
+│       ├── budtenders.ts
+│       ├── categories.ts
+│       └── staff-management.ts
 ├── views/
-│   ├── CustomerView.tsx        # Read-only display mode
-│   ├── StaffView.tsx           # Edit mode
-│   └── StaffManagementView.tsx # Manager-only staff CRUD
+│   ├── MyPicksView.tsx          # Staff home (/)
+│   ├── DisplayModeView.tsx      # Public display (/display)
+│   └── StaffManagementView.tsx  # Team management (/team)
 ├── types/
-│   ├── database.ts             # Generated Supabase types
-│   └── index.ts                # Barrel exports
+│   ├── database.ts              # Supabase types
+│   └── pickDraft.ts             # Form state type
 └── styles/
-    └── theme.css               # Radix Colors semantic tokens
+    └── theme.css
 ```
 
 ---
@@ -294,5 +384,5 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 
 ---
 
-**Last Updated:** 2025-11-25
+**Last Updated:** 2025-11-28 (v2.1)
 

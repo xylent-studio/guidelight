@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getRememberMe, setRememberMe } from '@/lib/supabaseClient';
-import { LogIn } from 'lucide-react';
+import { LogIn, Monitor } from 'lucide-react';
 import { auth } from '@/lib/copy';
 
 interface LoginPageProps {
@@ -62,20 +63,17 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-bg-app flex items-center justify-center px-4">
-      <Card className="w-full max-w-md bg-bg-surface border-border-subtle">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <Card className="w-full max-w-md bg-card border-border">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-text-default">
-            {auth.login.title}
+          <CardTitle className="text-2xl font-bold text-foreground">
+            Staff login
           </CardTitle>
-          <CardDescription className="text-text-muted">
-            {auth.login.subtitle}
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-text-default">
+              <Label htmlFor="email" className="text-foreground">
                 Email
               </Label>
               <Input
@@ -85,14 +83,14 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                className="bg-bg-app border-border-subtle"
+                className="bg-background border-border"
                 autoComplete="email"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-text-default">
+              <Label htmlFor="password" className="text-foreground">
                 Password
               </Label>
               <PasswordInput
@@ -101,7 +99,7 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
-                className="bg-bg-app border-border-subtle"
+                className="bg-background border-border"
                 autoComplete="current-password"
                 required
               />
@@ -114,11 +112,11 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
                 checked={rememberMe}
                 onChange={(e) => handleRememberMeChange(e.target.checked)}
                 disabled={loading}
-                className="h-4 w-4 rounded border-border-subtle text-primary focus:ring-primary focus:ring-offset-bg-app"
+                className="h-4 w-4 rounded border-border text-primary focus:ring-primary focus:ring-offset-background"
               />
               <Label 
                 htmlFor="remember-me" 
-                className="text-sm text-text-muted cursor-pointer select-none"
+                className="text-sm text-muted-foreground cursor-pointer select-none"
               >
                 Remember me on this device
               </Label>
@@ -147,19 +145,26 @@ export function LoginPage({ onForgotPassword }: LoginPageProps) {
             </Button>
           </form>
 
-          <div className="mt-6 text-center space-y-3">
+          <div className="mt-4 text-center">
             {onForgotPassword && (
               <button
                 type="button"
                 onClick={onForgotPassword}
                 className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors"
               >
-                Forgot your password?
+                Forgot password?
               </button>
             )}
-            <p className="text-xs text-text-muted">
-              {auth.login.helpText}
-            </p>
+          </div>
+
+          {/* Guest/Kiosk access */}
+          <div className="mt-6 pt-6 border-t border-border">
+            <Link to="/display">
+              <Button variant="outline" className="w-full" size="lg">
+                <Monitor size={18} className="mr-2" />
+                Guest / Kiosk view
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>

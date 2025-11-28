@@ -9,9 +9,10 @@
  */
 
 // =============================================================================
-// LANDING / APP SHELL
+// DEPRECATED: LANDING / APP SHELL (v2.x no longer uses this)
 // =============================================================================
 
+/** @deprecated Not used in v2.x routing */
 export const landing = {
   badge: 'STATE OF MIND · GUIDELIGHT v1',
   title: 'For the people behind the counter',
@@ -24,9 +25,10 @@ export const landing = {
 };
 
 // =============================================================================
-// MODE TOGGLE CARDS
+// DEPRECATED: MODE TOGGLE CARDS (v2.x uses React Router instead)
 // =============================================================================
 
+/** @deprecated Not used in v2.x routing */
 export const modeToggle = {
   customer: {
     title: 'Customer View',
@@ -39,10 +41,11 @@ export const modeToggle = {
 };
 
 // =============================================================================
-// CUSTOMER VIEW
+// CUSTOMER VIEW (partially deprecated - budtenderSelector not used in v2.x)
 // =============================================================================
 
 export const customerView = {
+  /** @deprecated Not used in DisplayModeView v2.x */
   budtenderSelector: {
     heading: 'Budtenders & their picks',
     subtext: 'Real people. Real lineups.',
@@ -83,7 +86,9 @@ export const staffView = {
 // =============================================================================
 
 export const staffManagement = {
+  /** @deprecated Header is hardcoded as "Team" in v2.x */
   heading: 'Staff Management',
+  /** @deprecated Removed in v2.x - no explanatory subtitles */
   subtext: 'Invite new teammates, tune their profiles, and control who can log in.',
   stats: {
     totalStaff: 'Total Staff',
@@ -109,8 +114,11 @@ export const staffManagement = {
 
 export const auth = {
   login: {
+    /** @deprecated v2.x uses hardcoded "Staff login" */
     title: 'Sign in to Guidelight',
+    /** @deprecated Removed in v2.x - no subtitle */
     subtitle: 'State of Mind Staff Portal',
+    /** @deprecated Removed in v2.x - minimal help text */
     helpText: 'Need help? Ask your manager or ping the team.',
     error: "We couldn't sign you in. Double-check your email and try again.",
   },

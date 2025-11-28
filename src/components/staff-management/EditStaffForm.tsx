@@ -251,7 +251,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
                 disabled
                 className="bg-muted"
               />
-              <p className="text-xs text-text-muted">
+              <p className="text-xs text-muted-foreground">
                 Email cannot be changed after invite is sent.
               </p>
             </div>
@@ -311,26 +311,26 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
             </div>
           </div>
 
-          <p className="text-xs text-text-muted -mt-4">
+          <p className="text-xs text-muted-foreground -mt-4">
             Changing roles affects permissions immediately.
           </p>
 
           {/* Divider */}
           <div className="border-t border-border pt-4">
-            <h3 className="text-sm font-semibold text-text mb-4">Profile Details</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Profile Details</h3>
           </div>
 
           {/* My vibe (profile_vibe) */}
           <div className="space-y-3">
             <div>
               <Label htmlFor="edit-profileVibe">My vibe</Label>
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 A couple short lines about them and how they like to live &amp; light up. Mix real life (hometown, hobbies, pets) with how they sesh and the vibes they love.
               </p>
             </div>
             
-            <div className="p-3 bg-bg-soft border border-border rounded-md text-xs text-text-muted space-y-2">
-              <p className="font-medium text-text">Try one of these patterns (1–3 sentences is perfect):</p>
+            <div className="p-3 bg-card border border-border rounded-md text-xs text-muted-foreground space-y-2">
+              <p className="font-medium text-foreground">Try one of these patterns (1–3 sentences is perfect):</p>
               <ul className="list-disc list-inside space-y-1">
                 <li>"I'm a [hometown] [role/hobby] who loves [product type] for [kind of night]."</li>
                 <li>"When I'm not at SOM, I'm usually [hobby], and my go-tos are [product] for [situation]."</li>
@@ -357,9 +357,9 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
             </button>
 
             {showVibeExamples && (
-              <div className="p-3 bg-primary-soft/30 border border-primary/20 rounded-md text-xs space-y-2">
+              <div className="p-3 bg-accent/30 border border-primary/20 rounded-md text-xs space-y-2">
                 {VIBE_EXAMPLES.map((example, idx) => (
-                  <p key={idx} className="text-text-muted italic">"{example}"</p>
+                  <p key={idx} className="text-muted-foreground italic">"{example}"</p>
                 ))}
               </div>
             )}
@@ -369,7 +369,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
           <div className="space-y-3">
             <div>
               <Label htmlFor="edit-profileExpertise">Expertise</Label>
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 What are they best at helping people with? Think product types, effects, or goals where they're the go-to person.
               </p>
             </div>
@@ -389,7 +389,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
                   key={idx}
                   type="button"
                   onClick={() => setProfileExpertise(example)}
-                  className="px-2 py-1 text-xs bg-bg-soft border border-border rounded hover:border-primary hover:bg-primary-soft/20 transition-colors"
+                  className="px-2 py-1 text-xs bg-card border border-border rounded hover:border-primary hover:bg-accent/20 transition-colors"
                   disabled={loading}
                 >
                   {example}
@@ -402,7 +402,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
           <div className="space-y-3">
             <div>
               <Label htmlFor="edit-profileTolerance">Tolerance</Label>
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 How much they usually use and how strong they like things. Be honest — this helps customers understand how their picks compare to their level.
               </p>
             </div>
@@ -417,12 +417,12 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
                   disabled={loading}
                   className={`p-3 text-left border rounded-lg transition-all ${
                     selectedToleranceBand === band.id
-                      ? 'border-primary bg-primary-soft/30 ring-1 ring-primary'
-                      : 'border-border hover:border-primary/50 hover:bg-bg-soft'
+                      ? 'border-primary bg-accent/30 ring-1 ring-primary'
+                      : 'border-border hover:border-primary/50 hover:bg-card'
                   }`}
                 >
-                  <p className="font-medium text-sm text-text">{band.label}</p>
-                  <p className="text-xs text-text-muted mt-1">{band.description}</p>
+                  <p className="font-medium text-sm text-foreground">{band.label}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{band.description}</p>
                 </button>
               ))}
             </div>
@@ -438,7 +438,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
               }}
               disabled={loading}
             />
-            <p className="text-xs text-text-muted">
+            <p className="text-xs text-muted-foreground">
               Select a band above to get started, then edit the text to make it their own.
             </p>
           </div>
@@ -449,7 +449,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
               <button
                 type="button"
                 onClick={() => setShowPasswordSection(!showPasswordSection)}
-                className="flex items-center gap-2 text-sm font-semibold text-text hover:text-primary"
+                className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary"
               >
                 {showPasswordSection ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 <Key size={14} />
@@ -458,7 +458,7 @@ export function EditStaffForm({ open, onOpenChange, onSuccess, staff }: EditStaf
 
               {showPasswordSection && (
                 <div className="space-y-4 pl-4 border-l-2 border-border">
-                  <p className="text-xs text-text-muted">
+                  <p className="text-xs text-muted-foreground">
                     Directly set a new password for {staff.name}. They won't get an email — the new password just works.
                   </p>
 

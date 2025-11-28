@@ -102,7 +102,7 @@ export function ChangePasswordForm({ open, onOpenChange }: ChangePasswordFormPro
           <div className="py-6">
             <div className="bg-primary/10 border border-primary/20 rounded-md p-4 flex items-center justify-center gap-2">
               <Check size={18} className="text-primary" />
-              <p className="text-sm text-text font-medium">
+              <p className="text-sm text-foreground font-medium">
                 {auth.passwordChange.success}
               </p>
             </div>

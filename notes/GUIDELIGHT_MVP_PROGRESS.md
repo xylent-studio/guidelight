@@ -1,5 +1,95 @@
 # Guidelight MVP – Progress Log
 
+## 2025-11-28 · Category System Overhaul (v2.1)
+
+Fixed the confusing category/product_type UX and added comprehensive category support.
+
+### Schema Changes
+- **Added categories:** Deals, Tinctures, Accessories
+- **Removed category:** Wellness (picks moved to Tinctures)
+- **Added pick fields:**
+  - `strain_type` - indica/sativa/hybrid/cbd-dominant/balanced/n-a
+  - `intensity` - light/moderate/strong/heavy
+  - `format` - category-specific format (indoor, cart, gummy, badder, etc.)
+  - `one_liner` - short headline for display
+  - `custom_tags` - freeform tags (text array)
+  - `package_size`, `potency_summary`, `top_terpenes`, `is_infused`
+  - Deal-specific: `deal_title`, `deal_type`, `deal_value`, `deal_applies_to`, `deal_days`, `deal_fine_print`
+
+### UX Changes
+- **MyPicksView category tabs:** Added CategoryChipsRow for filtering picks by category
+- **Category context for Add Pick:** Clicking "Add pick" from a category tab pre-selects that category
+- **PickFormModal single draft state:** Switching categories no longer clears form data
+- **Effect tags (AIQ/Dispense style):** 17 curated tags with max 3 selection + unlimited custom tags
+- **Category-specific fields:** Show/hide based on selected category
+  - Deals: deal_type, deal_value, deal_applies_to, deal_days, deal_fine_print
+  - Flower/Pre-rolls: strain_type, format, package_size, potency, terpenes
+  - Vapes: format (cart/disposable/pod), potency
+  - etc.
+- **Removed product_type from UI:** Kept in DB for backward compatibility
+
+### Files Created
+- `src/lib/constants/effectTags.ts` - Curated effect tags and category field mappings
+- `src/types/pickDraft.ts` - PickDraft type for form state management
+
+### Migrations Applied
+- `add_new_categories` - Add Deals/Tinctures/Accessories, remove Wellness, migrate picks
+- `add_category_specific_fields` - Add all new pick columns
+
+---
+
+## 2025-11-28 · UX Overhaul v2.0
+
+Major UI/UX overhaul implementing the v9 spec documents. This is a breaking change that restructures the entire application.
+
+### Routing Migration
+- **Installed React Router** (`react-router-dom`) for proper URL-based navigation
+- **New route structure:**
+  - `/` → My Picks (protected, staff home)
+  - `/display` → Display Mode (public, no auth required)
+  - `/team` → Team Management (protected, manager only)
+  - `/login`, `/forgot-password`, `/reset-password`, `/accept-invite` → Auth flows
+- **Route guards:** Created `ProtectedRoute` and `ManagerRoute` components
+- **Guest access:** Added "View picks (Guest / Kiosk)" button on login page
+
+### New Views
+- **MyPicksView** - Simplified staff home with flat pick list (rating/recency sorted)
+- **ShowToCustomerOverlay** - Full-screen overlay (not a route) for showing picks to customers
+- **DisplayModeView** - Public house list showing top picks from all staff
+  - Staff selector to view individual budtender's picks
+  - Full profile visibility (vibe, expertise, tolerance)
+  - Responsive grid: 1 column (phone) → 2 columns (tablet) → 3 columns (POS)
+  - Guest indicator with login button
+
+### Component Library
+- **MyPickCard** - Staff-facing pick card with edit tap
+- **GuestPickCard** - Customer-facing read-only card with budtender attribution
+- **CategoryChipsRow** - Horizontal scrollable category filter (like Dispense)
+- **HeaderBar** - Flexible header with avatar/back button and overflow menu
+
+### PickFormModal Restructuring
+- Split into **Quick Info** (required) and **Optional Details** (collapsible)
+- Added tag chips with suggested tags + custom input
+- Hidden advanced fields (time_of_day, product_type, etc.) in UI but preserved in DB
+
+### Files Deleted
+- `src/views/CustomerView.tsx` → Replaced by DisplayModeView
+- `src/views/StaffView.tsx` → Replaced by MyPicksView
+- `src/components/layout/AppLayout.tsx` → Each view handles own layout
+- `src/components/layout/ModeToggle.tsx` → Replaced by React Router
+
+### Documentation
+- Deleted duplicate v7 spec files
+- Updated v9 specs with implementation decisions
+- Added deprecation notices to old docs pointing to new UX specs
+
+### Breaking Changes
+- Routes have changed (bookmarks will break)
+- Mode toggle removed (use routes instead)
+- Customer View renamed to Display Mode
+
+---
+
 ## 2025-11-19 · Step 1 – App Shell & Routing
 - Created feature branch `feature/guidelight-mvp` and scaffolded a Vite React+TS project (migrated files into repo root without touching existing docs).
 - Installed dependencies and added `.gitignore` for node artifacts/environment files.

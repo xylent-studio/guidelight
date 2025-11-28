@@ -7,15 +7,26 @@
 | Field | Value |
 |-------|-------|
 | **Status** | ✅ Active |
-| **Last Updated** | 2025-11-25 |
+| **Last Updated** | 2025-11-28 |
 | **Owner** | Xylent Studios |
 | **Audience** | Engineering |
 | **Purpose** | Technical architecture, data flow, API structure, security model, deployment |
-| **Version** | v1.0.0 |
+| **Version** | v2.0.0 |
 
 ---
 
-This document describes the planned technical architecture for Guidelight: how the app is structured, how it talks to Supabase, and how we organize code for maintainability and future growth.
+> **📋 UX Overhaul Completed (2025-11-28)**
+>
+> This document has been updated for the v2.0 UX overhaul:
+>
+> - **React Router** for URL-based navigation
+> - New route structure documented in Section 2.0
+> - **Display Mode** (`/display`) works without authentication
+> - For detailed UX specs, see `notes/251128_guidelight_ux_overhual/ai-dev/`
+
+---
+
+This document describes the technical architecture for Guidelight: how the app is structured, how it talks to Supabase, and how we organize code for maintainability and future growth.
 
 ## 1. High-Level Architecture
 
@@ -42,7 +53,25 @@ The app runs:
 
 ## 2. Frontend Structure
 
-Planned `src/` layout:
+### 2.0 Route Structure (v2.0+)
+
+The app uses **React Router** for URL-based navigation:
+
+| Route | Component | Auth Required | Description |
+|-------|-----------|---------------|-------------|
+| `/` | `MyPicksView` | ✅ Yes | Staff home - manage your picks |
+| `/display` | `DisplayModeView` | ❌ No | Public house list for POS/kiosk |
+| `/team` | `StaffManagementView` | ✅ Manager only | Staff & feedback management |
+| `/login` | `LoginPage` | ❌ No | Sign in |
+| `/forgot-password` | `ForgotPasswordPage` | ❌ No | Password recovery |
+| `/reset-password` | `ResetPasswordPage` | ❌ No | Set new password |
+| `/accept-invite` | `AcceptInvitePage` | ❌ No | New staff onboarding |
+
+**Route Guards:**
+- `ProtectedRoute` - Redirects to `/login` if not authenticated
+- `ManagerRoute` - Redirects to `/` if not a manager
+
+### 2.1 Directory Layout
 
 ```text
 src/
@@ -57,22 +86,21 @@ src/
       feedback.ts       # Feedback submission and management
       staff-management.ts
   components/
-    ui/               # shadcn/ui components (Button, Card, Input, etc.)
-    layout/           # AppLayout, ModeToggle
-    budtenders/
-    picks/
+    auth/             # ProtectedRoute, ManagerRoute, LoginPage, etc.
+    ui/               # shadcn/ui components + CategoryChipsRow, HeaderBar
+    picks/            # MyPickCard, GuestPickCard, ShowToCustomerOverlay, PickFormModal
     feedback/         # FeedbackButton, FeedbackModal, FeedbackList
-    staff-management/
-    shared/
+    staff-management/ # InviteStaffForm, EditStaffForm, DeleteStaffDialog
   contexts/
     AuthContext.tsx   # Authentication state provider
+    ThemeContext.tsx  # Light/dark/system theme
   styles/
-    theme.css         # Radix Colors + semantic design tokens
+    theme.css         # HSL color tokens for light/dark modes
   views/
-    CustomerView.tsx
-    StaffView.tsx
-    StaffManagementView.tsx
-  App.tsx
+    MyPicksView.tsx          # Staff home (/)
+    DisplayModeView.tsx      # Public display (/display)
+    StaffManagementView.tsx  # Team management (/team)
+  App.tsx             # Router setup and route definitions
   main.tsx
   index.css           # Tailwind imports + global styles
 ```
@@ -81,22 +109,27 @@ src/
 
 **Tailwind CSS** serves as the base utility system for all styling:
 - Imported via `@import 'tailwindcss'` in `src/index.css`
-- Configured in `tailwind.config.js` with semantic color mappings
+- Configured in `tailwind.config.js` with Guidelight-specific color extensions
 
 **shadcn/ui** provides accessible, composable React components:
 - All UI primitives live in `src/components/ui/` (Button, Card, Input, Label, Textarea, Select, Switch, Badge, Tabs, etc.)
 - Built on Radix UI primitives with Tailwind styling
 - Installed via `npx shadcn@latest add <component>`
 
-**Radix Colors** defines the base color palette:
-- Semantic tokens defined in `src/styles/theme.css`:
-  - **Neutrals:** `slate` (backgrounds, surfaces, text, borders)
-  - **Primary:** `jade` (brand accent, active states, CTAs)
-  - Tokens: `--gl-bg`, `--gl-bg-soft`, `--gl-surface`, `--gl-border`, `--gl-text`, `--gl-text-muted`, `--gl-primary`, `--gl-primary-soft`, `--gl-primary-foreground`, `--gl-accent`
-- Exposed as Tailwind utilities: `bg-surface`, `text-muted`, `bg-primary`, `border-border`, etc.
+**HSL-based custom color system:**
+- Base HSL values defined in `src/styles/theme.css` using `--gl-*` CSS variables
+- Mapped to shadcn standard token names in `src/index.css` (`--background`, `--foreground`, `--card`, `--primary`, etc.)
+- **Palette:**
+  - **Neutrals:** Warm cream (light mode) / Forest-tinted blacks (dark mode)
+  - **Primary:** Forest green (Hue 155) — natural leaf green, never neon
+  - **Accent:** Gold/champagne for ratings and highlights
+- **Tailwind usage:** Use shadcn standard names: `bg-background`, `text-foreground`, `bg-card`, `bg-muted`, `border-border`, `bg-primary`, `bg-accent`
+- Guidelight-specific extensions for stars (`text-star-filled`) and chips (`bg-chip-selected-bg`)
 - Designed for both POS displays (high contrast, large touch targets) and mobile devices (responsive, scrollable)
 
-For detailed token reference, see `docs/GUIDELIGHT_DESIGN_SYSTEM.md`.
+For detailed token reference, see:
+- [`docs/GUIDELIGHT_DESIGN_SYSTEM.md`](./GUIDELIGHT_DESIGN_SYSTEM.md) — Color tokens, typography, spacing
+- [`docs/UI_STACK.md`](./UI_STACK.md) — Component library, usage patterns
 
 ### 2.2 Auth & User Context
 

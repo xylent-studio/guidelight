@@ -1,8 +1,36 @@
 # Guidelight MVP: Critical Decisions Log
 
-**Last Updated:** 2025-11-25
+**Last Updated:** 2025-11-28
 
 This document captures key architectural and implementation decisions made during MVP planning to ensure consistency across all team members and future development.
+
+---
+
+## Category System (v2.1)
+
+### Decision: Category vs Product Type Unification
+**Date:** 2025-11-28  
+**Context:** The `product_type` field duplicated category selection, confusing users. When clicking "Add Pick" from a category tab, users had to re-select the category AND choose a product type that was basically the same list.  
+**Decision:** Remove `product_type` from UI, keep in DB for backward compatibility. Category is the single source of truth for pick classification.  
+**Rationale:** Matches mental model ("I'm adding a pre-roll") and reduces form complexity. Staff shouldn't have to make the same choice twice.
+
+### Decision: Wellness Category Removal
+**Date:** 2025-11-28  
+**Context:** Wellness category had no clear real-world menu equivalent. Existing Wellness picks were tinctures.  
+**Decision:** Remove Wellness, add Tinctures/Accessories/Deals. Migrate existing Wellness picks to Tinctures.  
+**Rationale:** Aligns with actual dispensary menu structure and enables deal-specific functionality.
+
+### Decision: Single Draft State for Category Switching
+**Date:** 2025-11-28  
+**Context:** Users might accidentally select wrong category and lose form data when switching back.  
+**Decision:** Use single PickDraft state object. Category changes only update `category_id`, not clear other fields.  
+**Rationale:** No data loss on category switch. If user fills Pre-roll fields, switches to Deals by mistake, then back to Pre-roll, all Pre-roll fields are still there.
+
+### Decision: Effect Tags (Curated + Custom)
+**Date:** 2025-11-28  
+**Context:** Need balance between consistency (for filtering/display) and flexibility (for seasonal/fun tags).  
+**Decision:** Two tag systems: (1) Curated effect tags - max 3, from 17-tag list based on AIQ/Dispense patterns. (2) Custom tags - unlimited freeform chips.  
+**Rationale:** Curated tags ensure consistent UX like industry leaders. Custom tags let budtenders express personality ("Bills game", "420 special").
 
 ---
 

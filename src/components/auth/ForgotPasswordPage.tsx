@@ -57,24 +57,24 @@ export function ForgotPasswordPage({ onBackToLogin }: ForgotPasswordPageProps) {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-bg-app flex items-center justify-center px-4">
-        <Card className="w-full max-w-md bg-bg-surface border-border-subtle">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <Card className="w-full max-w-md bg-card border-border">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-text-default">
+            <CardTitle className="text-2xl font-bold text-foreground">
               Check your email
             </CardTitle>
-            <CardDescription className="text-text-muted">
+            <CardDescription className="text-muted-foreground">
               If an account exists for {email}, we've sent a password reset link.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="bg-primary/10 border border-primary/20 rounded-md p-4">
-              <p className="text-sm text-text-default">
+              <p className="text-sm text-foreground">
                 Click the link in the email to reset your password. The link will expire in 24 hours.
               </p>
             </div>
             
-            <p className="text-sm text-text-muted">
+            <p className="text-sm text-muted-foreground">
               Didn't receive an email? Check your spam folder or make sure you entered the correct email address.
             </p>
 
@@ -104,20 +104,20 @@ export function ForgotPasswordPage({ onBackToLogin }: ForgotPasswordPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-bg-app flex items-center justify-center px-4">
-      <Card className="w-full max-w-md bg-bg-surface border-border-subtle">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <Card className="w-full max-w-md bg-card border-border">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-text-default">
+          <CardTitle className="text-2xl font-bold text-foreground">
             Forgot your password?
           </CardTitle>
-          <CardDescription className="text-text-muted">
+          <CardDescription className="text-muted-foreground">
             Enter your email address and we'll send you a link to reset your password.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-text-default">
+              <Label htmlFor="email" className="text-foreground">
                 Email address
               </Label>
               <Input
@@ -127,7 +127,7 @@ export function ForgotPasswordPage({ onBackToLogin }: ForgotPasswordPageProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                className="bg-bg-app border-border-subtle"
+                className="bg-background border-border"
                 autoComplete="email"
                 autoFocus
                 required

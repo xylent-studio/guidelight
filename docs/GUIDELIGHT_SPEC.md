@@ -6,12 +6,26 @@
 
 | Field | Value |
 |-------|-------|
-| **Status** | ✅ Active |
-| **Last Updated** | 2025-11-25 |
+| **Status** | ⚠️ Partially Superseded |
+| **Last Updated** | 2025-11-28 |
 | **Owner** | Xylent Studios |
 | **Audience** | Product, Engineering, State of Mind Staff |
 | **Purpose** | Complete product specification: features, user flows, data model, permissions, UX guidelines |
 | **Version** | v1.0.0 (MVP Complete) |
+
+---
+
+> **📋 UX Overhaul Notice (2025-11-28)**
+>
+> The UX/UI portions of this spec are being superseded by the v9 UX overhaul documentation:
+>
+> - **UX Principles:** `notes/251128_guidelight_ux_overhual/ai-dev/01_GUIDELIGHT_UX_PRINCIPLES_AND_CONTEXT.md`
+> - **Information Architecture:** `notes/251128_guidelight_ux_overhual/ai-dev/02_GUIDELIGHT_INFORMATION_ARCHITECTURE.md`
+> - **My Picks & Show to Customer:** `notes/251128_guidelight_ux_overhual/ai-dev/03_SCREEN_SPECS_STAFF_MOBILE_MY_PICKS_AND_SHOW.md`
+> - **Display Mode:** `notes/251128_guidelight_ux_overhual/ai-dev/04_SCREEN_SPECS_CUSTOMER_DISPLAY_MODE.md`
+> - **Team & Auth:** `notes/251128_guidelight_ux_overhual/ai-dev/05_TEAM_AND_AUTH_SPEC.md`
+>
+> The **data model** and **permissions** sections in this document remain authoritative.
 
 ---
 

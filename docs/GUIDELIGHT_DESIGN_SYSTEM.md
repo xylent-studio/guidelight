@@ -1,9 +1,13 @@
 # Guidelight Design System
 
-**Last Updated:** 2025-11-25  
-**Version:** 1.4.0
+**Last Updated:** 2025-11-28  
+**Version:** 1.5.0
 
 Guidelight's UI layer is built with **Tailwind CSS**, **shadcn/ui**, and a **custom HSL color system** to ensure consistent, accessible styling across Staff and Customer views. This document is the **single source of truth** for all design tokens (colors, typography, spacing, radii, shadows) and the shared component patterns that keep the app POS-friendly.
+
+> **Quick Links:**  
+> - [UI Stack Reference](./UI_STACK.md) — Component library, usage patterns  
+> - [Architecture Overview](./ARCHITECTURE_OVERVIEW.md) — System structure
 
 ---
 
@@ -155,31 +159,40 @@ These tokens are derived from the base palette and used for specific UI patterns
 
 ### 2.5 Tailwind Usage
 
-Colors are exposed as Tailwind utilities via `tailwind.config.js`:
+We use **shadcn's standard token names** for consistency. Colors are mapped in `src/index.css`:
 
 ```tsx
-// Backgrounds
-<div className="bg-bg-app">          {/* App shell */}
-<div className="bg-bg-surface">      {/* Cards */}
-<div className="bg-bg-elevated">     {/* Lifted panels */}
+// Backgrounds (shadcn standard)
+<div className="bg-background">      {/* App shell */}
+<div className="bg-card">            {/* Cards, surfaces */}
+<div className="bg-muted">           {/* Elevated/muted panels */}
 
-// Text
-<p className="text-text-default">    {/* Primary text */}
-<p className="text-text-muted">      {/* Secondary text */}
+// Text (shadcn standard)
+<p className="text-foreground">      {/* Primary text */}
+<p className="text-muted-foreground">{/* Secondary text */}
 
 // Primary colors
-<button className="bg-primary text-btn-primary-text hover:bg-primary-hover">
-<div className="bg-primary-soft">    {/* Selected state */}
+<Button variant="default">           {/* Primary button - use component */}
+<div className="bg-accent">          {/* Selected state */}
 
-// Stars
+// Borders
+<div className="border-border">      {/* Standard border */}
+
+// Stars (Guidelight-specific)
 <Star className="text-star-filled" />
 <Star className="text-star-half" />
 <Star className="text-star-empty" />
 
+// Category Chips (Guidelight-specific)
+<div className="bg-chip-selected-bg border-chip-selected-border">
+<div className="bg-chip-unselected-bg border-chip-unselected-border">
+
 // With alpha values
 <div className="bg-primary/50">      {/* 50% opacity */}
-<div className="border-border-subtle/80">
+<div className="border-border/80">
 ```
+
+> **See also:** [`docs/UI_STACK.md`](./UI_STACK.md) for the complete component reference.
 
 ### 2.6 Theme Implementation
 
@@ -299,13 +312,13 @@ Built with **shadcn/ui** (Radix primitives + Tailwind):
 
 **Pick Card (Customer View):**
 ```tsx
-<Card className="bg-bg-surface border-border-subtle hover:border-primary transition-colors">
+<Card className="bg-card border-border hover:border-primary transition-colors">
   <CardHeader>
-    <CardTitle className="text-text-default">Product Name</CardTitle>
+    <CardTitle className="text-foreground">Product Name</CardTitle>
     <StarRating value={4.5} readonly />
   </CardHeader>
   <CardContent>
-    <p className="text-text-muted">Brand • Category</p>
+    <p className="text-muted-foreground">Brand • Category</p>
   </CardContent>
 </Card>
 ```
@@ -321,6 +334,8 @@ Built with **shadcn/ui** (Radix primitives + Tailwind):
   {label}
 </button>
 ```
+
+> **Note:** For standard UI elements (buttons, cards, inputs), always use the installed shadcn components. See [`docs/UI_STACK.md`](./UI_STACK.md) for the full component catalog.
 
 ---
 
