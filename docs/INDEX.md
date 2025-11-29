@@ -1,6 +1,6 @@
 # Guidelight Documentation Index
 
-**Last Updated:** 2025-11-28  
+**Last Updated:** 2025-11-29  
 **Maintainer:** Xylent Studios
 
 This is the central hub for all Guidelight project documentation. If you're new to the project, start with the **Getting Started** section below.
@@ -60,12 +60,22 @@ This is the central hub for all Guidelight project documentation. If you're new 
 | [QUICK_START.md](../QUICK_START.md) | Quick reference for deployment and local development | Engineering | ✅ Active | 2025-11-25 |
 | [CHANGELOG.md](../CHANGELOG.md) | Version history and release notes | All | ✅ Active | 2025-11-25 |
 
+### **vNEXT Implementation (v2.2 - Boards + Drafts)**
+| Document | Purpose | Audience | Status | Last Updated |
+|----------|---------|----------|--------|--------------|
+| [guidelight_vNEXT_implementation/](./guidelight_vNEXT_implementation/) | Session-based implementation roadmap (21 sessions) | AI Agents, Engineering | 🚧 In Progress | 2025-11-29 |
+| [guidelight_vNEXT_implementation/00_OVERVIEW.md](./guidelight_vNEXT_implementation/00_OVERVIEW.md) | Roadmap overview, status tracker, key decisions | AI Agents, Engineering | 🚧 In Progress | 2025-11-29 |
+| [guidelight_vNEXT_implementation/SESSION_LOG.md](./guidelight_vNEXT_implementation/SESSION_LOG.md) | Progress tracking between sessions | AI Agents | 🚧 In Progress | 2025-11-29 |
+| [guidelight_ux_docs_bundle_vNEXT/](./guidelight_ux_docs_bundle_vNEXT/) | Product specs for Boards + Drafts layer (18 docs) | Product, Engineering | 📋 Reference | 2025-11-29 |
+
 ### **Future Features (Post-MVP)**
 | Document | Purpose | Audience | Status | Last Updated |
 |----------|---------|----------|--------|--------------|
 | [NEXT_STEPS.md](../NEXT_STEPS.md) | Post-v1.0.0 roadmap: 20 prioritized enhancements | Engineering, Product | ✅ Active | 2025-11-25 |
-| [BUDTENDER_PICKS_BOARD_SPEC.md](./BUDTENDER_PICKS_BOARD_SPEC.md) | Product spec for customer-facing board feature | Product, Design | 📋 Future | Pre-MVP |
-| [BUDTENDER_PICKS_BOARD_TECH_DESIGN.md](./BUDTENDER_PICKS_BOARD_TECH_DESIGN.md) | Technical design for board feature implementation | Engineering | 📋 Future | Pre-MVP |
+| [BUDTENDER_PICKS_BOARD_SPEC.md](./BUDTENDER_PICKS_BOARD_SPEC.md) | Product spec for customer-facing board feature | Product, Design | 🗄️ Superseded | Pre-MVP |
+| [BUDTENDER_PICKS_BOARD_TECH_DESIGN.md](./BUDTENDER_PICKS_BOARD_TECH_DESIGN.md) | Technical design for board feature implementation | Engineering | 🗄️ Superseded | Pre-MVP |
+
+> **Note:** The `BUDTENDER_PICKS_BOARD_*` docs are superseded by `guidelight_ux_docs_bundle_vNEXT/` but kept for historical reference.
 
 ### **Archived / Superseded**
 | Document | Purpose | Status | Superseded By |
@@ -88,9 +98,16 @@ This is the central hub for all Guidelight project documentation. If you're new 
 - **Why we made decision X** → [MVP_CRITICAL_DECISIONS.md](../notes/MVP_CRITICAL_DECISIONS.md)
 
 ### "I need to implement..."
-- **Feature X** → [GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md](../notes/GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md)
+- **Feature X (MVP)** → [GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md](../notes/GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md)
+- **vNEXT (Boards/Drafts)** → [guidelight_vNEXT_implementation/00_OVERVIEW.md](./guidelight_vNEXT_implementation/00_OVERVIEW.md)
 - **Auth flow** → [ARCHITECTURE_OVERVIEW.md § 2.2](./ARCHITECTURE_OVERVIEW.md) + [DEV_QUICK_REFERENCE.md § Auth Patterns](../notes/DEV_QUICK_REFERENCE.md)
 - **UI component** → [UI_STACK.md](./UI_STACK.md) (component catalog) + [GUIDELIGHT_DESIGN_SYSTEM.md](./GUIDELIGHT_DESIGN_SYSTEM.md) (colors)
+
+### "I'm an AI agent working on vNEXT..."
+- **Start here** → [guidelight_vNEXT_implementation/00_OVERVIEW.md](./guidelight_vNEXT_implementation/00_OVERVIEW.md) (read "For New Agents" section)
+- **Check progress** → [guidelight_vNEXT_implementation/SESSION_LOG.md](./guidelight_vNEXT_implementation/SESSION_LOG.md)
+- **Understand decisions** → [guidelight_vNEXT_implementation/CONFLICTS_AND_DECISIONS.md](./guidelight_vNEXT_implementation/CONFLICTS_AND_DECISIONS.md)
+- **Product specs** → [guidelight_ux_docs_bundle_vNEXT/](./guidelight_ux_docs_bundle_vNEXT/)
 
 ### "I'm stuck with..."
 - **Code pattern** → [DEV_QUICK_REFERENCE.md](../notes/DEV_QUICK_REFERENCE.md)
@@ -120,18 +137,27 @@ guidelight/
 │
 ├── docs/                                  # Core documentation
 │   ├── INDEX.md                           # ← You are here
-│   ├── USER_GUIDE_STAFF.md                # ✨ Budtender onboarding guide
-│   ├── USER_GUIDE_MANAGER.md              # ✨ Manager admin guide
+│   ├── USER_GUIDE_STAFF.md                # Budtender onboarding guide
+│   ├── USER_GUIDE_MANAGER.md              # Manager admin guide
 │   ├── GUIDELIGHT_SPEC.md                 # Product specification
 │   ├── ARCHITECTURE_OVERVIEW.md           # Technical architecture
 │   ├── GUIDELIGHT_DESIGN_SYSTEM.md        # Design system
-│   ├── UI_STACK.md                        # ✨ Component library reference
+│   ├── UI_STACK.md                        # Component library reference
 │   ├── AI_ASSISTANCE.md                   # AI tooling guide
 │   ├── GUIDELIGHT_DEV_AGENT.md            # Cursor agent instructions
-│   ├── BUDTENDER_PICKS_BOARD_SPEC.md      # Future feature spec
-│   ├── BUDTENDER_PICKS_BOARD_TECH_DESIGN.md  # Future feature tech design
-│   └── screenshots/                       # ✨ MVP screenshot gallery
-│       └── README.md                      # Screenshot documentation
+│   ├── BUDTENDER_PICKS_BOARD_SPEC.md      # (Superseded by vNEXT)
+│   ├── BUDTENDER_PICKS_BOARD_TECH_DESIGN.md  # (Superseded by vNEXT)
+│   ├── screenshots/                       # MVP screenshot gallery
+│   │   └── README.md
+│   ├── guidelight_vNEXT_implementation/   # ✨ vNEXT implementation roadmap
+│   │   ├── 00_OVERVIEW.md                 # Roadmap, status, key decisions
+│   │   ├── 00_SESSION_SPEC_ALIGNMENT.md   # Session 00 spec
+│   │   ├── 01-20_SESSION_*.md             # Session specs (21 sessions)
+│   │   ├── CONFLICTS_AND_DECISIONS.md     # Decisions, issues
+│   │   └── SESSION_LOG.md                 # Progress tracking
+│   └── guidelight_ux_docs_bundle_vNEXT/   # ✨ vNEXT product specs
+│       ├── 00_README.md                   # Bundle overview
+│       └── 01-18_*.md                     # Product specs (18 docs)
 │
 ├── notes/                                 # Planning, decisions, logs
 │   ├── GUIDELIGHT_MVP_IMPLEMENTATION_PLAN.md  # MVP plan (completed)

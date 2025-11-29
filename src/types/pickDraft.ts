@@ -47,6 +47,10 @@ export interface PickDraft {
   // Legacy fields (preserved for backward compatibility)
   product_type: string;
   time_of_day: string;
+  
+  // Visibility control - which fields are shown to customers
+  // NULL/empty = use defaults from DEFAULT_VISIBLE_FIELDS
+  visible_fields: string[];
 }
 
 /**
@@ -80,6 +84,8 @@ export function createEmptyDraft(categoryId: string = ''): PickDraft {
     // Legacy defaults
     product_type: 'flower',
     time_of_day: 'Anytime',
+    // Visibility - empty array means use defaults
+    visible_fields: [],
   };
 }
 
@@ -112,6 +118,7 @@ export function pickToDraft(pick: {
   deal_fine_print: string | null;
   product_type: string;
   time_of_day: string;
+  visible_fields: string[] | null;
 }): PickDraft {
   return {
     id: pick.id,
@@ -139,6 +146,7 @@ export function pickToDraft(pick: {
     deal_fine_print: pick.deal_fine_print ?? '',
     product_type: pick.product_type,
     time_of_day: pick.time_of_day,
+    visible_fields: pick.visible_fields ?? [],
   };
 }
 
@@ -173,6 +181,10 @@ export function draftToPickData(draft: PickDraft, budtenderId: string) {
     // Legacy fields
     product_type: draft.product_type,
     time_of_day: draft.time_of_day,
+    // Visibility - empty array stored as null (use defaults)
+    visible_fields: draft.visible_fields.length > 0 ? draft.visible_fields : null,
   };
 }
+
+
 

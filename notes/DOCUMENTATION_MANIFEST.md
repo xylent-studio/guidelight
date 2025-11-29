@@ -2,8 +2,8 @@
 
 **Purpose:** Single source of truth for documentation status. Read this first when entering the repo.
 
-**Last Updated:** 2025-11-28  
-**Current Version:** v2.1.0
+**Last Updated:** 2025-11-29  
+**Current Version:** v2.1.0 (vNEXT v2.2 Ready for Implementation)
 
 ---
 
@@ -98,6 +98,51 @@
 
 ---
 
+## vNEXT Implementation (v2.2 - Boards + Drafts)
+
+**Location:** `docs/guidelight_vNEXT_implementation/`  
+**Status:** 🚧 Ready for Implementation
+
+| File | Purpose | Status |
+|------|---------|--------|
+| `PRE_IMPLEMENTATION_CHECKLIST.md` | Pre-flight checks, tool reference | ✅ Ready |
+| `00_OVERVIEW.md` | Roadmap, status tracker, key decisions | ✅ Ready |
+| `00_SESSION_SPEC_ALIGNMENT.md` | Session 00: Spec + Code Alignment (no code) | ⬜ Not Started |
+| `01_SESSION_CORE_TABLES.md` | Session 01: boards, board_items, pick_drafts tables | ⬜ Not Started |
+| `02_SESSION_USER_PREFS_PICKS_SCHEMA.md` | Session 02: user_preferences, picks schema updates | ⬜ Not Started |
+| `03_SESSION_AUTO_BOARDS.md` | Session 03: Auto board creation | ⬜ Not Started |
+| `04_SESSION_BOARDS_HOME.md` | Session 04: BoardsHomeView | ⬜ Not Started |
+| `05_SESSION_BOARD_CANVAS_READONLY.md` | Session 05: Board canvas read-only | ⬜ Not Started |
+| `06_SESSION_BOARD_CANVAS_DRAGDROP.md` | Session 06: Drag & drop | ⬜ Not Started |
+| `07_SESSION_ADD_PICK_TO_BOARD.md` | Session 07: Add pick to board | ⬜ Not Started |
+| `08_SESSION_TEXT_BLOCK_BOARD_CRUD.md` | Session 08: Text blocks, board CRUD | ⬜ Not Started |
+| `09_SESSION_PICK_DRAFTS_API.md` | Session 09: Pick drafts API | ⬜ Not Started |
+| `10_SESSION_PICKFORM_DRAFTS.md` | Session 10: PickFormModal drafts | ⬜ Not Started |
+| `11_SESSION_MYPICKS_DRAFTS.md` | Session 11: My Picks drafts integration | ⬜ Not Started |
+| `12_SESSION_VISIBLE_FIELDS.md` | Session 12: Visible fields system | ⬜ Not Started |
+| `13_SESSION_DISPLAY_BOARDS.md` | Session 13: Display Mode boards | ⬜ Not Started |
+| `14_SESSION_BOARD_SELECTOR.md` | Session 14: Board selector | ⬜ Not Started |
+| `15_SESSION_PRODUCTS_TABLE.md` | Session 15: Products table | ⬜ Not Started |
+| `16_SESSION_PRODUCT_SELECTION.md` | Session 16: Product selection in picks | ⬜ Not Started |
+| `17_SESSION_PROFILE_MENU.md` | Session 17: Profile menu | ⬜ Not Started |
+| `18_SESSION_USER_PREFS.md` | Session 18: User preferences persistence | ⬜ Not Started |
+| `19_SESSION_RELEASES.md` | Session 19: Releases + What's New | ⬜ Not Started |
+| `20_SESSION_ACTIVITY_EVENTS.md` | Session 20: Activity events | ⬜ Not Started |
+| `CONFLICTS_AND_DECISIONS.md` | Enum conflicts, semantic decisions, known issues | ✅ Ready |
+| `SESSION_LOG.md` | Progress tracking between sessions | ✅ Ready |
+
+### vNEXT Source Docs
+
+**Location:** `docs/guidelight_ux_docs_bundle_vNEXT/`
+
+| File | Status |
+|------|--------|
+| `00_README.md` | ✅ Updated with implementation status |
+| `09_DECISION_LOG_AND_REFINEMENTS.md` | ✅ Updated with DB enum reality |
+| Other files | 📋 Reference for implementation |
+
+---
+
 ## Key Implementation Files
 
 ### Views
@@ -125,4 +170,6 @@ When you complete significant work:
 2. Update file status if changed
 3. Add new key files if created
 4. Update the version number
+
+
 

@@ -5,14 +5,16 @@ import { Plus, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { HeaderBar } from '@/components/ui/HeaderBar';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { ProfileMenu } from '@/components/layout/ProfileMenu';
 import { CategoryChipsRow } from '@/components/ui/CategoryChipsRow';
 import { MyPickCard } from '@/components/picks/MyPickCard';
 import { ShowToCustomerOverlay } from '@/components/picks/ShowToCustomerOverlay';
-import { PickFormModal } from '@/components/picks';
+import { PickFormModal, DraftCard } from '@/components/picks';
 import { FeedbackButton } from '@/components/feedback';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCategories } from '@/lib/api/categories';
 import { getPicksForBudtender } from '@/lib/api/picks';
+import { getUserDrafts, deleteDraft, type PickDraftRow } from '@/lib/api/drafts';
 import type { Database } from '@/types/database';
 
 type Category = Database['public']['Tables']['categories']['Row'];
@@ -30,6 +32,7 @@ export function MyPicksView() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [picks, setPicks] = useState<Pick[]>([]);
+  const [drafts, setDrafts] = useState<PickDraftRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,9 +43,17 @@ export function MyPicksView() {
   const [formMode, setFormMode] = useState<FormMode>('closed');
   const [editingPick, setEditingPick] = useState<Pick | null>(null);
   const [formCategoryId, setFormCategoryId] = useState<string>('');
+  const [resumingDraft, setResumingDraft] = useState<PickDraftRow | null>(null);
 
   // Show to customer overlay
   const [showCustomerOverlay, setShowCustomerOverlay] = useState(false);
+
+  // Load drafts
+  const loadDrafts = useCallback(async () => {
+    if (!profile) return;
+    const userDrafts = await getUserDrafts();
+    setDrafts(userDrafts);
+  }, [profile]);
 
   // Load data
   const loadData = useCallback(async () => {
@@ -72,13 +83,16 @@ export function MyPicksView() {
       });
       
       setPicks(sortedPicks);
+      
+      // Also load drafts
+      await loadDrafts();
     } catch (err) {
       console.error('Error loading data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
       setLoading(false);
     }
-  }, [profile]);
+  }, [profile, loadDrafts]);
 
   useEffect(() => {
     loadData();
@@ -101,18 +115,41 @@ export function MyPicksView() {
   const handleEditPick = (pick: Pick) => {
     setFormCategoryId(pick.category_id);
     setEditingPick(pick);
+    setResumingDraft(null);
     setFormMode('edit');
+  };
+
+  // Resume editing a draft
+  const handleResumeDraft = (draft: PickDraftRow) => {
+    const draftData = draft.data as { category_id?: string } | null;
+    setFormCategoryId(draftData?.category_id || '');
+    setResumingDraft(draft);
+    setEditingPick(null);
+    // If draft has a pick_id, we're editing an existing pick
+    setFormMode(draft.pick_id ? 'edit' : 'add');
+  };
+
+  // Delete a draft from the list
+  const handleDeleteDraft = async (draftId: string) => {
+    await deleteDraft(draftId);
+    setDrafts(drafts.filter(d => d.id !== draftId));
+    toast.success('Draft discarded');
   };
 
   const handleFormClose = () => {
     setFormMode('closed');
     setEditingPick(null);
+    setResumingDraft(null);
+    // Refresh drafts when modal closes
+    loadDrafts();
   };
 
   const handleFormSuccess = async () => {
     await loadData();
+    // Refresh drafts (draft should be deleted after publish)
+    await loadDrafts();
     handleFormClose();
-    toast.success(editingPick ? 'Pick updated!' : 'Pick added!');
+    toast.success(editingPick ? 'Pick updated!' : 'Pick published!');
   };
 
   const handleLogout = async () => {
@@ -128,6 +165,7 @@ export function MyPicksView() {
 
   // Build overflow menu
   const overflowMenu = [
+    { label: 'Boards', onClick: () => navigate('/boards') },
     { label: 'Browse all picks', onClick: () => navigate('/display') },
     ...(isManager ? [{ label: 'Team', onClick: () => navigate('/team') }] : []),
     { label: 'Log out', onClick: handleLogout, destructive: true },
@@ -171,8 +209,30 @@ export function MyPicksView() {
       <HeaderBar
         title="My picks"
         avatar={profile ? { name: profile.name } : undefined}
+        rightActions={<ProfileMenu />}
         overflowMenu={overflowMenu}
       />
+
+      {/* Drafts section - shown when user has drafts */}
+      {drafts.length > 0 && (
+        <div className="px-4 pt-4 pb-2 border-b border-border">
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-sm font-medium text-muted-foreground mb-2">
+              Drafts
+            </h2>
+            <div className="space-y-2">
+              {drafts.map(draft => (
+                <DraftCard
+                  key={draft.id}
+                  draft={draft}
+                  onResume={() => handleResumeDraft(draft)}
+                  onDelete={() => handleDeleteDraft(draft.id)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Category filter chips */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border px-4 py-3">
@@ -267,6 +327,8 @@ export function MyPicksView() {
         showCategorySelector={true}
         categories={categories}
         editingPick={editingPick}
+        initialDraft={resumingDraft}
+        onPublished={() => loadDrafts()}
       />
 
       {/* Floating feedback button */}

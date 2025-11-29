@@ -95,8 +95,11 @@ export async function getPicksForBudtenderAndCategory(
 }
 
 /**
- * Fetch only active picks for a budtender (for Customer View)
+ * Fetch only PUBLISHED picks for a budtender (for Customer View)
  * Returns picks sorted by rating (high to low), then updated_at
+ * 
+ * IMPORTANT: This is the customer-facing query.
+ * Rule: status = 'published' AND is_active = true
  */
 export async function getActivePicksForBudtender(budtenderId: string): Promise<Pick[]> {
   // Wrap with timeout to prevent hanging requests (Issue 10 fix)
@@ -105,7 +108,8 @@ export async function getActivePicksForBudtender(budtenderId: string): Promise<P
       .from('picks')
       .select('*')
       .eq('budtender_id', budtenderId)
-      .eq('is_active', true),
+      .eq('is_active', true)
+      .eq('status', 'published'),  // Issue 3 fix: Filter by status for customer views
     API_TIMEOUT_MS
   );
 
@@ -115,6 +119,47 @@ export async function getActivePicksForBudtender(budtenderId: string): Promise<P
   }
 
   return sortActivePicks(data || []);
+}
+
+/**
+ * Get ALL published picks (for house list / auto_store board)
+ * Used by Display Mode and auto boards
+ */
+export async function getPublishedPicks(limit = 24): Promise<Pick[]> {
+  const { data, error } = await supabase
+    .from('picks')
+    .select('*, budtenders(name)')
+    .eq('status', 'published')
+    .eq('is_active', true)
+    .order('rating', { ascending: false })
+    .limit(limit);
+  
+  if (error) {
+    console.error('Error fetching published picks:', error);
+    return [];
+  }
+  
+  return data || [];
+}
+
+/**
+ * Get published picks for a specific budtender (for auto_user board)
+ */
+export async function getPublishedPicksForBudtender(budtenderId: string): Promise<Pick[]> {
+  const { data, error } = await supabase
+    .from('picks')
+    .select('*')
+    .eq('budtender_id', budtenderId)
+    .eq('status', 'published')
+    .eq('is_active', true)
+    .order('rating', { ascending: false });
+  
+  if (error) {
+    console.error('Error fetching budtender picks:', error);
+    return [];
+  }
+  
+  return data || [];
 }
 
 /**
@@ -257,4 +302,57 @@ export async function deletePick(id: string): Promise<void> {
 export async function deactivatePick(id: string): Promise<Pick> {
   // Don't pass currentPick so we don't accidentally update last_active_at
   return updatePick(id, { is_active: false });
+}
+
+// =============================================================
+// Session 05: Board canvas pick loading helpers
+// =============================================================
+
+/**
+ * Get picks by IDs, filtered to only visible (published + active) picks.
+ * Used for loading pick data for board items in display mode.
+ * 
+ * IMPORTANT: This filters out archived/inactive picks. The board canvas
+ * must handle the case where some pick_ids don't return data (stale items).
+ */
+export async function getVisiblePicksByIds(pickIds: string[]): Promise<Pick[]> {
+  if (pickIds.length === 0) return [];
+  
+  const { data, error } = await supabase
+    .from('picks')
+    .select('*')
+    .in('id', pickIds)
+    .eq('status', 'published')  // Only published picks
+    .eq('is_active', true);      // Only active picks
+  
+  if (error) {
+    console.error('Error fetching picks by IDs:', error);
+    return [];
+  }
+  
+  return data || [];
+}
+
+/**
+ * Get ALL picks by IDs (including archived) - for staff edit mode.
+ * Still filters soft-deleted picks (is_active = false).
+ * Returns empty array if pick was hard-deleted.
+ * 
+ * Session 08: Joins budtenders to get name for attribution display.
+ */
+export async function getAllPicksByIds(pickIds: string[]): Promise<Pick[]> {
+  if (pickIds.length === 0) return [];
+  
+  const { data, error } = await supabase
+    .from('picks')
+    .select('*, budtenders(name)')  // Join budtenders for attribution
+    .in('id', pickIds)
+    .eq('is_active', true);  // Still filter soft-deleted
+  
+  if (error) {
+    console.error('Error fetching picks by IDs:', error);
+    return [];
+  }
+  
+  return data || [];
 }

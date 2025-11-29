@@ -34,10 +34,12 @@ Guidelight is a **client-side React app** that reads and writes data directly to
 
 - **Frontend:** Vite + React + TypeScript
 - **Backend-as-a-service:** Supabase
-  - Tables: `budtenders`, `categories`, `picks`, `feedback`
-  - Optional later: `packs`, `sessions`, etc.
+  - Core Tables: `budtenders`, `categories`, `picks`, `feedback`
+  - Boards System: `boards`, `board_items`, `media_assets`
+  - User Features: `user_preferences`, `pick_drafts`, `releases`, `products`
   - `budtenders` rows map 1:1 with Supabase `auth.users` via a unique `auth_user_id`, include optional `slug` + `picks_note_override` fields, and `picks` enforce one active `special_role` per staff member with a partial unique index plus optional `category_line` + `doodle_key` metadata for the Budtender Board layout.
   - `feedback` stores bug reports, suggestions, and feature requests from staff with status tracking for managers.
+  - `releases` stores version notes for the What's New feature with markdown content support.
 - **Runtime:** Node.js ≥ 20.19.0 or 22.12+ (see README prerequisites).
 - **Hosting:**
   - Static frontend hosted on **Netlify** (production: `guidelight.xylent.studio`)
@@ -85,6 +87,12 @@ src/
       picks.ts
       feedback.ts       # Feedback submission and management
       staff-management.ts
+      boards.ts         # Boards and board items CRUD
+      assets.ts         # Media asset management
+      drafts.ts         # Pick draft autosave
+      products.ts       # Product catalog
+      userPreferences.ts # User preferences persistence
+      releases.ts       # Releases/What's New
   components/
     auth/             # ProtectedRoute, ManagerRoute, LoginPage, etc.
     ui/               # shadcn/ui components + CategoryChipsRow, HeaderBar

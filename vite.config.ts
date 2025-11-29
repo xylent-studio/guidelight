@@ -11,4 +11,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    // Internal app - larger bundle is acceptable, suppress warning
+    chunkSizeWarningLimit: 1000,
+  },
 })

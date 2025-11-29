@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -15,8 +15,16 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { StarRating } from '@/components/ui/star-rating';
-import { Plus, Check, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { Send, ChevronDown, ChevronUp, X, Trash2 } from 'lucide-react';
 import { createPick, updatePick } from '@/lib/api/picks';
+import { deleteDraftForPick, type PickDraftRow } from '@/lib/api/drafts';
+import { getProductById, type Product } from '@/lib/api/products';
+import { getAssetById, type MediaAsset } from '@/lib/api/assets';
+import { useDraftAutosave } from '@/hooks/useDraftAutosave';
+import { SaveStatusIndicator } from './SaveStatusIndicator';
+import { FieldVisibilityToggle } from './FieldVisibilityToggle';
+import { ProductPicker } from './ProductPicker';
+import { PickImageSection } from './PickImageSection';
 import { picks as picksCopy } from '@/lib/copy';
 import {
   CURATED_EFFECT_TAGS,
@@ -31,6 +39,11 @@ import {
   isDealsCategory,
   getFormatOptions,
 } from '@/lib/constants/effectTags';
+import {
+  isFieldVisible,
+  toggleFieldInArray,
+  type ToggleableFieldKey,
+} from '@/lib/constants/visibleFields';
 import type { PickDraft } from '@/types/pickDraft';
 import type { Database } from '@/types/database';
 
@@ -48,6 +61,10 @@ interface PickFormModalProps {
   showCategorySelector?: boolean;
   categories?: Category[];
   editingPick?: Pick | null;
+  /** Existing draft to resume (from pick_drafts table) */
+  initialDraft?: PickDraftRow | null;
+  /** Called after successful publish (alias for onSuccess for clarity) */
+  onPublished?: () => void;
 }
 
 /**
@@ -68,15 +85,55 @@ export function PickFormModal({
   showCategorySelector = false,
   categories = [],
   editingPick,
+  initialDraft,
+  onPublished,
 }: PickFormModalProps) {
-  const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showOptional, setShowOptional] = useState(false);
   const [showCategoryFields, setShowCategoryFields] = useState(false);
   const [customTag, setCustomTag] = useState('');
+  
+  // Product link and image state (separate from draft since stored directly on pick)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [customImage, setCustomImage] = useState<MediaAsset | null>(null);
 
   // Single draft state object - all fields stored, conditionally rendered
-  const [draft, setDraft] = useState<PickDraft>(() => createEmptyDraftInternal(initialCategoryId || ''));
+  const [formData, setFormData] = useState<PickDraft>(() => {
+    // Priority: initialDraft.data > editingPick > empty draft
+    if (initialDraft?.data) {
+      return initialDraft.data as unknown as PickDraft;
+    }
+    if (editingPick) {
+      return convertPickToDraft(editingPick);
+    }
+    return createEmptyDraftInternal(initialCategoryId || '');
+  });
+
+  // Track if autosave should be active (only when modal is open)
+  const isAutosaveActive = useRef(false);
+
+  // Hook up autosave to pick_drafts table
+  const {
+    saveStatus,
+    updateDraft: triggerAutosave,
+    discardDraft,
+    // isDirty available for future use (e.g., close confirmation)
+  } = useDraftAutosave({
+    userId: budtenderId,
+    pickId: editingPick?.id,
+    initialDraft: initialDraft || undefined,
+  });
+
+  // Sync form changes to autosave (debounced)
+  useEffect(() => {
+    if (open && isAutosaveActive.current) {
+      triggerAutosave(formData as unknown as Record<string, unknown>);
+    }
+  }, [formData, open, triggerAutosave]);
+
+  // Alias for backward compatibility
+  const draft = formData;
 
   const shouldShowCategorySelector = showCategorySelector || mode === 'edit';
   const currentCategory = categories.find(c => c.id === draft.category_id);
@@ -111,6 +168,7 @@ export function PickFormModal({
       deal_fine_print: '',
       product_type: 'flower',
       time_of_day: 'Anytime',
+      visible_fields: [],
     };
   }
 
@@ -142,50 +200,116 @@ export function PickFormModal({
       deal_fine_print: pick.deal_fine_print ?? '',
       product_type: pick.product_type,
       time_of_day: pick.time_of_day,
+      visible_fields: pick.visible_fields ?? [],
     };
   }
 
-  // Update draft field helper
-  const updateDraft = useCallback((updates: Partial<PickDraft>) => {
-    setDraft(prev => ({ ...prev, ...updates }));
+  // Update form field helper
+  const updateFormField = useCallback((updates: Partial<PickDraft>) => {
+    setFormData(prev => ({ ...prev, ...updates }));
   }, []);
 
   // Reset form when modal opens
   useEffect(() => {
     if (open) {
-      if (mode === 'edit' && editingPick) {
-        setDraft(convertPickToDraft(editingPick));
-        // Auto-expand sections if there's content
+      // Priority: initialDraft.data > editingPick > empty draft
+      if (initialDraft?.data) {
+        const draftData = initialDraft.data as unknown as PickDraft;
+        setFormData(draftData);
+        setShowOptional(!!draftData.why_i_love_it);
+        setShowCategoryFields(!!(draftData.format || draftData.potency_summary || draftData.deal_title));
+      } else if (mode === 'edit' && editingPick) {
+        setFormData(convertPickToDraft(editingPick));
         setShowOptional(!!(editingPick.why_i_love_it));
         setShowCategoryFields(!!(editingPick.format || editingPick.potency_summary || editingPick.deal_title));
       } else {
-        setDraft(createEmptyDraftInternal(initialCategoryId || ''));
+        setFormData(createEmptyDraftInternal(initialCategoryId || ''));
         setShowOptional(false);
         setShowCategoryFields(false);
       }
       setCustomTag('');
       setError(null);
+      // Reset product and image on open
+      setSelectedProduct(null);
+      setCustomImage(null);
+      // Enable autosave after initial form setup
+      isAutosaveActive.current = true;
+    } else {
+      // Disable autosave when modal closes
+      isAutosaveActive.current = false;
     }
-  }, [open, mode, editingPick, initialCategoryId]);
+  }, [open, mode, editingPick, initialCategoryId, initialDraft]);
+
+  // Load product and image when editing a pick that has them
+  useEffect(() => {
+    async function loadProductAndImage() {
+      if (!open || mode !== 'edit' || !editingPick) return;
+      
+      // Load linked product
+      if (editingPick.product_id) {
+        const product = await getProductById(editingPick.product_id);
+        setSelectedProduct(product);
+      }
+      
+      // Load custom image
+      if (editingPick.image_asset_id) {
+        const asset = await getAssetById(editingPick.image_asset_id);
+        setCustomImage(asset);
+      }
+    }
+    
+    loadProductAndImage();
+  }, [open, mode, editingPick]);
 
   function handleClose() {
-    if (!saving) {
+    if (!publishing) {
+      // Draft is autosaved, safe to close
       onOpenChange(false);
     }
   }
 
   // Category change - only updates category_id, preserves all other fields
   function handleCategoryChange(newCategoryId: string) {
-    updateDraft({ category_id: newCategoryId });
+    updateFormField({ category_id: newCategoryId });
+  }
+
+  // Product selection - auto-fill fields from product catalog
+  function handleProductSelect(product: Product | null) {
+    setSelectedProduct(product);
+    
+    if (product) {
+      // Auto-fill fields from product
+      updateFormField({
+        product_name: product.name,
+        brand: product.brand || '',
+        // Only update category if product has one and we allow category changes
+        ...(product.category_id && shouldShowCategorySelector ? { category_id: product.category_id } : {}),
+        // Potency info
+        potency_summary: [
+          product.thc_percent ? `THC ${product.thc_percent}%` : '',
+          product.cbd_percent ? `CBD ${product.cbd_percent}%` : '',
+        ].filter(Boolean).join(', ') || '',
+        // Strain info
+        strain_type: product.strain_type || '',
+        // Product type/format
+        format: product.product_type || '',
+      });
+    }
+  }
+
+  // Toggle field visibility for customers
+  function handleToggleVisibility(fieldKey: ToggleableFieldKey) {
+    const newFields = toggleFieldInArray(fieldKey, draft.visible_fields);
+    updateFormField({ visible_fields: newFields });
   }
 
   // Effect tags (curated, max 3)
   function handleToggleEffectTag(tag: string) {
     const current = draft.effect_tags;
     if (current.includes(tag)) {
-      updateDraft({ effect_tags: current.filter(t => t !== tag) });
+      updateFormField({ effect_tags: current.filter(t => t !== tag) });
     } else if (current.length < MAX_EFFECT_TAGS) {
-      updateDraft({ effect_tags: [...current, tag] });
+      updateFormField({ effect_tags: [...current, tag] });
     }
   }
 
@@ -193,13 +317,13 @@ export function PickFormModal({
   function handleAddCustomTag(tag: string) {
     const trimmed = tag.trim();
     if (trimmed && !draft.custom_tags.includes(trimmed)) {
-      updateDraft({ custom_tags: [...draft.custom_tags, trimmed] });
+      updateFormField({ custom_tags: [...draft.custom_tags, trimmed] });
     }
     setCustomTag('');
   }
 
   function handleRemoveCustomTag(tag: string) {
-    updateDraft({ custom_tags: draft.custom_tags.filter(t => t !== tag) });
+    updateFormField({ custom_tags: draft.custom_tags.filter(t => t !== tag) });
   }
 
   function handleCustomTagKeyDown(e: React.KeyboardEvent) {
@@ -213,13 +337,16 @@ export function PickFormModal({
   function handleToggleDealDay(day: string) {
     const current = draft.deal_days;
     if (current.includes(day)) {
-      updateDraft({ deal_days: current.filter(d => d !== day) });
+      updateFormField({ deal_days: current.filter(d => d !== day) });
     } else {
-      updateDraft({ deal_days: [...current, day] });
+      updateFormField({ deal_days: [...current, day] });
     }
   }
 
-  async function handleSave() {
+  /**
+   * Publish pick to the picks table and delete the draft
+   */
+  async function handlePublish() {
     // Validation
     if (!draft.product_name.trim()) {
       setError('Every pick needs a name. What product is this?');
@@ -238,7 +365,7 @@ export function PickFormModal({
     }
 
     setError(null);
-    setSaving(true);
+    setPublishing(true);
 
     try {
       const pickData = {
@@ -267,22 +394,40 @@ export function PickFormModal({
         deal_fine_print: draft.deal_fine_print.trim() || null,
         product_type: draft.product_type,
         time_of_day: draft.time_of_day,
+        visible_fields: draft.visible_fields.length > 0 ? draft.visible_fields : null,
+        // Product link and custom image
+        product_id: selectedProduct?.id || null,
+        image_asset_id: customImage?.id || null,
       };
 
       if (mode === 'add') {
         await createPick(pickData);
+        // Delete the draft after successful creation
+        await discardDraft();
       } else if (mode === 'edit' && editingPick) {
         await updatePick(editingPick.id, pickData, editingPick);
+        // Delete draft for this pick
+        await deleteDraftForPick(editingPick.id);
       }
 
+      // Call both callbacks for flexibility
       onSuccess();
+      onPublished?.();
       onOpenChange(false);
     } catch (err) {
-      console.error('Error saving pick:', err);
+      console.error('Error publishing pick:', err);
       setError(err instanceof Error ? err.message : picksCopy.saveError);
     } finally {
-      setSaving(false);
+      setPublishing(false);
     }
+  }
+
+  /**
+   * Discard the draft and close the modal
+   */
+  async function handleDiscard() {
+    await discardDraft();
+    onOpenChange(false);
   }
 
   const title = mode === 'add'
@@ -307,6 +452,28 @@ export function PickFormModal({
         </DialogHeader>
 
         <div className="space-y-5 py-4">
+          {/* ========== PRODUCT & IMAGE SECTION ========== */}
+          {!isDeals && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-sm">Product (optional)</Label>
+                <ProductPicker
+                  selectedProduct={selectedProduct}
+                  onSelect={handleProductSelect}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Search catalog or enter product details manually below
+                </p>
+              </div>
+
+              <PickImageSection
+                customImage={customImage}
+                linkedProduct={selectedProduct}
+                onCustomImageChange={setCustomImage}
+              />
+            </div>
+          )}
+
           {/* ========== QUICK INFO SECTION ========== */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -323,7 +490,7 @@ export function PickFormModal({
                 <Select
                   value={draft.category_id}
                   onValueChange={handleCategoryChange}
-                  disabled={saving}
+                  disabled={publishing}
                 >
                   <SelectTrigger id="category">
                     <SelectValue placeholder="Select category" />
@@ -347,9 +514,9 @@ export function PickFormModal({
               <Input
                 id="product-name"
                 value={isDeals ? draft.deal_title : draft.product_name}
-                onChange={(e) => updateDraft(isDeals ? { deal_title: e.target.value } : { product_name: e.target.value })}
+                onChange={(e) => updateFormField(isDeals ? { deal_title: e.target.value } : { product_name: e.target.value })}
                 placeholder={isDeals ? "e.g., Buy 2 Get 1 Half-Oz Flower" : "e.g., Blue Dream, Kiva Camino..."}
-                disabled={saving}
+                disabled={publishing}
               />
             </div>
 
@@ -360,24 +527,33 @@ export function PickFormModal({
                 <Input
                   id="brand"
                   value={draft.brand}
-                  onChange={(e) => updateDraft({ brand: e.target.value })}
+                  onChange={(e) => updateFormField({ brand: e.target.value })}
                   placeholder="e.g., Pacific Stone, Stiiizy..."
-                  disabled={saving}
+                  disabled={publishing}
                 />
               </div>
             )}
 
             {/* One-liner */}
             <div className="space-y-1.5">
-              <Label htmlFor="one-liner" className="text-sm">
-                {isDeals ? 'Deal Summary' : 'One-liner'}
-              </Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="one-liner" className="text-sm">
+                  {isDeals ? 'Deal Summary' : 'One-liner'}
+                </Label>
+                {!isDeals && (
+                  <FieldVisibilityToggle
+                    isVisible={isFieldVisible('one_liner', draft.visible_fields)}
+                    onToggle={() => handleToggleVisibility('one_liner')}
+                    disabled={publishing}
+                  />
+                )}
+              </div>
               <Input
                 id="one-liner"
                 value={isDeals ? draft.product_name : draft.one_liner}
-                onChange={(e) => updateDraft(isDeals ? { product_name: e.target.value } : { one_liner: e.target.value })}
+                onChange={(e) => updateFormField(isDeals ? { product_name: e.target.value } : { one_liner: e.target.value })}
                 placeholder={isDeals ? "e.g., Buy 2 carts, get the 3rd 50% off" : "Short headline for display"}
-                disabled={saving}
+                disabled={publishing}
               />
               <p className="text-xs text-muted-foreground">
                 {isDeals ? 'Guest-facing description of the deal' : 'Appears on your pick cards'}
@@ -386,11 +562,18 @@ export function PickFormModal({
 
             {/* Rating */}
             <div className="space-y-1.5">
-              <Label className="text-sm">{isDeals ? 'How good is this deal?' : 'Your Rating'}</Label>
+              <div className="flex items-center gap-2">
+                <Label className="text-sm">{isDeals ? 'How good is this deal?' : 'Your Rating'}</Label>
+                <FieldVisibilityToggle
+                  isVisible={isFieldVisible('rating', draft.visible_fields)}
+                  onToggle={() => handleToggleVisibility('rating')}
+                  disabled={publishing}
+                />
+              </div>
               <div className="flex items-center gap-3">
                 <StarRating
                   value={draft.rating}
-                  onChange={(rating) => updateDraft({ rating })}
+                  onChange={(rating) => updateFormField({ rating })}
                   size={24}
                 />
                 <span className="text-sm text-muted-foreground">
@@ -401,12 +584,19 @@ export function PickFormModal({
 
             {/* Effect Tags (curated, max 3) */}
             <div className="space-y-2">
-              <Label className="text-sm">
-                Effect Tags
-                <span className="text-xs text-muted-foreground ml-2">
-                  ({draft.effect_tags.length}/{MAX_EFFECT_TAGS} selected)
-                </span>
-              </Label>
+              <div className="flex items-center gap-2">
+                <Label className="text-sm">
+                  Effect Tags
+                  <span className="text-xs text-muted-foreground ml-2">
+                    ({draft.effect_tags.length}/{MAX_EFFECT_TAGS} selected)
+                  </span>
+                </Label>
+                <FieldVisibilityToggle
+                  isVisible={isFieldVisible('effect_tags', draft.visible_fields)}
+                  onToggle={() => handleToggleVisibility('effect_tags')}
+                  disabled={publishing}
+                />
+              </div>
               
               {/* Selected effect tags */}
               {draft.effect_tags.length > 0 && (
@@ -422,7 +612,7 @@ export function PickFormModal({
                         type="button"
                         onClick={() => handleToggleEffectTag(tag)}
                         className="hover:bg-primary-foreground/20 rounded p-0.5"
-                        disabled={saving}
+                        disabled={publishing}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -441,7 +631,7 @@ export function PickFormModal({
                       key={tag}
                       type="button"
                       onClick={() => handleToggleEffectTag(tag)}
-                      disabled={saving || draft.effect_tags.length >= MAX_EFFECT_TAGS}
+                      disabled={publishing || draft.effect_tags.length >= MAX_EFFECT_TAGS}
                       className={`px-2 py-1 text-xs rounded-md transition-colors ${
                         draft.effect_tags.length >= MAX_EFFECT_TAGS
                           ? 'bg-muted text-muted-foreground/50 cursor-not-allowed'
@@ -472,7 +662,7 @@ export function PickFormModal({
                         type="button"
                         onClick={() => handleRemoveCustomTag(tag)}
                         className="hover:bg-muted-foreground/20 rounded p-0.5"
-                        disabled={saving}
+                        disabled={publishing}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -486,7 +676,7 @@ export function PickFormModal({
                 onChange={(e) => setCustomTag(e.target.value)}
                 onKeyDown={handleCustomTagKeyDown}
                 placeholder="e.g., Bills game, Date night... (press Enter)"
-                disabled={saving}
+                disabled={publishing}
                 className="text-sm"
               />
               <p className="text-xs text-muted-foreground">
@@ -521,8 +711,8 @@ export function PickFormModal({
                         <Label htmlFor="deal-type" className="text-sm">Deal Type</Label>
                         <Select
                           value={draft.deal_type}
-                          onValueChange={(value) => updateDraft({ deal_type: value })}
-                          disabled={saving}
+                          onValueChange={(value) => updateFormField({ deal_type: value })}
+                          disabled={publishing}
                         >
                           <SelectTrigger id="deal-type">
                             <SelectValue placeholder="Select type" />
@@ -543,9 +733,9 @@ export function PickFormModal({
                         <Input
                           id="deal-value"
                           value={draft.deal_value}
-                          onChange={(e) => updateDraft({ deal_value: e.target.value })}
+                          onChange={(e) => updateFormField({ deal_value: e.target.value })}
                           placeholder="e.g., 25% off, $10 off, 3rd 50% off"
-                          disabled={saving}
+                          disabled={publishing}
                         />
                       </div>
 
@@ -555,9 +745,9 @@ export function PickFormModal({
                         <Input
                           id="deal-applies"
                           value={draft.deal_applies_to}
-                          onChange={(e) => updateDraft({ deal_applies_to: e.target.value })}
+                          onChange={(e) => updateFormField({ deal_applies_to: e.target.value })}
                           placeholder="e.g., All Vapes, Kiva brand, specific products"
-                          disabled={saving}
+                          disabled={publishing}
                         />
                       </div>
 
@@ -570,7 +760,7 @@ export function PickFormModal({
                               key={day}
                               type="button"
                               onClick={() => handleToggleDealDay(day)}
-                              disabled={saving}
+                              disabled={publishing}
                               className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
                                 draft.deal_days.includes(day)
                                   ? 'bg-primary text-primary-foreground'
@@ -592,9 +782,9 @@ export function PickFormModal({
                         <Input
                           id="deal-fine-print"
                           value={draft.deal_fine_print}
-                          onChange={(e) => updateDraft({ deal_fine_print: e.target.value })}
+                          onChange={(e) => updateFormField({ deal_fine_print: e.target.value })}
                           placeholder="e.g., Limit 1 per guest, Cannot combine"
-                          disabled={saving}
+                          disabled={publishing}
                         />
                       </div>
                     </>
@@ -609,8 +799,8 @@ export function PickFormModal({
                           <Label htmlFor="strain-type" className="text-sm">Strain Type</Label>
                           <Select
                             value={draft.strain_type}
-                            onValueChange={(value) => updateDraft({ strain_type: value })}
-                            disabled={saving}
+                            onValueChange={(value) => updateFormField({ strain_type: value })}
+                            disabled={publishing}
                           >
                             <SelectTrigger id="strain-type">
                               <SelectValue placeholder="Select strain type" />
@@ -632,8 +822,8 @@ export function PickFormModal({
                           <Label htmlFor="format" className="text-sm">Format</Label>
                           <Select
                             value={draft.format}
-                            onValueChange={(value) => updateDraft({ format: value })}
-                            disabled={saving}
+                            onValueChange={(value) => updateFormField({ format: value })}
+                            disabled={publishing}
                           >
                             <SelectTrigger id="format">
                               <SelectValue placeholder="Select format" />
@@ -656,9 +846,9 @@ export function PickFormModal({
                           <Input
                             id="package-size"
                             value={draft.package_size}
-                            onChange={(e) => updateDraft({ package_size: e.target.value })}
+                            onChange={(e) => updateFormField({ package_size: e.target.value })}
                             placeholder="e.g., 3.5g, 5-pack, 1g cart"
-                            disabled={saving}
+                            disabled={publishing}
                           />
                         </div>
                       )}
@@ -670,9 +860,9 @@ export function PickFormModal({
                           <Input
                             id="potency"
                             value={draft.potency_summary}
-                            onChange={(e) => updateDraft({ potency_summary: e.target.value })}
+                            onChange={(e) => updateFormField({ potency_summary: e.target.value })}
                             placeholder="e.g., THC 27%, CBD <1%"
-                            disabled={saving}
+                            disabled={publishing}
                           />
                         </div>
                       )}
@@ -684,9 +874,9 @@ export function PickFormModal({
                           <Input
                             id="terpenes"
                             value={draft.top_terpenes}
-                            onChange={(e) => updateDraft({ top_terpenes: e.target.value })}
+                            onChange={(e) => updateFormField({ top_terpenes: e.target.value })}
                             placeholder="e.g., Limonene, Myrcene, Caryophyllene"
-                            disabled={saving}
+                            disabled={publishing}
                           />
                         </div>
                       )}
@@ -697,8 +887,8 @@ export function PickFormModal({
                           <Switch
                             id="is-infused"
                             checked={draft.is_infused}
-                            onCheckedChange={(checked) => updateDraft({ is_infused: checked })}
-                            disabled={saving}
+                            onCheckedChange={(checked) => updateFormField({ is_infused: checked })}
+                            disabled={publishing}
                           />
                           <Label htmlFor="is-infused" className="text-sm cursor-pointer">
                             Infused product
@@ -712,8 +902,8 @@ export function PickFormModal({
                           <Label htmlFor="intensity" className="text-sm">Intensity</Label>
                           <Select
                             value={draft.intensity}
-                            onValueChange={(value) => updateDraft({ intensity: value })}
-                            disabled={saving}
+                            onValueChange={(value) => updateFormField({ intensity: value })}
+                            disabled={publishing}
                           >
                             <SelectTrigger id="intensity">
                               <SelectValue placeholder="How strong?" />
@@ -757,19 +947,26 @@ export function PickFormModal({
               <div className="space-y-4 pt-4">
                 {/* Notes (Why I Love It) */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="notes" className="text-sm">
-                    {isDeals ? 'Why this deal is great' : 'Why I love it'}
-                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="notes" className="text-sm">
+                      {isDeals ? 'Why this deal is great' : 'Why I love it'}
+                    </Label>
+                    <FieldVisibilityToggle
+                      isVisible={isFieldVisible('why_i_love_it', draft.visible_fields)}
+                      onToggle={() => handleToggleVisibility('why_i_love_it')}
+                      disabled={publishing}
+                    />
+                  </div>
                   <Textarea
                     id="notes"
                     value={draft.why_i_love_it}
-                    onChange={(e) => updateDraft({ why_i_love_it: e.target.value })}
+                    onChange={(e) => updateFormField({ why_i_love_it: e.target.value })}
                     placeholder={isDeals 
                       ? "What makes this deal stand out?" 
                       : "What makes this one special? Your personal take, not the menu description."
                     }
                     rows={3}
-                    disabled={saving}
+                    disabled={publishing}
                     className="resize-none text-sm"
                   />
                   <p className="text-xs text-muted-foreground">
@@ -782,8 +979,8 @@ export function PickFormModal({
                   <Switch
                     id="is-active"
                     checked={draft.is_active}
-                    onCheckedChange={(checked) => updateDraft({ is_active: checked })}
-                    disabled={saving}
+                    onCheckedChange={(checked) => updateFormField({ is_active: checked })}
+                    disabled={publishing}
                   />
                   <div>
                     <Label htmlFor="is-active" className="text-sm cursor-pointer">
@@ -806,22 +1003,31 @@ export function PickFormModal({
           )}
         </div>
 
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={handleClose} disabled={saving}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? (
-              'Saving...'
-            ) : mode === 'add' ? (
-              <>
-                <Plus size={16} className="mr-1.5" />
-                {isDeals ? 'Add Deal' : 'Add Pick'}
-              </>
+        <DialogFooter className="flex items-center justify-between sm:justify-between">
+          <div className="flex items-center gap-3">
+            <Button 
+              type="button" 
+              variant="ghost" 
+              size="sm"
+              onClick={handleDiscard} 
+              disabled={publishing}
+              className="text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 size={14} className="mr-1.5" />
+              Discard
+            </Button>
+            <SaveStatusIndicator status={saveStatus} />
+          </div>
+          <Button onClick={handlePublish} disabled={publishing}>
+            {publishing ? (
+              'Publishing...'
             ) : (
               <>
-                <Check size={16} className="mr-1.5" />
-                Save Changes
+                <Send size={16} className="mr-1.5" />
+                {mode === 'add' 
+                  ? (isDeals ? 'Publish Deal' : 'Publish Pick')
+                  : 'Publish Changes'
+                }
               </>
             )}
           </Button>

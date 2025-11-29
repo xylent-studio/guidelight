@@ -13,6 +13,11 @@ import { ManagerRoute } from './components/auth/ManagerRoute';
 import MyPicksView from './views/MyPicksView';
 import StaffManagementView from './views/StaffManagementView';
 import DisplayModeView from './views/DisplayModeView';
+import { BoardsHomeView } from './views/BoardsHomeView';
+import { BoardEditorView } from './views/BoardEditorView';
+import { PreferencesView } from './views/PreferencesView';
+import { WhatsNewView } from './views/WhatsNewView';
+import { useRouteTracking } from './hooks/useRouteTracking';
 
 /**
  * Parse URL hash for auth flow detection
@@ -195,6 +200,9 @@ function TeamPage() {
  * Main app routes
  */
 function AppRoutes() {
+  // Track user navigation for last_route persistence
+  useRouteTracking();
+  
   return (
     <>
       <AuthRedirectHandler />
@@ -207,6 +215,7 @@ function AppRoutes() {
         
         {/* Display mode - public, no auth required */}
         <Route path="/display" element={<DisplayModeView />} />
+        <Route path="/display/:boardId" element={<DisplayModeView />} />
         
         {/* Protected routes */}
         <Route
@@ -214,6 +223,24 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <MyPicksPage />
+            </ProtectedRoute>
+          }
+        />
+        
+        {/* Boards routes */}
+        <Route
+          path="/boards"
+          element={
+            <ProtectedRoute>
+              <BoardsHomeView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/boards/:boardId"
+          element={
+            <ProtectedRoute>
+              <BoardEditorView />
             </ProtectedRoute>
           }
         />
@@ -226,6 +253,24 @@ function AppRoutes() {
               <ManagerRoute>
                 <TeamPage />
               </ManagerRoute>
+            </ProtectedRoute>
+          }
+        />
+        
+        {/* User preference routes */}
+        <Route
+          path="/preferences"
+          element={
+            <ProtectedRoute>
+              <PreferencesView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/whats-new"
+          element={
+            <ProtectedRoute>
+              <WhatsNewView />
             </ProtectedRoute>
           }
         />

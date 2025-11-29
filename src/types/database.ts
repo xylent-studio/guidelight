@@ -14,6 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
+      board_items: {
+        Row: {
+          asset_id: string | null
+          attribution_style: string | null
+          board_id: string
+          created_at: string
+          id: string
+          layout_variant: string | null
+          pick_id: string | null
+          position_x: number | null
+          position_y: number | null
+          sort_index: number | null
+          text_content: string | null
+          text_variant: string | null
+          type: Database["public"]["Enums"]["board_item_type"]
+          updated_at: string
+        }
+        Insert: {
+          asset_id?: string | null
+          attribution_style?: string | null
+          board_id: string
+          created_at?: string
+          id?: string
+          layout_variant?: string | null
+          pick_id?: string | null
+          position_x?: number | null
+          position_y?: number | null
+          sort_index?: number | null
+          text_content?: string | null
+          text_variant?: string | null
+          type: Database["public"]["Enums"]["board_item_type"]
+          updated_at?: string
+        }
+        Update: {
+          asset_id?: string | null
+          attribution_style?: string | null
+          board_id?: string
+          created_at?: string
+          id?: string
+          layout_variant?: string | null
+          pick_id?: string | null
+          position_x?: number | null
+          position_y?: number | null
+          sort_index?: number | null
+          text_content?: string | null
+          text_variant?: string | null
+          type?: Database["public"]["Enums"]["board_item_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      boards: {
+        Row: {
+          channel: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_user_id: string | null
+          purpose: string | null
+          status: Database["public"]["Enums"]["board_status"]
+          theme: string | null
+          type: Database["public"]["Enums"]["board_type"]
+          updated_at: string
+        }
+        Insert: {
+          channel?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner_user_id?: string | null
+          purpose?: string | null
+          status?: Database["public"]["Enums"]["board_status"]
+          theme?: string | null
+          type?: Database["public"]["Enums"]["board_type"]
+          updated_at?: string
+        }
+        Update: {
+          channel?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner_user_id?: string | null
+          purpose?: string | null
+          status?: Database["public"]["Enums"]["board_status"]
+          theme?: string | null
+          type?: Database["public"]["Enums"]["board_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       budtenders: {
         Row: {
           auth_user_id: string
@@ -129,15 +222,79 @@ export type Database = {
           type?: string
           urgency?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "feedback_submitter_id_fkey"
-            columns: ["submitter_id"]
-            isOneToOne: false
-            referencedRelation: "budtenders"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      media_assets: {
+        Row: {
+          created_at: string
+          file_size: number | null
+          filename: string
+          height: number | null
+          id: string
+          kind: string
+          label: string | null
+          mime_type: string | null
+          tags: string[] | null
+          uploaded_by: string | null
+          url: string
+          width: number | null
+        }
+        Insert: {
+          created_at?: string
+          file_size?: number | null
+          filename: string
+          height?: number | null
+          id?: string
+          kind?: string
+          label?: string | null
+          mime_type?: string | null
+          tags?: string[] | null
+          uploaded_by?: string | null
+          url: string
+          width?: number | null
+        }
+        Update: {
+          created_at?: string
+          file_size?: number | null
+          filename?: string
+          height?: number | null
+          id?: string
+          kind?: string
+          label?: string | null
+          mime_type?: string | null
+          tags?: string[] | null
+          uploaded_by?: string | null
+          url?: string
+          width?: number | null
+        }
+        Relationships: []
+      }
+      pick_drafts: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          pick_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          id?: string
+          pick_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          pick_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       picks: {
         Row: {
@@ -159,6 +316,7 @@ export type Database = {
           experience_level: string | null
           format: string | null
           id: string
+          image_asset_id: string | null
           intensity: string | null
           is_active: boolean
           is_infused: boolean | null
@@ -167,15 +325,18 @@ export type Database = {
           package_size: string | null
           potency_summary: string | null
           pre_roll_subtype: string | null
+          product_id: string | null
           product_name: string
           product_type: string
           rank: number
           rating: number | null
           special_role: string | null
+          status: Database["public"]["Enums"]["pick_status"]
           strain_type: string | null
           time_of_day: string
           top_terpenes: string | null
           updated_at: string
+          visible_fields: string[] | null
           why_i_love_it: string | null
         }
         Insert: {
@@ -197,6 +358,7 @@ export type Database = {
           experience_level?: string | null
           format?: string | null
           id?: string
+          image_asset_id?: string | null
           intensity?: string | null
           is_active?: boolean
           is_infused?: boolean | null
@@ -205,15 +367,18 @@ export type Database = {
           package_size?: string | null
           potency_summary?: string | null
           pre_roll_subtype?: string | null
+          product_id?: string | null
           product_name: string
           product_type: string
           rank?: number
           rating?: number | null
           special_role?: string | null
+          status?: Database["public"]["Enums"]["pick_status"]
           strain_type?: string | null
           time_of_day?: string
           top_terpenes?: string | null
           updated_at?: string
+          visible_fields?: string[] | null
           why_i_love_it?: string | null
         }
         Update: {
@@ -235,6 +400,7 @@ export type Database = {
           experience_level?: string | null
           format?: string | null
           id?: string
+          image_asset_id?: string | null
           intensity?: string | null
           is_active?: boolean
           is_infused?: boolean | null
@@ -243,44 +409,176 @@ export type Database = {
           package_size?: string | null
           potency_summary?: string | null
           pre_roll_subtype?: string | null
+          product_id?: string | null
           product_name?: string
           product_type?: string
           rank?: number
           rating?: number | null
           special_role?: string | null
+          status?: Database["public"]["Enums"]["pick_status"]
           strain_type?: string | null
           time_of_day?: string
           top_terpenes?: string | null
           updated_at?: string
+          visible_fields?: string[] | null
           why_i_love_it?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "picks_budtender_id_fkey"
-            columns: ["budtender_id"]
-            isOneToOne: false
-            referencedRelation: "budtenders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "picks_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      products: {
+        Row: {
+          barcode: string | null
+          brand: string | null
+          category_id: string | null
+          cbd_percent: number | null
+          created_at: string
+          description: string | null
+          id: string
+          image_asset_id: string | null
+          image_url: string | null
+          in_stock: boolean | null
+          is_active: boolean
+          last_synced_at: string | null
+          name: string
+          price_member: number | null
+          price_retail: number | null
+          price_sale: number | null
+          product_type: string | null
+          sku: string | null
+          source: string
+          source_data: Json | null
+          source_id: string | null
+          stock_quantity: number | null
+          strain_name: string | null
+          strain_type: string | null
+          terpenes: Json | null
+          thc_percent: number | null
+          updated_at: string
+        }
+        Insert: {
+          barcode?: string | null
+          brand?: string | null
+          category_id?: string | null
+          cbd_percent?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_asset_id?: string | null
+          image_url?: string | null
+          in_stock?: boolean | null
+          is_active?: boolean
+          last_synced_at?: string | null
+          name: string
+          price_member?: number | null
+          price_retail?: number | null
+          price_sale?: number | null
+          product_type?: string | null
+          sku?: string | null
+          source?: string
+          source_data?: Json | null
+          source_id?: string | null
+          stock_quantity?: number | null
+          strain_name?: string | null
+          strain_type?: string | null
+          terpenes?: Json | null
+          thc_percent?: number | null
+          updated_at?: string
+        }
+        Update: {
+          barcode?: string | null
+          brand?: string | null
+          category_id?: string | null
+          cbd_percent?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_asset_id?: string | null
+          image_url?: string | null
+          in_stock?: boolean | null
+          is_active?: boolean
+          last_synced_at?: string | null
+          name?: string
+          price_member?: number | null
+          price_retail?: number | null
+          price_sale?: number | null
+          product_type?: string | null
+          sku?: string | null
+          source?: string
+          source_data?: Json | null
+          source_id?: string | null
+          stock_quantity?: number | null
+          strain_name?: string | null
+          strain_type?: string | null
+          terpenes?: Json | null
+          thc_percent?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      releases: {
+        Row: {
+          created_at: string
+          details_md: string | null
+          id: string
+          summary: string | null
+          title: string
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          details_md?: string | null
+          id?: string
+          summary?: string | null
+          title: string
+          version: string
+        }
+        Update: {
+          created_at?: string
+          details_md?: string | null
+          id?: string
+          summary?: string | null
+          title?: string
+          version?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          last_board_id: string | null
+          last_route: string | null
+          last_seen_release_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          last_board_id?: string | null
+          last_route?: string | null
+          last_seen_release_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          last_board_id?: string | null
+          last_route?: string | null
+          last_seen_release_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_current_user_budtender_id: { Args: Record<string, never>; Returns: string }
-      is_current_user_manager: { Args: Record<string, never>; Returns: boolean }
+      get_current_user_budtender_id: { Args: never; Returns: string }
+      is_current_user_manager: { Args: never; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      board_item_type: "pick" | "text" | "image"
+      board_status: "published" | "unpublished"
+      board_type: "auto_store" | "auto_user" | "custom"
+      pick_status: "published" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -407,6 +705,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      board_item_type: ["pick", "text", "image"],
+      board_status: ["published", "unpublished"],
+      board_type: ["auto_store", "auto_user", "custom"],
+      pick_status: ["published", "archived"],
+    },
   },
 } as const

@@ -9,6 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - User Preferences & Releases (Sessions 18-19)
+
+#### User Preferences System
+- **Preference Tracking API:** New `src/lib/api/userPreferences.ts` module
+  - `getUserPreferences(userId)` - Fetch user settings
+  - `updateLastRoute()`, `updateLastBoard()`, `updateLastSeenRelease()` - Helper functions
+- **Route Tracking Hook:** `useRouteTracking` automatically saves last visited route
+- **Board Memory:** Display mode remembers last viewed board per user
+- **Preferences View:** Full UI showing current user preferences
+
+#### Releases & What's New System
+- **Releases Table:** New database table for version notes
+  - `id`, `version`, `title`, `summary`, `details_md`, `created_at`
+  - RLS: Authenticated users can view, managers can create
+- **Releases API:** New `src/lib/api/releases.ts` module
+  - `getLatestRelease()`, `getReleases()`, `hasUnseenRelease()`
+- **New Release Indicator:** `useNewReleaseIndicator` hook for notification dot
+- **What's New View:** Full UI displaying release notes with markdown support
+- **Profile Menu Notification:** Red dot indicator when new releases are available
+
+### Changed
+- **DisplayModeView:** Now checks user preferences for last_board_id fallback
+- **ProfileMenu:** Added notification dot for unseen releases
+- **Products API:** Refactored FK joins to use manual join approach for type safety
+
+### Files Added
+- `src/lib/api/userPreferences.ts`
+- `src/lib/api/releases.ts`
+- `src/hooks/useRouteTracking.ts`
+- `src/hooks/useNewReleaseIndicator.ts`
+
 ---
 
 ## [2.1.0] - 2025-11-28
